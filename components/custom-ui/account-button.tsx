@@ -3,7 +3,7 @@ import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 
-export const CustomAccountButton = () => {
+export const AccountButton = () => {
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
 

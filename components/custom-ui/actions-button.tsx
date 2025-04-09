@@ -1,15 +1,26 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { CreateIntentParams, UserAsset } from "@/lib/types";
+import { Hex } from "viem";
+import { chainStringToChainId } from "@/lib/utils";
 
-interface CustomConnectButtonProps {
+interface ActionsButtonProps {
   isLoading: boolean;
+  selectedTokens: UserAsset[];
+  destinationToken: string;
+  destinationChain: number;
+  redirect: string;
 }
 
-export const CustomConnectButton = ({
+export const ActionsButton = ({
   isLoading,
-}: CustomConnectButtonProps) => {
+  selectedTokens,
+  destinationToken,
+  destinationChain,
+  redirect,
+}: ActionsButtonProps) => {
   const [mounted, setMounted] = useState(false);
   const { isConnected, status, address } = useAppKitAccount();
   const { open } = useAppKit();
@@ -18,12 +29,13 @@ export const CustomConnectButton = ({
     setMounted(true);
   }, []);
 
+  // States
   const ready = status !== "connecting" && status !== "reconnecting";
   const connected = isConnected && !!address;
-
   const isDisabled = !mounted || isLoading || !ready;
 
-  const getButtonProps = () => {
+  // Button Props
+  const { text, onClick, key } = useMemo(() => {
     if (!connected) {
       return {
         text: "Connect",
@@ -36,9 +48,22 @@ export const CustomConnectButton = ({
       onClick: () => {},
       key: "confirm",
     };
-  };
+  }, [connected, open]);
 
-  const { text, onClick, key } = getButtonProps();
+  // TODO: The array containing all the steps
+  const steps: CreateIntentParams[] = useMemo(() => {
+    return selectedTokens.map((token) => {
+      return {
+        creator: address as Hex,
+        originChainID: chainStringToChainId(token.chain),
+        destinationChainID: destinationChain,
+        calls: [],
+        callTokens: [],
+        tokens: [],
+        prover: "StorageProver",
+      };
+    });
+  }, [selectedTokens]);
 
   return (
     <motion.button

@@ -28,7 +28,7 @@ export const formatTokenAmount = (token: UserAsset) => {
 };
 
 /**
- * Converts a chain ID to a chain Viem object or string
+ * Converts a chain ID to a chain Viem object or string, defaulting to base
  * @param chainId - The chain ID
  * @param asString - Whether to return the chain as a string (default: false)
  * @returns The chain object or string
@@ -43,16 +43,27 @@ export const chainIdToChain = (chainId: number, asString: boolean = false) => {
       return asString ? "polygon" : polygon;
     case 5000:
       return asString ? "mantle" : mantle;
-    case 8453:
-      return asString ? "base" : base;
     case 42161:
       return asString ? "arbitrum" : arbitrum;
+    default:
+      return asString ? "base" : base;
   }
+};
+
+/**
+ * Converts a chain ID to a chain name with the first letter capitalized
+ * @param chainId - The chain ID
+ * @returns The chain name
+ */
+export const chainIdToChainName = (chainId: number): string => {
+  const chainName = chainIdToChain(chainId, true) as string;
+  return chainName.charAt(0).toUpperCase() + chainName.slice(1);
 };
 
 /**
  * Converts a chain string to a chain ID
  * @param chain - The chain string
+ * @throws {Error} If the chain is not supported
  * @returns The chain ID
  */
 export const chainStringToChainId = (chain: string) => {
@@ -71,6 +82,8 @@ export const chainStringToChainId = (chain: string) => {
       return 8453;
     case "arbitrum":
       return 42161;
+    default:
+      throw new Error(`Unknown chain: ${chain}`);
   }
 };
 

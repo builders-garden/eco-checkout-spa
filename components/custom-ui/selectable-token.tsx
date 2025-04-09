@@ -6,22 +6,28 @@ import { formatTokenAmount } from "@/lib/utils";
 
 interface SelectableTokenProps {
   token: UserAsset;
-  handleSelectToken: (token: UserAsset) => void;
+  selectedTokens: UserAsset[];
+  setSelectedTokens: (tokens: UserAsset[]) => void;
 }
 
 export const SelectableToken = ({
   token,
-  handleSelectToken,
+  selectedTokens,
+  setSelectedTokens,
 }: SelectableTokenProps) => {
-  const [isSelected, setIsSelected] = useState(false);
+  const isSelected = selectedTokens.some((t) => t === token);
+
+  const handleSelectToken = () => {
+    if (isSelected) {
+      setSelectedTokens(selectedTokens.filter((t) => t !== token));
+    } else {
+      setSelectedTokens([...selectedTokens, token]);
+    }
+  };
 
   return (
     <button
-      key={`${token.asset}-${token.chain}`}
-      onClick={() => {
-        setIsSelected(!isSelected);
-        handleSelectToken(token);
-      }}
+      onClick={handleSelectToken}
       className={cn(
         "flex justify-between items-center w-full bg-secondary-foreground rounded-[10px] p-2.5 cursor-pointer transition-all duration-200",
         !isSelected && "opacity-50"

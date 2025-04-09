@@ -2,15 +2,21 @@
 
 import { useQueryState } from "nuqs";
 import { AnimatePresence, motion } from "framer-motion";
-import { truncateAddress } from "@/lib/utils";
+import {
+  chainIdToChainName,
+  formatTokenAmount,
+  truncateAddress,
+} from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
 import { emptyAddress } from "@/lib/constants";
 import { cn } from "@/lib/shadcn/utils";
 import { TokensSelector } from "@/components/custom-ui/tokens-selector";
-import { CustomConnectButton } from "@/components/custom-ui/custom-connect-button";
-import { CustomAccountButton } from "@/components/custom-ui/custom-account-button";
+import { ActionsButton } from "@/components/custom-ui/actions-button";
+import { AccountButton } from "@/components/custom-ui/account-button";
 import { useUserBalances } from "@/hooks/useUserBalances";
 import { useAppKitAccount } from "@reown/appkit/react";
+import { useEffect, useState } from "react";
+import { UserAsset } from "@/lib/types";
 
 export default function Home() {
   const { address, isConnected } = useAppKitAccount();
@@ -19,9 +25,37 @@ export default function Home() {
   const [network] = useQueryState("network");
   const [token] = useQueryState("token");
   const [redirect] = useQueryState("redirect");
+  const { userBalances, isLoadingUserBalances, isFirstFetch } = useUserBalances(
+    address,
+    network
+  );
+  const [selectedTokens, setSelectedTokens] = useState<UserAsset[]>([]);
 
-  const { userBalances, isLoadingUserBalances, isFirstFetch } =
-    useUserBalances(address);
+  // Keep adding tokens until the amount due is reached
+  useEffect(() => {
+    const amountDue = Number(amount);
+    let selectedArray: UserAsset[] = [];
+    for (const asset of userBalances) {
+      if (
+        selectedArray.reduce((acc, curr) => acc + formatTokenAmount(curr), 0) <
+        amountDue
+      ) {
+        selectedArray.push(asset);
+      }
+    }
+    setSelectedTokens(selectedArray);
+  }, [userBalances]);
+
+  // TODO: Remove this in production
+  useEffect(() => {
+    console.log(userBalances);
+  }, [userBalances]);
+
+  useEffect(() => {
+    console.log(selectedTokens);
+  }, [selectedTokens]);
+
+  const networkName = chainIdToChainName(Number(network ?? 1));
 
   const isConnectedAndFetched =
     isConnected && !!address && !isLoadingUserBalances && !isFirstFetch;
@@ -47,9 +81,7 @@ export default function Home() {
             </div>
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">To Chain</p>
-              <p className="text-[16px] font-semibold">
-                {network ?? "Ethereum"}
-              </p>
+              <p className="text-[16px] font-semibold">{networkName}</p>
             </div>
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">Recipient</p>
@@ -120,12 +152,20 @@ export default function Home() {
               <TokensSelector
                 userAssets={userBalances}
                 amountDue={amount ?? "0.00"}
+                selectedTokens={selectedTokens}
+                setSelectedTokens={setSelectedTokens}
               />
-              <CustomAccountButton />
+              <AccountButton />
             </motion.div>
 
             {/* Connect Button */}
-            <CustomConnectButton isLoading={isLoadingUserBalances} />
+            <ActionsButton
+              isLoading={isLoadingUserBalances}
+              selectedTokens={selectedTokens}
+              destinationToken={token ?? ""}
+              destinationChain={Number(network)}
+              redirect={redirect ?? ""}
+            />
           </div>
         </motion.div>
       </div>
