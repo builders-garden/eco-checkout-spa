@@ -5,43 +5,26 @@ import { AnimatePresence, motion } from "framer-motion";
 import { truncateAddress } from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
 import { emptyAddress } from "@/lib/constants";
-import { useWalletClient } from "wagmi";
-import { CustomConnectButton } from "@/components/custom-ui/custom-connect-button";
-import { useEffect } from "react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { cn } from "@/lib/shadcn/utils";
-import { useQuery } from "@tanstack/react-query";
-import ky from "ky";
-import { Chain, TokenBalance } from "@/lib/relayoor/types";
 import { TokensSelector } from "@/components/custom-ui/tokens-selector";
+import { CustomConnectButton } from "@/components/custom-ui/custom-connect-button";
+import { CustomAccountButton } from "@/components/custom-ui/custom-account-button";
+import { useUserBalances } from "@/hooks/useUserBalances";
+import { useAppKitAccount } from "@reown/appkit/react";
 
 export default function Home() {
-  const { data: walletClient } = useWalletClient();
+  const { address, isConnected } = useAppKitAccount();
   const [recipient] = useQueryState("recipient");
   const [amount] = useQueryState("amount");
   const [network] = useQueryState("network");
   const [token] = useQueryState("token");
   const [redirect] = useQueryState("redirect");
 
-  const { data: userBalances, isLoading: isLoadingUserBalances } = useQuery({
-    queryKey: ["userBalances"],
-    queryFn: async () => {
-      const response = await ky
-        .get<Record<Chain, TokenBalance[]>>(
-          `/api/user-balances?userAddress=${walletClient?.account.address}`
-        )
-        .json();
-      return response;
-    },
-    enabled: !!walletClient?.account.address,
-  });
+  const { userBalances, isLoadingUserBalances, isFirstFetch } =
+    useUserBalances(address);
 
-  const isConnected =
-    !!walletClient?.account.address && !!userBalances && !isLoadingUserBalances;
-
-  useEffect(() => {
-    console.log("state", isConnected, userBalances);
-  }, [isConnected, userBalances]);
+  const isConnectedAndFetched =
+    isConnected && !!address && !isLoadingUserBalances && !isFirstFetch;
 
   return (
     <motion.div
@@ -50,7 +33,6 @@ export default function Home() {
       transition={{ duration: 0.5 }}
       className="flex flex-col items-center justify-center h-screen gap-3"
     >
-      <ConnectButton />
       <div className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-10 gap-10">
         {/* Payment Summary */}
         <div className="flex flex-col justify-start items-start p-5 gap-[30px] border border-secondary-foreground rounded-[10px]">
@@ -61,7 +43,7 @@ export default function Home() {
           <div className="flex flex-col w-full gap-4">
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">Amount</p>
-              <p className="text-[16px] font-semibold">{amount ?? "0"}</p>
+              <p className="text-[16px] font-semibold">${amount ?? "0.00"}</p>
             </div>
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">To Chain</p>
@@ -87,7 +69,7 @@ export default function Home() {
             </div>
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-semibold">Total</p>
-              <p className="text-[16px] font-semibold">12.00008 USDC</p>
+              <p className="text-[16px] font-semibold">${amount ?? "0.00"}</p>
             </div>
           </div>
         </div>
@@ -98,17 +80,19 @@ export default function Home() {
           <div className="flex flex-col justify-center w-full items-center text-center gap-2">
             <AnimatePresence mode="wait">
               <motion.div
-                key={isConnected ? "connected" : "disconnected"}
+                key={isConnectedAndFetched ? "connected" : "disconnected"}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
                 <h1 className="text-xl font-semibold">
-                  {isConnected ? "Select payment method" : "Connect Wallet"}
+                  {isConnectedAndFetched
+                    ? "Select payment method"
+                    : "Connect Wallet"}
                 </h1>
                 <p className="text-secondary text-[16px]">
-                  {isConnected
+                  {isConnectedAndFetched
                     ? "Choose one or more payment method from your wallet"
                     : "Connect your wallet to proceed with payment"}
                 </p>
@@ -120,27 +104,28 @@ export default function Home() {
           <div
             className={cn(
               "flex flex-col justify-center items-center w-full",
-              isConnected && "gap-5"
+              isConnectedAndFetched && "gap-2"
             )}
           >
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{
-                height: isConnected ? "auto" : 0,
-                opacity: isConnected ? 1 : 0,
+                height: isConnectedAndFetched ? "auto" : 0,
+                opacity: isConnectedAndFetched ? 1 : 0,
               }}
               transition={{ duration: 0.2 }}
               className="flex flex-col justify-center items-start w-full gap-2 overflow-hidden"
             >
               <h1 className="text-[16px] font-semibold">Select Token</h1>
               <TokensSelector
-                tokenBalances={userBalances ?? {}}
+                userAssets={userBalances}
                 amountDue={amount ?? "0.00"}
               />
+              <CustomAccountButton />
             </motion.div>
 
             {/* Connect Button */}
-            <CustomConnectButton isConnected={isConnected} />
+            <CustomConnectButton isLoading={isLoadingUserBalances} />
           </div>
         </motion.div>
       </div>

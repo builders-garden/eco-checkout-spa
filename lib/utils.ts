@@ -1,5 +1,12 @@
-import { TokenDecimals } from "./enums";
-import { Chain, TokenBalance } from "./relayoor/types";
+import {
+  mainnet,
+  mantle,
+  polygon,
+  optimism,
+  arbitrum,
+  base,
+} from "viem/chains";
+import { UserAsset } from "./types";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -12,13 +19,134 @@ export const truncateAddress = (address: string, size: number = 4) => {
 };
 
 /**
- * Formats a token amount by chain
- * @param token - The token balance item
+ * Formats a token amount
+ * @param token - The user asset
  * @returns The formatted token amount as a number
  */
-export const formatTokenAmountByChain = (token: TokenBalance) => {
-  return (
-    Number(token.amount) /
-    10 ** TokenDecimals[token.token as keyof typeof TokenDecimals]
-  );
+export const formatTokenAmount = (token: UserAsset) => {
+  return token.amount / 10 ** token.decimals;
+};
+
+/**
+ * Converts a chain ID to a chain Viem object or string
+ * @param chainId - The chain ID
+ * @param asString - Whether to return the chain as a string (default: false)
+ * @returns The chain object or string
+ */
+export const chainIdToChain = (chainId: number, asString: boolean = false) => {
+  switch (chainId) {
+    case 1:
+      return asString ? "ethereum" : mainnet;
+    case 10:
+      return asString ? "optimism" : optimism;
+    case 137:
+      return asString ? "polygon" : polygon;
+    case 5000:
+      return asString ? "mantle" : mantle;
+    case 8453:
+      return asString ? "base" : base;
+    case 42161:
+      return asString ? "arbitrum" : arbitrum;
+  }
+};
+
+/**
+ * Converts a chain string to a chain ID
+ * @param chain - The chain string
+ * @returns The chain ID
+ */
+export const chainStringToChainId = (chain: string) => {
+  switch (chain) {
+    case "ethereum":
+      return 1;
+    case "mainnet":
+      return 1;
+    case "optimism":
+      return 10;
+    case "polygon":
+      return 137;
+    case "mantle":
+      return 5000;
+    case "base":
+      return 8453;
+    case "arbitrum":
+      return 42161;
+  }
+};
+
+/**
+ * Gets the contract address for a token on a given chain
+ * @param token - The token name
+ * @param chain - The chain name
+ * @returns The contract address
+ */
+export const getTokenContractAddress = (token: string, chain: string) => {
+  // Mainnet
+  if (chain === "mainnet" || chain === "ethereum") {
+    if (token === "usdc") {
+      return "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+    }
+    if (token === "usdt") {
+      return "0xdac17f958d2ee523a2206206994597c13d831ec7";
+    }
+  }
+
+  // Optimism
+  if (chain === "optimism") {
+    if (token === "usdc") {
+      return "0x0b2c639c533813f4aa9d7837caf62653d097ff85";
+    }
+    if (token === "usdce") {
+      return "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+    }
+    if (token === "usdt") {
+      return "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58";
+    }
+  }
+
+  // Polygon
+  if (chain === "polygon") {
+    if (token === "usdc") {
+      return "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
+    }
+    if (token === "usdce") {
+      return "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+    }
+    if (token === "usdt") {
+      return "0xc2132d05d31c914a87c6611c10748aeb04b58e8f";
+    }
+  }
+
+  // Mantle
+  if (chain === "mantle") {
+    if (token === "usdc") {
+      return "0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9";
+    }
+    if (token === "usdt") {
+      return "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE";
+    }
+  }
+
+  // Base
+  if (chain === "base") {
+    if (token === "usdc") {
+      return "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+    }
+    if (token === "usdbc") {
+      return "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA";
+    }
+  }
+
+  // Arbitrum
+  if (chain === "arbitrum") {
+    if (token === "usdc") {
+      return "0xaf88d065e77c8cc2239327c5edb3a432268e5831";
+    }
+    if (token === "usdce") {
+      return "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8";
+    }
+    if (token === "usdt") {
+      return "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9";
+    }
+  }
 };

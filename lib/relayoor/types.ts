@@ -1,12 +1,18 @@
-import { relayoorSupportedChains } from "../constants";
+export type Chain =
+  | "ethereum"
+  | "optimism"
+  | "polygon"
+  | "mantle"
+  | "base"
+  | "arbitrum";
 
-export type Chain = (typeof relayoorSupportedChains)[number];
+export type Token = "usdt" | "usdc" | "usdce" | "usdbc";
 
 export interface RelayoorResponse {
   data: Record<Chain, TokenBalance[]>;
 }
 
 export interface TokenBalance {
-  token: string;
+  token: Token;
   amount: string;
 }

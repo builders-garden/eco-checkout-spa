@@ -1,50 +1,48 @@
-import { formatTokenAmountByChain } from "@/lib/utils";
-import { TokenBalance, Chain } from "@/lib/relayoor/types";
-import { TokenDecimals, TokenImages, ChainImages } from "@/lib/enums";
+import { TokenImages, ChainImages } from "@/lib/enums";
 import { useState } from "react";
 import { cn } from "@/lib/shadcn/utils";
+import { UserAsset } from "@/lib/types";
+import { formatTokenAmount } from "@/lib/utils";
 
 interface SelectableTokenProps {
-  token: TokenBalance;
-  chain: Chain;
-  handleSelectToken: (token: TokenBalance) => void;
+  token: UserAsset;
+  handleSelectToken: (token: UserAsset) => void;
 }
 
 export const SelectableToken = ({
   token,
-  chain,
   handleSelectToken,
 }: SelectableTokenProps) => {
   const [isSelected, setIsSelected] = useState(false);
 
   return (
     <button
-      key={`${token.token}-${chain}`}
+      key={`${token.asset}-${token.chain}`}
       onClick={() => {
         setIsSelected(!isSelected);
         handleSelectToken(token);
       }}
       className={cn(
-        "flex justify-between items-center w-full bg-secondary-foreground rounded-[10px] p-2.5 cursor-pointer transition-all duration-300",
+        "flex justify-between items-center w-full bg-secondary-foreground rounded-[10px] p-2.5 cursor-pointer transition-all duration-200",
         !isSelected && "opacity-50"
       )}
     >
       <p>
-        {formatTokenAmountByChain(token)} {token.token.toUpperCase()} on{" "}
-        {chain.slice(0, 1).toUpperCase() + chain.slice(1)}
+        {formatTokenAmount(token)} {token.asset.toUpperCase()} on{" "}
+        {token.chain.slice(0, 1).toUpperCase() + token.chain.slice(1)}
       </p>
 
       <div className="relative flex justify-center items-center gap-1">
         <img
-          src={TokenImages[token.token as keyof typeof TokenImages]}
-          alt={token.token}
+          src={TokenImages[token.asset]}
+          alt={token.asset}
           width={32}
           height={32}
           className="rounded-full object-cover"
         />
         <img
-          src={ChainImages[chain as keyof typeof ChainImages]}
-          alt={chain}
+          src={ChainImages[token.chain]}
+          alt={token.chain}
           width={12}
           height={12}
           className="absolute bottom-0 right-0 rounded-full object-cover"

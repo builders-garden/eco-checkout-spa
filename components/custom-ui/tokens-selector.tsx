@@ -5,33 +5,31 @@ import { DialogHeader } from "../shadcn-ui/dialog";
 import { DialogContent } from "../shadcn-ui/dialog";
 import { Dialog } from "../shadcn-ui/dialog";
 import { Button } from "../shadcn-ui/button";
-import { useEffect, useState } from "react";
-import { TokenBalance, Chain } from "@/lib/relayoor/types";
+import { useMemo, useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
-import { ChainImages, TokenDecimals, TokenImages } from "@/lib/enums";
-import { formatTokenAmountByChain } from "@/lib/utils";
+import { ChainImages } from "@/lib/enums";
+import { formatTokenAmount } from "@/lib/utils";
 import { SelectableToken } from "./selectable-token";
+import { UserAsset } from "@/lib/types";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface TokensSelectorProps {
-  tokenBalances: Record<Chain, TokenBalance[]>;
+  userAssets: UserAsset[] | undefined;
   amountDue: string;
 }
 
 export const TokensSelector = ({
-  tokenBalances,
+  userAssets,
   amountDue,
 }: TokensSelectorProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedTokens, setSelectedTokens] = useState<TokenBalance[] | null>(
-    null
-  );
+  const [selectedTokens, setSelectedTokens] = useState<UserAsset[]>([]);
 
-  const selectedTotal =
-    selectedTokens?.reduce((acc, token) => {
-      return acc + formatTokenAmountByChain(token);
-    }, 0) ?? 0;
+  const selectedTotal = selectedTokens?.reduce((acc, token) => {
+    return acc + formatTokenAmount(token);
+  }, 0);
 
-  const handleSelectToken = (token: TokenBalance) => {
+  const handleSelectToken = (token: UserAsset) => {
     setSelectedTokens((prev) => {
       if (prev?.includes(token)) {
         return prev.filter((t) => t !== token);
@@ -40,38 +38,65 @@ export const TokensSelector = ({
     });
   };
 
-  useEffect(() => {
-    console.log(selectedTokens);
+  const groupSelectedTokensByAssetName: {
+    [key: string]: UserAsset[];
+  } = useMemo(() => {
+    return selectedTokens.reduce((acc, token) => {
+      acc[token.asset] = acc[token.asset] || [];
+      acc[token.asset].push(token);
+      return acc;
+    }, {} as Record<string, UserAsset[]>);
   }, [selectedTokens]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="flex justify-start items-center w-full p-4 border-secondary-foreground border rounded-[10px] cursor-pointer">
+        <button className="flex justify-start items-center w-full p-4 h-[60px] border-secondary-foreground border rounded-[10px] cursor-pointer">
           <div className="flex justify-between items-center size-full">
-            <div className="flex w-full justify-start items-center gap-2">
-              {selectedTokens?.map((token) => (
-                <div
-                  key={`${token.token}`}
-                  className="flex justify-center items-center -space-x-2"
-                >
-                  <img
-                    className="rounded-full object-cover"
-                    src={ChainImages.ethereum}
-                    alt="Ethereum Logo"
-                    width={20}
-                    height={20}
-                  />
-                  <img
-                    className="rounded-full object-cover"
-                    src={ChainImages.optimism}
-                    alt="Optimism Logo"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              ))}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedTokens.length > 0 ? "selected" : "not-selected"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                className="flex w-full justify-start items-center gap-2"
+              >
+                {Object.entries(groupSelectedTokensByAssetName).map(
+                  ([asset, tokens], index) => (
+                    <div
+                      key={`${asset}`}
+                      className="flex justify-center items-center gap-2"
+                    >
+                      <p className="font-medium">{asset.toUpperCase()}</p>
+
+                      <div className="flex justify-center items-center -space-x-2">
+                        <AnimatePresence mode="wait">
+                          {tokens.map((token) => (
+                            <motion.img
+                              key={`${token.chain}-${token.asset}`}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.1 }}
+                              className="rounded-full object-cover"
+                              src={ChainImages[token.chain]}
+                              alt={`${token.chain} logo`}
+                              width={20}
+                              height={20}
+                              layout
+                            />
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                      {index !==
+                        Object.entries(groupSelectedTokensByAssetName).length -
+                          1 && <p className="text-secondary text-[16px]">+</p>}
+                    </div>
+                  )
+                )}
+              </motion.div>
+            </AnimatePresence>
             <ChevronDownIcon className="w-4 h-4" />
           </div>
         </button>
@@ -85,20 +110,20 @@ export const TokensSelector = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2 justify-start items-start w-full">
-          {Object.entries(tokenBalances).map(([chain, tokens]) =>
-            tokens
-              .filter(
-                // TODO: Evaluate if we should show all tokens or only USDC and USDT
-                (token) => token.token === "usdc" || token.token === "usdt"
-              )
-              .map((token) => (
-                <SelectableToken
-                  key={`${token.token}-${chain}`}
-                  token={token}
-                  chain={chain}
-                  handleSelectToken={handleSelectToken}
-                />
-              ))
+          {userAssets && userAssets.length > 0 ? (
+            userAssets.map((token) => (
+              <SelectableToken
+                key={`${token.asset}-${token.chain}`}
+                token={token}
+                handleSelectToken={handleSelectToken}
+              />
+            ))
+          ) : (
+            <p className="text-lg font-medium w-full my-7 text-center text-secondary">
+              No tokens found
+              <br />
+              Try connecting to a different wallet
+            </p>
           )}
         </div>
         <DialogFooter className="flex justify-between items-center w-full">

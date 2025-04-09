@@ -1,22 +1,18 @@
 "use client";
 
-import "@rainbow-me/rainbowkit/styles.css";
-import { wagmiRainbowConfig } from "@/lib/wagmi";
-import { WagmiProvider } from "wagmi";
+import AppKitProvider from "@/components/providers/appkit-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
-const client = new QueryClient();
+interface ProvidersProps {
+  children: React.ReactNode;
+  cookies: string | null;
+}
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
+// NOTE: The AppKit Provider also provides the Tanstack Query Client
+export const Providers = ({ children, cookies }: ProvidersProps) => {
   return (
-    <WagmiProvider config={wagmiRainbowConfig}>
-      <QueryClientProvider client={client}>
-        <RainbowKitProvider>
-          <NuqsAdapter>{children}</NuqsAdapter>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <AppKitProvider cookies={cookies}>
+      <NuqsAdapter>{children}</NuqsAdapter>
+    </AppKitProvider>
   );
 };
