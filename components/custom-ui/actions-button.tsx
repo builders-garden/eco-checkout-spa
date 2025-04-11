@@ -82,6 +82,9 @@ export const ActionsButton = ({
       className="flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] cursor-pointer"
       type="button"
       disabled={showLoader || isDisabled}
+      style={{
+        zIndex: 50,
+      }}
     >
       <AnimatePresence mode="wait">
         <p key={key} className="text-xl text-white font-bold">

@@ -68,7 +68,13 @@ export const PaymentMethodCard = ({
   };
 
   return (
-    <div className="flex flex-col w-full gap-2">
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "fit-content" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col w-full gap-2"
+    >
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex justify-start items-center gap-1.5">
@@ -258,6 +264,6 @@ export const PaymentMethodCard = ({
           </motion.button>
         </AdvancedPaymentModal>
       </div>
-    </div>
+    </motion.div>
   );
 };
