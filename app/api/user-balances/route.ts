@@ -30,11 +30,12 @@ export const GET = async (req: NextRequest) => {
         if (!validChains.includes(chain as Chain)) return undefined;
         return response.data[chain as Chain].map((balance) => {
           if (validTokens.includes(balance.token)) {
+            const decimals = TokenDecimals[balance.token];
             return {
               asset: balance.token,
-              amount: Number(balance.amount),
+              amount: Number(balance.amount) / 10 ** decimals,
               chain: chain as Chain,
-              decimals: TokenDecimals[balance.token],
+              decimals,
             };
           }
         });

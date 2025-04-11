@@ -3,8 +3,8 @@
 import { useQueryState } from "nuqs";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  chainIdToChain,
   chainIdToChainName,
-  formatTokenAmount,
   truncateAddress,
 } from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
@@ -15,38 +15,27 @@ import { ActionsButton } from "@/components/custom-ui/actions-button";
 import { AccountButton } from "@/components/custom-ui/account-button";
 import { useUserBalances } from "@/hooks/useUserBalances";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useEffect, useState } from "react";
-import { UserAsset } from "@/lib/types";
+import { useEffect } from "react";
+import { useSelectedTokens } from "@/hooks/useSelectedTokens";
+import { ChainImages } from "@/lib/enums";
 
 export default function Home() {
   const { address, isConnected } = useAppKitAccount();
   const [recipient] = useQueryState("recipient");
   const [amount] = useQueryState("amount");
-  const [network] = useQueryState("network");
-  const [token] = useQueryState("token");
+  const [desiredNetwork] = useQueryState("network");
+  const [desiredToken] = useQueryState("token");
   const [redirect] = useQueryState("redirect");
   const { userBalances, isLoadingUserBalances, isFirstFetch } = useUserBalances(
     address,
-    network
+    desiredNetwork
   );
-  const [selectedTokens, setSelectedTokens] = useState<UserAsset[]>([]);
+  const amountDue = Number(amount ?? "0.00");
 
-  // Keep adding tokens until the amount due is reached
-  useEffect(() => {
-    const amountDue = Number(amount);
-    let selectedArray: UserAsset[] = [];
-    for (const asset of userBalances) {
-      if (
-        selectedArray.reduce((acc, curr) => acc + formatTokenAmount(curr), 0) <
-        amountDue
-      ) {
-        selectedArray.push(asset);
-      }
-    }
-    setSelectedTokens(selectedArray);
-  }, [userBalances]);
+  const { selectedTokens, selectedTotal, setSelectedTokens } =
+    useSelectedTokens(userBalances, amountDue);
 
-  // TODO: Remove this in production
+  // TODO: Remove these logs in production
   useEffect(() => {
     console.log(userBalances);
   }, [userBalances]);
@@ -55,19 +44,19 @@ export default function Home() {
     console.log(selectedTokens);
   }, [selectedTokens]);
 
-  const networkName = chainIdToChainName(Number(network ?? 1));
+  const networkName = chainIdToChainName(Number(desiredNetwork ?? 1));
 
   const isConnectedAndFetched =
     isConnected && !!address && !isLoadingUserBalances && !isFirstFetch;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col items-center justify-center h-screen gap-3"
-    >
-      <div className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-10 gap-10">
+    <div className="flex flex-col items-center justify-center h-screen gap-3">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-10 gap-10"
+      >
         {/* Payment Summary */}
         <div className="flex flex-col justify-start items-start p-5 gap-[30px] border border-secondary-foreground rounded-[10px]">
           {/* Header */}
@@ -75,33 +64,43 @@ export default function Home() {
 
           {/* Info */}
           <div className="flex flex-col w-full gap-4">
-            <div className="flex justify-between items-center w-full gap-2">
-              <p className="text-[16px] text-secondary">Amount</p>
-              <p className="text-[16px] font-semibold">${amount ?? "0.00"}</p>
-            </div>
-            <div className="flex justify-between items-center w-full gap-2">
-              <p className="text-[16px] text-secondary">To Chain</p>
-              <p className="text-[16px] font-semibold">{networkName}</p>
-            </div>
+            {/* Recipient */}
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">Recipient</p>
               <p className="text-[16px] font-semibold">
                 {truncateAddress(recipient ?? emptyAddress)}
               </p>
             </div>
+            {/* To Chain */}
+            <div className="flex justify-between items-center w-full gap-2">
+              <p className="text-[16px] text-secondary">To Chain</p>
+              <div className="flex justify-center items-center gap-1.5">
+                <p className="text-[16px] font-semibold">{networkName}</p>
+                <img
+                  src={
+                    ChainImages[
+                      chainIdToChain(
+                        Number(desiredNetwork),
+                        true
+                      ) as keyof typeof ChainImages
+                    ]
+                  }
+                  alt={desiredNetwork ?? ""}
+                  className="size-5"
+                />
+              </div>
+            </div>
           </div>
 
           <Separator className="w-full" />
 
           <div className="flex flex-col w-full gap-4">
-            {/* Fees and Total */}
-            <div className="flex justify-between items-center w-full gap-2">
-              <p className="text-[16px] text-secondary">Fees</p>
-              <p className="text-[16px] font-semibold">$0.00</p>
-            </div>
+            {/* Total */}
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-semibold">Total</p>
-              <p className="text-[16px] font-semibold">${amount ?? "0.00"}</p>
+              <p className="text-[16px] font-semibold">
+                ${amountDue.toFixed(2)}
+              </p>
             </div>
           </div>
         </div>
@@ -139,36 +138,31 @@ export default function Home() {
               isConnectedAndFetched && "gap-2"
             )}
           >
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{
-                height: isConnectedAndFetched ? "auto" : 0,
-                opacity: isConnectedAndFetched ? 1 : 0,
-              }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col justify-center items-start w-full gap-2 overflow-hidden"
-            >
-              <h1 className="text-[16px] font-semibold">Select Token</h1>
+            <div className="flex flex-col justify-center items-start w-full gap-2">
               <TokensSelector
                 userAssets={userBalances}
-                amountDue={amount ?? "0.00"}
+                amountDue={amountDue}
                 selectedTokens={selectedTokens}
                 setSelectedTokens={setSelectedTokens}
+                selectedTotal={selectedTotal ?? 0}
+                visible={isConnectedAndFetched}
               />
-              <AccountButton />
-            </motion.div>
+              <AccountButton visible={isConnectedAndFetched} />
+            </div>
 
             {/* Connect Button */}
             <ActionsButton
               isLoading={isLoadingUserBalances}
               selectedTokens={selectedTokens}
-              destinationToken={token ?? ""}
-              destinationChain={Number(network)}
+              destinationToken={desiredToken ?? ""}
+              destinationChain={Number(desiredNetwork)}
               redirect={redirect ?? ""}
+              selectedTotal={selectedTotal ?? 0}
+              amountDue={amountDue}
             />
           </div>
         </motion.div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

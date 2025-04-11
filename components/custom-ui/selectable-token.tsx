@@ -1,26 +1,28 @@
 import { TokenImages, ChainImages } from "@/lib/enums";
-import { useState } from "react";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
-import { formatTokenAmount } from "@/lib/utils";
 
 interface SelectableTokenProps {
   token: UserAsset;
   selectedTokens: UserAsset[];
   setSelectedTokens: (tokens: UserAsset[]) => void;
+  selectedTotal: number;
+  amountDue: number;
 }
 
 export const SelectableToken = ({
   token,
   selectedTokens,
   setSelectedTokens,
+  selectedTotal,
+  amountDue,
 }: SelectableTokenProps) => {
   const isSelected = selectedTokens.some((t) => t === token);
 
   const handleSelectToken = () => {
     if (isSelected) {
       setSelectedTokens(selectedTokens.filter((t) => t !== token));
-    } else {
+    } else if (selectedTotal < amountDue) {
       setSelectedTokens([...selectedTokens, token]);
     }
   };
@@ -34,7 +36,7 @@ export const SelectableToken = ({
       )}
     >
       <p>
-        {formatTokenAmount(token)} {token.asset.toUpperCase()} on{" "}
+        {token.amount.toString().slice(0, 4)} {token.asset.toUpperCase()} on{" "}
         {token.chain.slice(0, 1).toUpperCase() + token.chain.slice(1)}
       </p>
 

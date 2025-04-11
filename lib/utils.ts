@@ -6,7 +6,6 @@ import {
   arbitrum,
   base,
 } from "viem/chains";
-import { UserAsset } from "./types";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -16,15 +15,6 @@ import { UserAsset } from "./types";
  */
 export const truncateAddress = (address: string, size: number = 4) => {
   return `${address.slice(0, size + 2)}...${address.slice(-size)}`;
-};
-
-/**
- * Formats a token amount
- * @param token - The user asset
- * @returns The formatted token amount as a number
- */
-export const formatTokenAmount = (token: UserAsset) => {
-  return token.amount / 10 ** token.decimals;
 };
 
 /**

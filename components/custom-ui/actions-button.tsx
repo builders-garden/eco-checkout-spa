@@ -12,6 +12,8 @@ interface ActionsButtonProps {
   destinationToken: string;
   destinationChain: number;
   redirect: string;
+  selectedTotal: number;
+  amountDue: number;
 }
 
 export const ActionsButton = ({
@@ -20,6 +22,8 @@ export const ActionsButton = ({
   destinationToken,
   destinationChain,
   redirect,
+  selectedTotal,
+  amountDue,
 }: ActionsButtonProps) => {
   const [mounted, setMounted] = useState(false);
   const { isConnected, status, address } = useAppKitAccount();
@@ -32,7 +36,8 @@ export const ActionsButton = ({
   // States
   const ready = status !== "connecting" && status !== "reconnecting";
   const connected = isConnected && !!address;
-  const isDisabled = !mounted || isLoading || !ready;
+  const showLoader = !mounted || isLoading || !ready;
+  const isDisabled = connected && selectedTotal < amountDue;
 
   // Button Props
   const { text, onClick, key } = useMemo(() => {
@@ -44,7 +49,7 @@ export const ActionsButton = ({
       };
     }
     return {
-      text: "Confirm & Send",
+      text: "Confirm",
       onClick: () => {},
       key: "confirm",
     };
@@ -68,19 +73,19 @@ export const ActionsButton = ({
   return (
     <motion.button
       initial={{ opacity: 1 }}
-      animate={{ opacity: isDisabled ? 0.7 : 1 }}
-      whileHover={{ scale: isDisabled ? 1 : 1.02 }}
-      whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+      animate={{ opacity: showLoader || isDisabled ? 0.7 : 1 }}
+      whileHover={{ scale: showLoader || isDisabled ? 1 : 1.02 }}
+      whileTap={{ scale: showLoader || isDisabled ? 1 : 0.98 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={onClick}
       className="flex justify-center items-center w-full bg-primary rounded-[10px] p-4 h-[60px] cursor-pointer"
       type="button"
-      disabled={isDisabled}
+      disabled={showLoader || isDisabled}
     >
       <AnimatePresence mode="wait">
         <p key={key} className="text-xl text-white font-bold">
-          {isDisabled ? <Loader2 className="size-6 animate-spin" /> : text}
+          {showLoader ? <Loader2 className="size-6 animate-spin" /> : text}
         </p>
       </AnimatePresence>
     </motion.button>
