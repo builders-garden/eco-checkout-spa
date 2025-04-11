@@ -1,18 +1,9 @@
-import { DialogFooter, DialogTrigger } from "../shadcn-ui/dialog";
-import { DialogDescription } from "../shadcn-ui/dialog";
-import { DialogTitle } from "../shadcn-ui/dialog";
-import { DialogHeader } from "../shadcn-ui/dialog";
-import { DialogContent } from "../shadcn-ui/dialog";
-import { Dialog } from "../shadcn-ui/dialog";
-import { Button } from "../shadcn-ui/button";
+"use client";
 import { useEffect, useMemo, useState } from "react";
 import { CreditCard, Info, SquarePen, WandSparkles } from "lucide-react";
 import { ChainImages, TokenImages, TokenSymbols } from "@/lib/enums";
-import { SelectableToken } from "./selectable-token";
-import { UserAsset } from "@/lib/types";
+import type { UserAsset } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { ScrollArea } from "../shadcn-ui/scroll-area";
-import { SuccessCircle } from "./success-circle";
 import { Progress } from "../shadcn-ui/progress";
 import { cn } from "@/lib/shadcn/utils";
 import {
@@ -99,7 +90,7 @@ export const PaymentMethodCard = ({
         </button>
       </div>
 
-      {/* Card */}
+      {/* Payment card */}
       <div className="flex flex-col w-full gap-4 border border-success p-5 rounded-[8px]">
         {/* Selected Tokens */}
         <div className="flex w-full -space-x-2">
@@ -198,7 +189,7 @@ export const PaymentMethodCard = ({
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 10 }}
                         layout
-                        transition={{ duration: 0.3, delay: index * 0.2 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
                       >
                         <div className="flex justify-start items-center gap-2">
                           <div className="relative flex justify-center items-center">
