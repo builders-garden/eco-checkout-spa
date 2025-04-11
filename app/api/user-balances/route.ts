@@ -1,7 +1,7 @@
 import { env } from "@/lib/zod";
 import { NextRequest, NextResponse } from "next/server";
 import ky from "ky";
-import { Chain, RelayoorResponse, Token } from "@/lib/relayoor/types";
+import { Chain, RelayoorResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals } from "@/lib/enums";
 import { validTokens, validChains } from "@/lib/constants";

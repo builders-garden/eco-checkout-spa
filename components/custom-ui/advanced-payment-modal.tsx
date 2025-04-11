@@ -13,7 +13,6 @@ import { ScrollArea } from "../shadcn-ui/scroll-area";
 import { SelectableToken } from "./selectable-token";
 import { UserAsset } from "@/lib/types";
 import { cn } from "@/lib/shadcn/utils";
-import { useSelectedTokens } from "@/hooks/useSelectedTokens";
 import { AnimatePresence, motion } from "framer-motion";
 import { Info } from "lucide-react";
 

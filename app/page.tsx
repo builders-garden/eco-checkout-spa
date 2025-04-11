@@ -6,7 +6,7 @@ import { ActionsButton } from "@/components/custom-ui/actions-button";
 import { ConnectedWalletButton } from "@/components/custom-ui/connected-wallet-button";
 import { useUserBalances } from "@/hooks/useUserBalances";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelectedTokens } from "@/hooks/useSelectedTokens";
 import { PaymentSummary } from "@/components/custom-ui/payment-summary";
 import { ConnectWalletInfo } from "@/components/custom-ui/connect-wallet-info";
