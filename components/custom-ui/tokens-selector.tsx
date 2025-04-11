@@ -58,7 +58,7 @@ export const TokensSelector = ({
           <h1 className="text-[16px] font-semibold">Select Token</h1>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <button className="flex justify-start items-center w-full p-4 border-secondary-foreground border rounded-[10px] cursor-pointer">
+              <button className="flex justify-start items-center w-full p-4 border-secondary-foreground border rounded-[8px] cursor-pointer">
                 <div className="flex justify-between items-center size-full">
                   <AnimatePresence mode="wait">
                     <motion.div

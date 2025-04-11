@@ -31,7 +31,7 @@ export const SelectableToken = ({
     <button
       onClick={handleSelectToken}
       className={cn(
-        "flex justify-between items-center w-full bg-secondary-foreground rounded-[10px] p-2.5 cursor-pointer transition-all duration-200",
+        "flex justify-between items-center w-full bg-secondary-foreground rounded-[8px] p-2.5 cursor-pointer transition-all duration-200",
         !isSelected && "opacity-50"
       )}
     >

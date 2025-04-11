@@ -1,5 +1,6 @@
 import { UserAsset } from "@/lib/types";
 import { chainIdToChain } from "@/lib/utils";
+import { useAppKitAccount } from "@reown/appkit/react";
 import ky from "ky";
 import { useEffect, useState } from "react";
 
@@ -7,10 +8,11 @@ export const useUserBalances = (
   userAddress: string | undefined,
   destinationNetwork: string | null
 ) => {
+  const { address, isConnected } = useAppKitAccount();
   const [userBalances, setUserBalances] = useState<UserAsset[]>([]);
+  const [hasFetchedUserBalances, setHasFetchedUserBalances] = useState(false);
   const [isLoadingUserBalances, setIsLoadingUserBalances] = useState(false);
   const [isErrorUserBalances, setIsErrorUserBalances] = useState(false);
-  const [isFirstFetch, setIsFirstFetch] = useState(true);
 
   const destinationNetworkString = chainIdToChain(
     Number(destinationNetwork ?? 1),
@@ -18,12 +20,19 @@ export const useUserBalances = (
   ) as string;
 
   useEffect(() => {
+    if (!isConnected && !address) {
+      setUserBalances([]);
+      setHasFetchedUserBalances(false);
+      setIsLoadingUserBalances(false);
+      setIsErrorUserBalances(false);
+    }
+  }, [isConnected, address]);
+
+  useEffect(() => {
     const fetchUserBalances = async () => {
       if (!userAddress) return;
       setIsLoadingUserBalances(true);
-      if (isFirstFetch) {
-        setIsFirstFetch(false);
-      }
+      setHasFetchedUserBalances(false);
       try {
         const response = await ky
           .get<UserAsset[]>(`/api/user-balances?userAddress=${userAddress}`)
@@ -71,6 +80,7 @@ export const useUserBalances = (
         setIsErrorUserBalances(true);
       } finally {
         setIsLoadingUserBalances(false);
+        setHasFetchedUserBalances(true);
       }
     };
     fetchUserBalances();
@@ -80,6 +90,6 @@ export const useUserBalances = (
     userBalances,
     isLoadingUserBalances,
     isErrorUserBalances,
-    isFirstFetch,
+    hasFetchedUserBalances,
   };
 };
