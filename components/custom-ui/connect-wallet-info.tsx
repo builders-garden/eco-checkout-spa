@@ -1,13 +1,15 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 
 export const ConnectWalletInfo = () => {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "fit-content" }}
-      exit={{ opacity: 0, x: -100 }}
-      transition={{ duration: 0.2 }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
       className="flex flex-col justify-center w-full items-center text-center gap-3.5 -mt-1"
     >
       <div className="flex p-3.5 justify-center items-center bg-secondary-foreground rounded-full">

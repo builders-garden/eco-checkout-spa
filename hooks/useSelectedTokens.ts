@@ -7,6 +7,7 @@ export const useSelectedTokens = (
   amountDue: number
 ) => {
   const [selectedTokens, setSelectedTokens] = useState<UserAsset[]>([]);
+  const [optimizedSelection, setOptimizedSelection] = useState<UserAsset[]>([]);
 
   // Keep adding tokens until the amount due is reached
   useEffect(() => {
@@ -21,11 +22,17 @@ export const useSelectedTokens = (
       }
     }
     setSelectedTokens(selectedArray);
+    setOptimizedSelection(selectedArray);
   }, [userBalances]);
 
   const selectedTotal = selectedTokens?.reduce((acc, token) => {
     return acc + token.amount;
   }, 0);
 
-  return { selectedTokens, setSelectedTokens, selectedTotal };
+  return {
+    selectedTokens,
+    setSelectedTokens,
+    selectedTotal,
+    optimizedSelection,
+  };
 };

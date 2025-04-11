@@ -31,3 +31,11 @@ export enum TokenSymbols {
   "usdc" = "USDC",
   "usdt" = "USDT",
 }
+
+// Checkout Flow States
+export enum CheckoutFlowStates {
+  CONNECT_WALLET = "connect-wallet",
+  SELECT_PAYMENT_METHOD = "select-payment-method",
+  PAYMENT_RECAP = "payment-recap",
+  TRANSACTIONS = "transactions",
+}

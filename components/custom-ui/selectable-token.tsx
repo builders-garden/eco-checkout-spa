@@ -1,6 +1,7 @@
 import { TokenImages, ChainImages } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface SelectableTokenProps {
   token: UserAsset;
@@ -37,7 +38,7 @@ export const SelectableToken = ({
     >
       <p>
         {token.amount.toString().slice(0, 4)} {token.asset.toUpperCase()} on{" "}
-        {token.chain.slice(0, 1).toUpperCase() + token.chain.slice(1)}
+        {capitalizeFirstLetter(token.chain)}
       </p>
 
       <div className="relative flex justify-center items-center gap-1">

@@ -1,18 +1,20 @@
+"use client";
+
 import { truncateAddress } from "@/lib/utils";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 
-export const AccountButton = () => {
+export const ConnectedWalletButton = () => {
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 100 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -100 }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "fit-content" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
       className="flex flex-col w-full gap-2"
     >
       <div className="flex justify-start items-center gap-1.5">

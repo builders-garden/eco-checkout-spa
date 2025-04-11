@@ -22,7 +22,7 @@ export const PaymentSummary = ({
   const networkName = chainIdToChainName(desiredNetworkNumber);
 
   return (
-    <div className="flex flex-col justify-start items-start px-4 pb-0 pt-4 gap-6">
+    <div className="flex flex-col justify-start items-start p-4 gap-6">
       {/* Header */}
       <h1 className="text-xl font-bold">Payment Summary</h1>
 

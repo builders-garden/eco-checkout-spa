@@ -3,16 +3,19 @@
 import { useQueryState } from "nuqs";
 import { AnimatePresence, motion } from "framer-motion";
 import { ActionsButton } from "@/components/custom-ui/actions-button";
-import { AccountButton } from "@/components/custom-ui/account-button";
+import { ConnectedWalletButton } from "@/components/custom-ui/connected-wallet-button";
 import { useUserBalances } from "@/hooks/useUserBalances";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelectedTokens } from "@/hooks/useSelectedTokens";
 import { PaymentSummary } from "@/components/custom-ui/payment-summary";
 import { ConnectWalletInfo } from "@/components/custom-ui/connect-wallet-info";
+import { useStateTransitions } from "@/hooks/useStateTransitions";
+import { CheckoutFlowStates } from "@/lib/enums";
+import { PaymentMethodCard } from "@/components/custom-ui/payment-method-card";
 
 export default function Home() {
-  const { address, isConnected } = useAppKitAccount();
+  const { address } = useAppKitAccount();
   const [recipient] = useQueryState("recipient");
   const [amount] = useQueryState("amount");
   const [desiredNetwork] = useQueryState("network");
@@ -22,8 +25,17 @@ export default function Home() {
     useUserBalances(address, desiredNetwork);
   const amountDue = Number(amount ?? "0.00");
 
-  const { selectedTokens, selectedTotal, setSelectedTokens } =
-    useSelectedTokens(userBalances, amountDue);
+  const {
+    selectedTokens,
+    selectedTotal,
+    setSelectedTokens,
+    optimizedSelection,
+  } = useSelectedTokens(userBalances, amountDue);
+
+  const { animationState } = useStateTransitions(
+    isLoadingUserBalances,
+    hasFetchedUserBalances
+  );
 
   // TODO: Remove these logs in production
   useEffect(() => {
@@ -34,19 +46,13 @@ export default function Home() {
     console.log(selectedTokens);
   }, [selectedTokens]);
 
-  const isConnectedAndFetched =
-    isConnected &&
-    !!address &&
-    !isLoadingUserBalances &&
-    hasFetchedUserBalances;
-
   return (
-    <main className="flex relative flex-col items-center justify-center h-screen">
+    <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-9 border border-secondary-foreground rounded-[8px] overflow-hidden"
+        className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden"
       >
         {/* Payment Summary */}
         <PaymentSummary
@@ -56,16 +62,24 @@ export default function Home() {
           amountDue={amountDue}
         />
 
-        {/* Connect Wallet Info */}
+        {/* Single AnimatePresence to control both components */}
         <AnimatePresence mode="wait">
-          {!isConnectedAndFetched && (
+          {animationState === CheckoutFlowStates.CONNECT_WALLET && (
             <ConnectWalletInfo key="connect-wallet-info" />
           )}
-        </AnimatePresence>
-
-        {/* Account Button */}
-        <AnimatePresence mode="wait">
-          {isConnectedAndFetched && <AccountButton key="account-button" />}
+          {animationState === CheckoutFlowStates.SELECT_PAYMENT_METHOD && (
+            <>
+              <ConnectedWalletButton key="connected-wallet-button" />
+              <PaymentMethodCard
+                amountDue={amountDue}
+                selectedTokens={selectedTokens}
+                setSelectedTokens={setSelectedTokens}
+                selectedTotal={selectedTotal}
+                userAssets={userBalances}
+                optimizedSelection={optimizedSelection}
+              />
+            </>
+          )}
         </AnimatePresence>
 
         {/* Connect Button */}
