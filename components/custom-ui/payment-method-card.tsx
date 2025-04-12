@@ -15,6 +15,7 @@ import { Accordion } from "../shadcn-ui/accordion";
 import { Separator } from "../shadcn-ui/separator";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { AdvancedPaymentModal } from "./advanced-payment-modal";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../shadcn-ui/tooltip";
 
 interface PaymentMethodCardProps {
   userAssets: UserAsset[] | undefined;
@@ -81,19 +82,35 @@ export const PaymentMethodCard = ({
           <CreditCard className="size-4 text-secondary" />
           <p className="text-sm text-secondary">Payment method</p>
         </div>
-        <button
-          onClick={handleOptimize}
-          disabled={isOptimized}
-          className={cn(
-            "text-sm text-success border border-success bg-success/10 rounded-full px-2 py-0.5 flex justify-center items-center gap-1",
-            !isOptimized && "bg-success text-white cursor-pointer"
-          )}
-        >
-          <WandSparkles
-            className={cn("size-4 text-success", !isOptimized && "text-white")}
-          />
-          {isOptimized ? "Optimized" : "Optimize"}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <motion.button
+              whileTap={{
+                scale: 0.98,
+              }}
+              onClick={handleOptimize}
+              disabled={isOptimized}
+              className={cn(
+                "text-sm text-success border border-success bg-success/10 rounded-full w-[110px] py-0.5 flex justify-center items-center gap-1",
+                !isOptimized && "bg-success text-white cursor-pointer"
+              )}
+            >
+              <WandSparkles
+                className={cn(
+                  "size-4 text-success",
+                  !isOptimized && "text-white"
+                )}
+              />
+              {isOptimized ? "Optimized" : "Optimize"}
+            </motion.button>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-[360px]">
+            <p>
+              The optimization takes into account the destination chain and
+              favors L2 blockchains over Mainnet.
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Payment card */}

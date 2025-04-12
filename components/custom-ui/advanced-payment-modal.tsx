@@ -147,6 +147,7 @@ export const AdvancedPaymentModal = ({
               setOpen(false);
             }}
             className="cursor-pointer"
+            disabled={!isAmountReached}
           >
             Confirm Selection
           </Button>
