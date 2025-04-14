@@ -22,7 +22,6 @@ interface AdvancedPaymentModalProps {
   userAssets: UserAsset[] | undefined;
   selectedTokens: UserAsset[];
   setSelectedTokens: (tokens: UserAsset[]) => void;
-  selectedTotal: number;
 }
 
 export const AdvancedPaymentModal = ({
@@ -31,7 +30,6 @@ export const AdvancedPaymentModal = ({
   userAssets,
   selectedTokens,
   setSelectedTokens,
-  selectedTotal,
 }: AdvancedPaymentModalProps) => {
   const [open, setOpen] = useState(false);
   const [modalSelectedTokens, setModalSelectedTokens] =
@@ -91,9 +89,9 @@ export const AdvancedPaymentModal = ({
                     token={token}
                     selectedTokens={modalSelectedTokens}
                     setSelectedTokens={setModalSelectedTokens}
-                    selectedTotal={modalSelectedTotal}
-                    amountDue={amountDue}
                     index={index}
+                    isAmountReached={isAmountReached}
+                    amountDue={amountDue}
                   />
                 ))
               ) : (

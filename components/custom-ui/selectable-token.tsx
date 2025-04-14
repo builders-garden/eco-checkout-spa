@@ -1,36 +1,42 @@
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { useMemo } from "react";
 
 interface SelectableTokenProps {
   token: UserAsset;
   selectedTokens: UserAsset[];
   setSelectedTokens: (tokens: UserAsset[]) => void;
-  selectedTotal: number;
-  amountDue: number;
   index: number;
+  isAmountReached: boolean;
+  amountDue: number;
 }
 
 export const SelectableToken = ({
   token,
   selectedTokens,
   setSelectedTokens,
-  selectedTotal,
-  amountDue,
   index,
+  isAmountReached,
+  amountDue,
 }: SelectableTokenProps) => {
   const isSelected = selectedTokens.some((t) => t === token);
 
   const handleSelectToken = () => {
     if (isSelected) {
       setSelectedTokens(selectedTokens.filter((t) => t !== token));
-    } else if (selectedTotal < amountDue) {
+    } else if (!isAmountReached) {
       setSelectedTokens([...selectedTokens, token]);
     }
   };
+
+  // Calculate the amount deducted from this specific token
+  const amountDeducted = useMemo(() => {
+    return getAmountDeducted(amountDue, selectedTokens, token);
+  }, [amountDue, token.amount, selectedTokens]);
 
   return (
     <motion.button
@@ -41,9 +47,9 @@ export const SelectableToken = ({
         isSelected && "border-success"
       )}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      animate={{ opacity: isAmountReached && !isSelected ? 0.5 : 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
+      transition={{ duration: 0.15, delay: index * 0.1 }}
     >
       <div className="flex justify-start items-center gap-2">
         <div
@@ -91,9 +97,16 @@ export const SelectableToken = ({
           </p>
         </div>
       </div>
-      <p className="text-sm text-primary font-semibold">
-        ${token.amount.toFixed(2)}
-      </p>
+      <div className="flex justify-between items-center gap-3">
+        {isSelected && (
+          <p className="text-sm text-secondary font-semibold">
+            -${amountDeducted.toFixed(2)}
+          </p>
+        )}
+        <p className="text-sm text-primary font-semibold">
+          ${token.amount.toFixed(2)}
+        </p>
+      </div>
     </motion.button>
   );
 };

@@ -13,7 +13,11 @@ import {
 } from "../shadcn-ui/accordion";
 import { Accordion } from "../shadcn-ui/accordion";
 import { Separator } from "../shadcn-ui/separator";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import {
+  capitalizeFirstLetter,
+  compareArrays,
+  getAmountDeducted,
+} from "@/lib/utils";
 import { AdvancedPaymentModal } from "./advanced-payment-modal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../shadcn-ui/tooltip";
 
@@ -54,11 +58,7 @@ export const PaymentMethodCard = ({
   }, [selectedTotal, amountDue]);
 
   // A deep comparison of the optimized selection and the selected tokens
-  const isOptimized = optimizedSelection.every((token) =>
-    selectedTokens.some(
-      (t) => t.asset === token.asset && t.chain === token.chain
-    )
-  );
+  const isOptimized = compareArrays(optimizedSelection, selectedTokens);
 
   // Check if the selected amount is enough to cover the required amount
   const isAmountReached = selectedTotal >= amountDue;
@@ -248,9 +248,19 @@ export const PaymentMethodCard = ({
                             </p>
                           </div>
                         </div>
-                        <p className="text-sm text-primary font-semibold">
-                          ${token.amount.toFixed(2)}
-                        </p>
+                        <div className="flex justify-center items-center gap-3">
+                          <p className="text-sm text-secondary font-semibold">
+                            -$
+                            {getAmountDeducted(
+                              amountDue,
+                              selectedTokens,
+                              token
+                            ).toFixed(2)}
+                          </p>
+                          <p className="text-sm text-primary font-semibold">
+                            ${token.amount.toFixed(2)}
+                          </p>
+                        </div>
                       </motion.div>
                     </AnimatePresence>
                   ))}
@@ -266,7 +276,6 @@ export const PaymentMethodCard = ({
           userAssets={userAssets}
           selectedTokens={selectedTokens}
           setSelectedTokens={setSelectedTokens}
-          selectedTotal={selectedTotal}
         >
           <motion.button
             whileTap={{

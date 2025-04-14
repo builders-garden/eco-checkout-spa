@@ -6,6 +6,7 @@ import {
   arbitrum,
   base,
 } from "viem/chains";
+import { UserAsset } from "./types";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -161,4 +162,46 @@ export const getTokenContractAddress = (token: string, chain: string) => {
  */
 export const capitalizeFirstLetter = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+/**
+ * Compares two arrays to check if every element is present in the other array
+ * @param arr1 - The first array
+ * @param arr2 - The second array
+ * @returns True if the arrays share the same elements, false otherwise
+ */
+export const compareArrays = (arr1: any[], arr2: any[]) => {
+  return (
+    arr1.length === arr2.length &&
+    arr1.every((value) => arr2.includes(value)) &&
+    arr2.every((value) => arr1.includes(value))
+  );
+};
+
+/**
+ * Gets the amount deducted from a specific token
+ * @param amountDue - The amount due
+ * @param selectedTokens - The selected tokens
+ * @param token - The token to get the amount deducted from
+ * @returns The amount deducted
+ */
+export const getAmountDeducted = (
+  amountDue: number,
+  selectedTokens: UserAsset[],
+  token: UserAsset
+) => {
+  const orderedSelectedTokens = [...selectedTokens].sort(
+    (a, b) => a.amount - b.amount
+  );
+  let total = amountDue;
+  for (const t of orderedSelectedTokens) {
+    if (t === token) {
+      if (t.amount > total) {
+        return total;
+      }
+      return t.amount;
+    }
+    total -= t.amount;
+  }
+  return total;
 };

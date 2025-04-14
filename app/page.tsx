@@ -39,11 +39,11 @@ export default function Home() {
 
   // TODO: Remove these logs in production
   useEffect(() => {
-    console.log(userBalances);
+    console.log("userBalances", userBalances);
   }, [userBalances]);
 
   useEffect(() => {
-    console.log(selectedTokens);
+    console.log("selectedTokens", selectedTokens);
   }, [selectedTokens]);
 
   return (
