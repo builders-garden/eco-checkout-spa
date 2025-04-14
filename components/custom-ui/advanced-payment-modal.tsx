@@ -77,7 +77,7 @@ export const AdvancedPaymentModal = ({
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
-            Selected: ${selectedTotal.toString().slice(0, 4)}
+            Selected: ${modalSelectedTotal.toFixed(2)}
           </p>
         </div>
 

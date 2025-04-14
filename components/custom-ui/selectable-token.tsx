@@ -92,7 +92,7 @@ export const SelectableToken = ({
         </div>
       </div>
       <p className="text-sm text-primary font-semibold">
-        ${token.amount.toString().slice(0, 4)}
+        ${token.amount.toFixed(2)}
       </p>
     </motion.button>
   );

@@ -38,7 +38,7 @@ export const PaymentSummary = ({
         {/* To Chain */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">To Chain</p>
-          <div className="flex justify-center items-center gap-1.5">
+          <div className="flex justify-center items-center gap-[5px]">
             <p className="text-[16px] font-semibold">{networkName}</p>
             <img
               src={
@@ -50,7 +50,7 @@ export const PaymentSummary = ({
                 ]
               }
               alt={desiredNetworkId}
-              className="size-5"
+              className="size-5 rounded-full object-cover"
             />
           </div>
         </div>
