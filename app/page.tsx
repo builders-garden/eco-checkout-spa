@@ -42,12 +42,12 @@ export default function Home() {
   );
 
   // Create Intent
-  const { intents } = useCreateIntents({
-    selectedTokens,
-    destinationChainID: Number(desiredNetwork ?? "1"),
-    recipient: (recipient ?? EMPTY_ADDRESS) as Hex,
-    desiredToken: desiredToken ?? "",
-  });
+  // const { intents } = useCreateIntents({
+  //   selectedTokens,
+  //   destinationChainID: Number(desiredNetwork ?? "1"),
+  //   recipient: (recipient ?? EMPTY_ADDRESS) as Hex,
+  //   desiredToken: desiredToken ?? "",
+  // });
 
   // TODO: Remove these logs in production
   // useEffect(() => {
@@ -61,15 +61,6 @@ export default function Home() {
   // useEffect(() => {
   //   console.log("selectedTokens", selectedTokens);
   // }, [selectedTokens]);
-
-  useEffect(() => {
-    console.log(
-      "pageState",
-      pageState,
-      "\npageState === PageState.TRANSACTIONS",
-      pageState === PageState.TRANSACTIONS
-    );
-  }, [pageState]);
 
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
