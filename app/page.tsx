@@ -14,11 +14,9 @@ import { useCreateIntents } from "@/hooks/useCreateIntents";
 import { EMPTY_ADDRESS } from "@/lib/constants";
 import { Hex } from "viem";
 import TransactionsContainer from "@/components/custom-ui/transactions-container/transactions-container";
-import { usePageState } from "@/components/providers/page-state-provider";
 
 export default function Home() {
   const { address } = useAppKitAccount();
-  const { pageState } = usePageState();
   const [recipient] = useQueryState("recipient");
   const [amount] = useQueryState("amount");
   const [desiredNetwork] = useQueryState("network");
@@ -27,6 +25,7 @@ export default function Home() {
   const { userBalances, isLoadingUserBalances, hasFetchedUserBalances } =
     useUserBalances(address, desiredNetwork);
   const amountDue = Number(amount ?? "0.00");
+  const [pageState, setPageState] = useState<PageState>(PageState.CHECKOUT);
 
   // Selected Tokens & optimized selection
   const {
@@ -83,9 +82,14 @@ export default function Home() {
             amountDue={amountDue}
             selectedTokens={selectedTokens}
             selectedTotal={selectedTotal}
+            pageState={pageState}
+            setPageState={setPageState}
           />
         ) : pageState === PageState.TRANSACTIONS ? (
-          <TransactionsContainer key="transactions-container" />
+          <TransactionsContainer
+            key="transactions-container"
+            setPageState={setPageState}
+          />
         ) : (
           <CheckoutContainer
             key="checkout-container"
@@ -99,6 +103,8 @@ export default function Home() {
             isLoadingUserBalances={isLoadingUserBalances}
             selectedTotal={selectedTotal}
             animationState={animationState}
+            pageState={pageState}
+            setPageState={setPageState}
           />
         )}
       </AnimatePresence>

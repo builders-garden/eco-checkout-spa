@@ -5,7 +5,6 @@ import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { UserAsset } from "@/lib/types";
 import { ChosenTokenList } from "./chosen-token-list";
-import { usePageState } from "@/components/providers/page-state-provider";
 
 interface RecapContainerProps {
   recipient: string;
@@ -13,6 +12,10 @@ interface RecapContainerProps {
   amountDue: number;
   selectedTokens: UserAsset[];
   selectedTotal: number;
+  pageState: PageState;
+  setPageState: (
+    pageState: PageState | ((prev: PageState) => PageState)
+  ) => void;
 }
 
 export const RecapContainer = ({
@@ -21,9 +24,9 @@ export const RecapContainer = ({
   amountDue,
   selectedTokens,
   selectedTotal,
+  pageState,
+  setPageState,
 }: RecapContainerProps) => {
-  const { pageState } = usePageState();
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -37,6 +40,7 @@ export const RecapContainer = ({
         recipient={recipient}
         desiredNetworkId={desiredNetwork}
         amountDue={amountDue}
+        setPageState={setPageState}
       />
 
       <ConnectedWalletButton
@@ -50,6 +54,8 @@ export const RecapContainer = ({
         isLoading={false}
         selectedTotal={selectedTotal}
         amountDue={amountDue}
+        pageState={pageState}
+        setPageState={setPageState}
       />
     </motion.div>
   );

@@ -8,20 +8,22 @@ import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages, PageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { usePageState } from "@/components/providers/page-state-provider";
 
 interface PaymentRecapProps {
   recipient: string;
   desiredNetworkId: string;
   amountDue: number;
+  setPageState: (
+    pageState: PageState | ((prev: PageState) => PageState)
+  ) => void;
 }
 
 export const PaymentRecap = ({
   recipient,
   desiredNetworkId,
   amountDue,
+  setPageState,
 }: PaymentRecapProps) => {
-  const { setPageState } = usePageState();
   const desiredNetworkNumber = Number(desiredNetworkId);
   const networkName = chainIdToChainName(desiredNetworkNumber);
 

@@ -8,7 +8,6 @@ import { ConnectedWalletButton } from "../connected-wallet-button";
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "../actions-button";
 import { UserAsset } from "@/lib/types";
-import { usePageState } from "@/components/providers/page-state-provider";
 
 interface CheckoutContainerProps {
   recipient: string;
@@ -23,6 +22,10 @@ interface CheckoutContainerProps {
   isLoadingUserBalances: boolean;
   selectedTotal: number;
   animationState: CardState | null;
+  pageState: PageState;
+  setPageState: (
+    pageState: PageState | ((prev: PageState) => PageState)
+  ) => void;
 }
 
 export const CheckoutContainer = ({
@@ -36,9 +39,9 @@ export const CheckoutContainer = ({
   isLoadingUserBalances,
   selectedTotal,
   animationState,
+  pageState,
+  setPageState,
 }: CheckoutContainerProps) => {
-  const { pageState } = usePageState();
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -83,6 +86,8 @@ export const CheckoutContainer = ({
         isLoading={isLoadingUserBalances}
         selectedTotal={selectedTotal}
         amountDue={amountDue}
+        pageState={pageState}
+        setPageState={setPageState}
       />
     </motion.div>
   );

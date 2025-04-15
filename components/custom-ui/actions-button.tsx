@@ -3,20 +3,24 @@ import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
 import { PageState } from "@/lib/enums";
-import { usePageState } from "../providers/page-state-provider";
 
 interface ActionsButtonProps {
   isLoading: boolean;
   selectedTotal: number;
   amountDue: number;
+  pageState: PageState;
+  setPageState: (
+    pageState: PageState | ((prev: PageState) => PageState)
+  ) => void;
 }
 
 export const ActionsButton = ({
   isLoading,
   selectedTotal,
   amountDue,
+  pageState,
+  setPageState,
 }: ActionsButtonProps) => {
-  const { pageState, setPageState } = usePageState();
   const [mounted, setMounted] = useState(false);
   const { isConnected, status, address } = useAppKitAccount();
   const { open } = useAppKit();
