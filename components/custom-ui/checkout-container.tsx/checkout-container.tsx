@@ -1,13 +1,14 @@
-import { PageStates } from "@/lib/enums";
+import { PageState } from "@/lib/enums";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { PaymentSummary } from "./payment-summary";
-import { CardStates } from "@/lib/enums";
+import { CardState } from "@/lib/enums";
 import { ConnectWalletInfo } from "./connect-wallet-info";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "../actions-button";
 import { UserAsset } from "@/lib/types";
+import { usePageState } from "@/components/providers/page-state-provider";
 
 interface CheckoutContainerProps {
   recipient: string;
@@ -20,12 +21,8 @@ interface CheckoutContainerProps {
   userBalances: UserAsset[];
   optimizedSelection: UserAsset[];
   isLoadingUserBalances: boolean;
-  pageState: PageStates | null;
-  setPageState: (pageState: PageStates) => void;
-  desiredToken: string;
-  redirect: string;
   selectedTotal: number;
-  animationState: CardStates | null;
+  animationState: CardState | null;
 }
 
 export const CheckoutContainer = ({
@@ -37,13 +34,11 @@ export const CheckoutContainer = ({
   userBalances,
   optimizedSelection,
   isLoadingUserBalances,
-  pageState,
-  setPageState,
-  desiredToken,
-  redirect,
   selectedTotal,
   animationState,
 }: CheckoutContainerProps) => {
+  const { pageState } = usePageState();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -61,14 +56,14 @@ export const CheckoutContainer = ({
 
       {/* Single AnimatePresence to control both components */}
       <AnimatePresence mode="wait">
-        {animationState === CardStates.CONNECT_WALLET && (
+        {animationState === CardState.CONNECT_WALLET && (
           <ConnectWalletInfo key="connect-wallet-info" />
         )}
-        {animationState === CardStates.SELECT_PAYMENT_METHOD && (
+        {animationState === CardState.SELECT_PAYMENT_METHOD && (
           <>
             <ConnectedWalletButton
               key="connected-wallet-button"
-              shouldAnimate={pageState === PageStates.CHECKOUT}
+              shouldAnimate={pageState === PageState.CHECKOUT}
             />
             <PaymentMethodCard
               key="payment-method-card"
@@ -77,7 +72,7 @@ export const CheckoutContainer = ({
               setSelectedTokens={setSelectedTokens}
               userAssets={userBalances}
               optimizedSelection={optimizedSelection}
-              shouldAnimate={pageState === PageStates.CHECKOUT}
+              shouldAnimate={pageState === PageState.CHECKOUT}
             />
           </>
         )}
@@ -86,13 +81,8 @@ export const CheckoutContainer = ({
       {/* Connect Button */}
       <ActionsButton
         isLoading={isLoadingUserBalances}
-        selectedTokens={selectedTokens}
-        destinationToken={desiredToken}
-        destinationChain={Number(desiredNetwork)}
-        redirect={redirect}
         selectedTotal={selectedTotal}
         amountDue={amountDue}
-        handleSetPageState={setPageState}
       />
     </motion.div>
   );

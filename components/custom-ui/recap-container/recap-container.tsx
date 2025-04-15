@@ -1,34 +1,29 @@
 import { motion } from "framer-motion";
 import { ActionsButton } from "../actions-button";
-import { PageStates } from "@/lib/enums";
+import { PageState } from "@/lib/enums";
 import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { UserAsset } from "@/lib/types";
 import { ChosenTokenList } from "./chosen-token-list";
+import { usePageState } from "@/components/providers/page-state-provider";
 
 interface RecapContainerProps {
   recipient: string;
   desiredNetwork: string;
   amountDue: number;
-  setPageState: (state: PageStates) => void;
   selectedTokens: UserAsset[];
   selectedTotal: number;
-  pageState: PageStates;
-  desiredToken: string;
-  redirect: string;
 }
 
 export const RecapContainer = ({
   recipient,
   desiredNetwork,
   amountDue,
-  setPageState,
   selectedTokens,
   selectedTotal,
-  pageState,
-  desiredToken,
-  redirect,
 }: RecapContainerProps) => {
+  const { pageState } = usePageState();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -42,11 +37,10 @@ export const RecapContainer = ({
         recipient={recipient}
         desiredNetworkId={desiredNetwork}
         amountDue={amountDue}
-        setPageState={setPageState}
       />
 
       <ConnectedWalletButton
-        shouldAnimate={pageState !== PageStates.PAYMENT_RECAP}
+        shouldAnimate={pageState !== PageState.PAYMENT_RECAP}
         disabled={true}
       />
       <ChosenTokenList selectedTokens={selectedTokens} amountDue={amountDue} />
@@ -54,13 +48,8 @@ export const RecapContainer = ({
       {/* Connect Button */}
       <ActionsButton
         isLoading={false}
-        selectedTokens={selectedTokens}
-        destinationToken={desiredToken}
-        destinationChain={Number(desiredNetwork)}
-        redirect={redirect}
         selectedTotal={selectedTotal}
         amountDue={amountDue}
-        handleSetPageState={setPageState}
       />
     </motion.div>
   );

@@ -4,15 +4,21 @@ import { useQueryState } from "nuqs";
 import { AnimatePresence } from "framer-motion";
 import { useUserBalances } from "@/hooks/useUserBalances";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelectedTokens } from "@/hooks/useSelectedTokens";
 import { useCardTransitions } from "@/hooks/useCardTransitions";
-import { PageStates } from "@/lib/enums";
+import { PageState } from "@/lib/enums";
 import { RecapContainer } from "@/components/custom-ui/recap-container/recap-container";
 import { CheckoutContainer } from "@/components/custom-ui/checkout-container.tsx/checkout-container";
+import { useCreateIntents } from "@/hooks/useCreateIntents";
+import { EMPTY_ADDRESS } from "@/lib/constants";
+import { Hex } from "viem";
+import TransactionsContainer from "@/components/custom-ui/transactions-container/transactions-container";
+import { usePageState } from "@/components/providers/page-state-provider";
 
 export default function Home() {
   const { address } = useAppKitAccount();
+  const { pageState } = usePageState();
   const [recipient] = useQueryState("recipient");
   const [amount] = useQueryState("amount");
   const [desiredNetwork] = useQueryState("network");
@@ -21,11 +27,6 @@ export default function Home() {
   const { userBalances, isLoadingUserBalances, hasFetchedUserBalances } =
     useUserBalances(address, desiredNetwork);
   const amountDue = Number(amount ?? "0.00");
-
-  // Page State
-  const [pageState, setPageState] = useState<PageStates | null>(
-    PageStates.CHECKOUT
-  );
 
   // Selected Tokens & optimized selection
   const {
@@ -41,7 +42,19 @@ export default function Home() {
     hasFetchedUserBalances
   );
 
+  // Create Intent
+  const { intents } = useCreateIntents({
+    selectedTokens,
+    destinationChainID: Number(desiredNetwork ?? "1"),
+    recipient: (recipient ?? EMPTY_ADDRESS) as Hex,
+    desiredToken: desiredToken ?? "",
+  });
+
   // TODO: Remove these logs in production
+  // useEffect(() => {
+  //   console.log("intents", intents);
+  // }, [intents]);
+
   // useEffect(() => {
   //   console.log("userBalances", userBalances);
   // }, [userBalances]);
@@ -50,22 +63,29 @@ export default function Home() {
   //   console.log("selectedTokens", selectedTokens);
   // }, [selectedTokens]);
 
+  useEffect(() => {
+    console.log(
+      "pageState",
+      pageState,
+      "\npageState === PageState.TRANSACTIONS",
+      pageState === PageState.TRANSACTIONS
+    );
+  }, [pageState]);
+
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
-      <AnimatePresence mode="wait">
-        {pageState === PageStates.PAYMENT_RECAP ? (
+      <AnimatePresence mode="wait" initial={false}>
+        {pageState === PageState.PAYMENT_RECAP ? (
           <RecapContainer
             key="recap-container"
             recipient={recipient ?? ""}
             desiredNetwork={desiredNetwork ?? "1"}
             amountDue={amountDue}
-            setPageState={setPageState}
             selectedTokens={selectedTokens}
             selectedTotal={selectedTotal}
-            pageState={pageState}
-            desiredToken={desiredToken ?? ""}
-            redirect={redirect ?? ""}
           />
+        ) : pageState === PageState.TRANSACTIONS ? (
+          <TransactionsContainer key="transactions-container" />
         ) : (
           <CheckoutContainer
             key="checkout-container"
@@ -77,10 +97,6 @@ export default function Home() {
             userBalances={userBalances}
             optimizedSelection={optimizedSelection}
             isLoadingUserBalances={isLoadingUserBalances}
-            pageState={pageState}
-            setPageState={setPageState}
-            desiredToken={desiredToken ?? ""}
-            redirect={redirect ?? ""}
             selectedTotal={selectedTotal}
             animationState={animationState}
           />

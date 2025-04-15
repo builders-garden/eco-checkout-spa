@@ -33,13 +33,13 @@ export enum TokenSymbols {
 }
 
 // Card States
-export enum CardStates {
+export enum CardState {
   CONNECT_WALLET = "connect-wallet",
   SELECT_PAYMENT_METHOD = "select-payment-method",
 }
 
 // Page States
-export enum PageStates {
+export enum PageState {
   CHECKOUT = "checkout",
   PAYMENT_RECAP = "payment-recap",
   TRANSACTIONS = "transactions",

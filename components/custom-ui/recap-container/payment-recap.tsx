@@ -4,24 +4,24 @@ import {
   truncateAddress,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
-import { emptyAddress } from "@/lib/constants";
-import { ChainImages, PageStates } from "@/lib/enums";
+import { EMPTY_ADDRESS } from "@/lib/constants";
+import { ChainImages, PageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { usePageState } from "@/components/providers/page-state-provider";
 
 interface PaymentRecapProps {
   recipient: string;
   desiredNetworkId: string;
   amountDue: number;
-  setPageState: (state: PageStates) => void;
 }
 
 export const PaymentRecap = ({
   recipient,
   desiredNetworkId,
   amountDue,
-  setPageState,
 }: PaymentRecapProps) => {
+  const { setPageState } = usePageState();
   const desiredNetworkNumber = Number(desiredNetworkId);
   const networkName = chainIdToChainName(desiredNetworkNumber);
 
@@ -38,7 +38,7 @@ export const PaymentRecap = ({
           }}
           className="flex justify-center items-center cursor-pointer pr-1"
           onClick={() => {
-            setPageState(PageStates.CHECKOUT);
+            setPageState(PageState.CHECKOUT);
           }}
         >
           <ArrowLeft className="size-5.5" />
@@ -52,7 +52,7 @@ export const PaymentRecap = ({
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Recipient</p>
           <p className="text-[16px] font-semibold">
-            {truncateAddress(recipient ?? emptyAddress)}
+            {truncateAddress(recipient ?? EMPTY_ADDRESS)}
           </p>
         </div>
         {/* To Chain */}

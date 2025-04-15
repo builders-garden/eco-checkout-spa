@@ -4,7 +4,7 @@ import {
   truncateAddress,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
-import { emptyAddress } from "@/lib/constants";
+import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages } from "@/lib/enums";
 
 interface PaymentSummaryProps {
@@ -32,7 +32,7 @@ export const PaymentSummary = ({
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Recipient</p>
           <p className="text-[16px] font-semibold">
-            {truncateAddress(recipient ?? emptyAddress)}
+            {truncateAddress(recipient ?? EMPTY_ADDRESS)}
           </p>
         </div>
         {/* To Chain */}

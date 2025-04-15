@@ -2,30 +2,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
-import { UserAsset } from "@/lib/types";
-import { PageStates } from "@/lib/enums";
+import { PageState } from "@/lib/enums";
+import { usePageState } from "../providers/page-state-provider";
 
 interface ActionsButtonProps {
   isLoading: boolean;
-  selectedTokens: UserAsset[];
-  destinationToken: string;
-  destinationChain: number;
-  redirect: string;
   selectedTotal: number;
   amountDue: number;
-  handleSetPageState: (state: PageStates) => void;
 }
 
 export const ActionsButton = ({
   isLoading,
-  selectedTokens,
-  destinationToken,
-  destinationChain,
-  redirect,
   selectedTotal,
   amountDue,
-  handleSetPageState,
 }: ActionsButtonProps) => {
+  const { pageState, setPageState } = usePageState();
   const [mounted, setMounted] = useState(false);
   const { isConnected, status, address } = useAppKitAccount();
   const { open } = useAppKit();
@@ -49,46 +40,23 @@ export const ActionsButton = ({
         key: "connect",
       };
     }
+    if (pageState === PageState.PAYMENT_RECAP) {
+      return {
+        text: "Confirm & Send",
+        onClick: () => {
+          setPageState(PageState.TRANSACTIONS);
+        },
+        key: "confirm-send",
+      };
+    }
     return {
       text: "Confirm",
       onClick: () => {
-        handleSetPageState(PageStates.PAYMENT_RECAP);
+        setPageState(PageState.PAYMENT_RECAP);
       },
       key: "confirm",
     };
-  }, [connected, open]);
-
-  // TODO: The array containing all the steps
-  // const steps: CreateIntentParams[] = useMemo(() => {
-  //   return selectedTokens.map((token) => {
-  //     return {
-  //       creator: address as Hex,
-  //       originChainID: chainStringToChainId(token.chain),
-  //       destinationChainID: destinationChain,
-  //       calls: [],
-  //       callTokens: [],
-  //       tokens: [],
-  //       prover: "StorageProver",
-  //     };
-  //   });
-  // }, [selectedTokens]);
-
-  // const routesService = new RoutesService();
-
-  // // Bridge: Create a simple stable transfer between two chains
-  // const intent = routesService.createSimpleIntent({
-  //   creator: address,
-  //   originChainID,
-  //   spendingToken,
-  //   spendingTokenBalance,
-  //   destinationChainID,
-  //   receivingToken,
-  //   amount,
-  //   recipient: address, // optional, defaults to the creator if not passed
-  // });
-
-  // const openQuotingClient = new OpenQuotingClient({ dAppID: 'my-dapp' });
-  // const quotes = await openQuotingClient.requestQuotesForIntent(intent);
+  }, [connected, open, pageState, setPageState]);
 
   return (
     <motion.button

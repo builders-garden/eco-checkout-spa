@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useState } from "react";
-import { CardStates } from "@/lib/enums";
+import { CardState } from "@/lib/enums";
 
 export const useCardTransitions = (
   isLoadingUserBalances: boolean,
@@ -11,8 +11,8 @@ export const useCardTransitions = (
   const [isFirstRender, setIsFirstRender] = useState(true);
 
   // Animation state to control sequence
-  const [animationState, setAnimationState] = useState<CardStates | null>(
-    CardStates.CONNECT_WALLET
+  const [animationState, setAnimationState] = useState<CardState | null>(
+    CardState.CONNECT_WALLET
   );
 
   const isConnectedAndFetched =
@@ -22,7 +22,7 @@ export const useCardTransitions = (
     hasFetchedUserBalances;
 
   // Handle transition between states
-  const handleSetAnimationState = (state: CardStates) => {
+  const handleSetAnimationState = (state: CardState) => {
     setAnimationState(null);
     setTimeout(() => {
       setAnimationState(state);
@@ -35,9 +35,9 @@ export const useCardTransitions = (
       return;
     }
     if (isConnectedAndFetched) {
-      handleSetAnimationState(CardStates.SELECT_PAYMENT_METHOD);
+      handleSetAnimationState(CardState.SELECT_PAYMENT_METHOD);
     } else {
-      handleSetAnimationState(CardStates.CONNECT_WALLET);
+      handleSetAnimationState(CardState.CONNECT_WALLET);
     }
   }, [isConnectedAndFetched]);
 
