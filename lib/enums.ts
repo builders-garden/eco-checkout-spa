@@ -32,10 +32,15 @@ export enum TokenSymbols {
   "usdt" = "USDT",
 }
 
-// Checkout Flow States
-export enum CheckoutFlowStates {
+// Card States
+export enum CardStates {
   CONNECT_WALLET = "connect-wallet",
   SELECT_PAYMENT_METHOD = "select-payment-method",
+}
+
+// Page States
+export enum PageStates {
+  CHECKOUT = "checkout",
   PAYMENT_RECAP = "payment-recap",
   TRANSACTIONS = "transactions",
 }

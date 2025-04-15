@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../shadcn-ui/button";
+import { Button } from "../../../shadcn-ui/button";
 import {
   DialogContent,
   DialogDescription,
@@ -7,14 +7,14 @@ import {
   DialogHeader,
   DialogTrigger,
   DialogFooter,
-} from "../shadcn-ui/dialog";
-import { Dialog } from "../shadcn-ui/dialog";
-import { ScrollArea } from "../shadcn-ui/scroll-area";
-import { SelectableToken } from "./selectable-token";
+} from "../../../shadcn-ui/dialog";
+import { Dialog } from "../../../shadcn-ui/dialog";
+import { ScrollArea } from "../../../shadcn-ui/scroll-area";
 import { UserAsset } from "@/lib/types";
 import { cn } from "@/lib/shadcn/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Info } from "lucide-react";
+import { SelectableToken } from "./selectable-token";
 
 interface AdvancedPaymentModalProps {
   children: React.ReactNode;

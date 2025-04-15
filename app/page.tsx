@@ -1,18 +1,15 @@
 "use client";
 
 import { useQueryState } from "nuqs";
-import { AnimatePresence, motion } from "framer-motion";
-import { ActionsButton } from "@/components/custom-ui/actions-button";
-import { ConnectedWalletButton } from "@/components/custom-ui/connected-wallet-button";
+import { AnimatePresence } from "framer-motion";
 import { useUserBalances } from "@/hooks/useUserBalances";
 import { useAppKitAccount } from "@reown/appkit/react";
-import { useEffect } from "react";
+import { useState } from "react";
 import { useSelectedTokens } from "@/hooks/useSelectedTokens";
-import { PaymentSummary } from "@/components/custom-ui/payment-summary";
-import { ConnectWalletInfo } from "@/components/custom-ui/connect-wallet-info";
-import { useStateTransitions } from "@/hooks/useStateTransitions";
-import { CheckoutFlowStates } from "@/lib/enums";
-import { PaymentMethodCard } from "@/components/custom-ui/payment-method-card";
+import { useCardTransitions } from "@/hooks/useCardTransitions";
+import { PageStates } from "@/lib/enums";
+import { RecapContainer } from "@/components/custom-ui/recap-container/recap-container";
+import { CheckoutContainer } from "@/components/custom-ui/checkout-container.tsx/checkout-container";
 
 export default function Home() {
   const { address } = useAppKitAccount();
@@ -25,6 +22,12 @@ export default function Home() {
     useUserBalances(address, desiredNetwork);
   const amountDue = Number(amount ?? "0.00");
 
+  // Page State
+  const [pageState, setPageState] = useState<PageStates | null>(
+    PageStates.CHECKOUT
+  );
+
+  // Selected Tokens & optimized selection
   const {
     selectedTokens,
     selectedTotal,
@@ -32,68 +35,57 @@ export default function Home() {
     optimizedSelection,
   } = useSelectedTokens(userBalances, amountDue);
 
-  const { animationState } = useStateTransitions(
+  // Card Transitions
+  const { animationState } = useCardTransitions(
     isLoadingUserBalances,
     hasFetchedUserBalances
   );
 
   // TODO: Remove these logs in production
-  useEffect(() => {
-    console.log("userBalances", userBalances);
-  }, [userBalances]);
+  // useEffect(() => {
+  //   console.log("userBalances", userBalances);
+  // }, [userBalances]);
 
-  useEffect(() => {
-    console.log("selectedTokens", selectedTokens);
-  }, [selectedTokens]);
+  // useEffect(() => {
+  //   console.log("selectedTokens", selectedTokens);
+  // }, [selectedTokens]);
 
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden"
-      >
-        {/* Payment Summary */}
-        <PaymentSummary
-          key="payment-summary"
-          recipient={recipient ?? ""}
-          desiredNetworkId={desiredNetwork ?? "1"}
-          amountDue={amountDue}
-        />
-
-        {/* Single AnimatePresence to control both components */}
-        <AnimatePresence mode="wait">
-          {animationState === CheckoutFlowStates.CONNECT_WALLET && (
-            <ConnectWalletInfo key="connect-wallet-info" />
-          )}
-          {animationState === CheckoutFlowStates.SELECT_PAYMENT_METHOD && (
-            <>
-              <ConnectedWalletButton key="connected-wallet-button" />
-              <PaymentMethodCard
-                amountDue={amountDue}
-                selectedTokens={selectedTokens}
-                setSelectedTokens={setSelectedTokens}
-                selectedTotal={selectedTotal}
-                userAssets={userBalances}
-                optimizedSelection={optimizedSelection}
-              />
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* Connect Button */}
-        <ActionsButton
-          key="actions-button"
-          isLoading={isLoadingUserBalances}
-          selectedTokens={selectedTokens}
-          destinationToken={desiredToken ?? ""}
-          destinationChain={Number(desiredNetwork)}
-          redirect={redirect ?? ""}
-          selectedTotal={selectedTotal ?? 0}
-          amountDue={amountDue}
-        />
-      </motion.div>
+      <AnimatePresence mode="wait">
+        {pageState === PageStates.PAYMENT_RECAP ? (
+          <RecapContainer
+            key="recap-container"
+            recipient={recipient ?? ""}
+            desiredNetwork={desiredNetwork ?? "1"}
+            amountDue={amountDue}
+            setPageState={setPageState}
+            selectedTokens={selectedTokens}
+            selectedTotal={selectedTotal}
+            pageState={pageState}
+            desiredToken={desiredToken ?? ""}
+            redirect={redirect ?? ""}
+          />
+        ) : (
+          <CheckoutContainer
+            key="checkout-container"
+            recipient={recipient ?? ""}
+            desiredNetwork={desiredNetwork ?? "1"}
+            amountDue={amountDue}
+            selectedTokens={selectedTokens}
+            setSelectedTokens={setSelectedTokens}
+            userBalances={userBalances}
+            optimizedSelection={optimizedSelection}
+            isLoadingUserBalances={isLoadingUserBalances}
+            pageState={pageState}
+            setPageState={setPageState}
+            desiredToken={desiredToken ?? ""}
+            redirect={redirect ?? ""}
+            selectedTotal={selectedTotal}
+            animationState={animationState}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 }

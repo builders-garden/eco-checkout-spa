@@ -205,3 +205,26 @@ export const getAmountDeducted = (
   }
   return total;
 };
+
+/**
+ * Groups selected tokens by asset name and chain, takes only one occurrence for each token+chain combination
+ * @param selectedTokens - The selected tokens
+ * @returns The grouped tokens
+ */
+export const groupSelectedTokensByAssetName = (selectedTokens: UserAsset[]) => {
+  return selectedTokens.reduce((acc, token) => {
+    const assetName =
+      token.asset === "usdce" || token.asset === "usdbc" ? "usdc" : token.asset;
+    const chain = token.chain;
+    // Check if same token and chain combination already exists
+    const existingToken = acc[assetName]?.find(
+      (t) => t.assetName === assetName && t.chain === chain
+    );
+    // If the combination doesn't exist, add the token to the array
+    if (!existingToken) {
+      acc[assetName] = acc[assetName] || [];
+      acc[assetName].push({ assetName, chain });
+    }
+    return acc;
+  }, {} as Record<string, { assetName: string; chain: string }[]>);
+};

@@ -3,28 +3,48 @@ import {
   chainIdToChainName,
   truncateAddress,
 } from "@/lib/utils";
-import { Separator } from "../shadcn-ui/separator";
+import { Separator } from "../../shadcn-ui/separator";
 import { emptyAddress } from "@/lib/constants";
-import { ChainImages } from "@/lib/enums";
+import { ChainImages, PageStates } from "@/lib/enums";
+import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 
-interface PaymentSummaryProps {
+interface PaymentRecapProps {
   recipient: string;
   desiredNetworkId: string;
   amountDue: number;
+  setPageState: (state: PageStates) => void;
 }
 
-export const PaymentSummary = ({
+export const PaymentRecap = ({
   recipient,
   desiredNetworkId,
   amountDue,
-}: PaymentSummaryProps) => {
+  setPageState,
+}: PaymentRecapProps) => {
   const desiredNetworkNumber = Number(desiredNetworkId);
   const networkName = chainIdToChainName(desiredNetworkNumber);
 
   return (
     <div className="flex flex-col justify-start items-start p-4 gap-6">
       {/* Header */}
-      <h1 className="text-xl font-bold">Payment Summary</h1>
+      <div className="flex justify-start items-center w-full gap-2">
+        <motion.button
+          whileTap={{
+            scale: 0.95,
+          }}
+          whileHover={{
+            scale: 1.05,
+          }}
+          className="flex justify-center items-center cursor-pointer pr-1"
+          onClick={() => {
+            setPageState(PageStates.CHECKOUT);
+          }}
+        >
+          <ArrowLeft className="size-5.5" />
+        </motion.button>
+        <h1 className="text-xl font-bold">Payment Recap</h1>
+      </div>
 
       {/* Info */}
       <div className="flex flex-col w-full gap-3">
@@ -58,10 +78,17 @@ export const PaymentSummary = ({
 
       <Separator className="w-full" />
 
-      <div className="flex flex-col w-full">
-        {/* Total */}
-        <div className="flex justify-between items-center w-full gap-2">
-          <p className="text-lg font-semibold">Amount</p>
+      <div className="flex flex-col w-full gap-2">
+        <div className="flex justify-between items-center w-full">
+          <p className="text-[16px] text-secondary">Amount</p>
+          <p className="text-[16px] font-semibold">${amountDue.toFixed(2)}</p>
+        </div>
+        <div className="flex justify-between items-center w-full">
+          <p className="text-[16px] text-secondary">Estimated Fees</p>
+          <p className="text-[16px] font-semibold">$0.0001</p>
+        </div>
+        <div className="flex justify-between items-center w-full">
+          <p className="text-lg font-semibold">Total</p>
           <p className="text-lg font-semibold">${amountDue.toFixed(2)}</p>
         </div>
       </div>

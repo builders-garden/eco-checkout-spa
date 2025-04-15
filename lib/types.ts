@@ -8,6 +8,11 @@ export type UserAsset = {
   decimals: number;
 };
 
+export type GroupedTokens = Record<
+  string,
+  { assetName: string; chain: string }[]
+>;
+
 export type CreateIntentParams = {
   creator: Hex;
   originChainID: Number;
