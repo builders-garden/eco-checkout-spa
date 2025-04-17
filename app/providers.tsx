@@ -1,6 +1,9 @@
 "use client";
 
 import AppKitProvider from "@/components/providers/appkit-provider";
+import { PaymentParamsProvider } from "@/components/providers/payment-params-provider";
+import { SelectedTokensProvider } from "@/components/providers/selected-tokens-provider";
+import { UserBalancesProvider } from "@/components/providers/user-balances-provider";
 import { TooltipProvider } from "@/components/shadcn-ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
@@ -14,7 +17,13 @@ export const Providers = ({ children, cookies }: ProvidersProps) => {
   return (
     <AppKitProvider cookies={cookies}>
       <NuqsAdapter>
-        <TooltipProvider>{children}</TooltipProvider>
+        <PaymentParamsProvider>
+          <UserBalancesProvider>
+            <SelectedTokensProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </SelectedTokensProvider>
+          </UserBalancesProvider>
+        </PaymentParamsProvider>
       </NuqsAdapter>
     </AppKitProvider>
   );

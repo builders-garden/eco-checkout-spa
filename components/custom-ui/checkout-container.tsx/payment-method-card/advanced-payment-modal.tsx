@@ -15,22 +15,22 @@ import { cn } from "@/lib/shadcn/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Info } from "lucide-react";
 import { SelectableToken } from "./selectable-token";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useUserBalances } from "@/components/providers/user-balances-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 
 interface AdvancedPaymentModalProps {
   children: React.ReactNode;
-  amountDue: number;
-  userAssets: UserAsset[] | undefined;
-  selectedTokens: UserAsset[];
-  setSelectedTokens: (tokens: UserAsset[]) => void;
 }
 
 export const AdvancedPaymentModal = ({
   children,
-  amountDue,
-  userAssets,
-  selectedTokens,
-  setSelectedTokens,
 }: AdvancedPaymentModalProps) => {
+  const { selectedTokens, setSelectedTokens } = useSelectedTokens();
+  const { userBalances } = useUserBalances();
+  const { paymentParams } = usePaymentParams();
+  const { amountDue } = paymentParams;
+
   const [open, setOpen] = useState(false);
   const [modalSelectedTokens, setModalSelectedTokens] =
     useState<UserAsset[]>(selectedTokens);
@@ -41,7 +41,7 @@ export const AdvancedPaymentModal = ({
   }, 0);
 
   // Check if the selected amount is enough to cover the required amount
-  const isAmountReached = modalSelectedTotal >= amountDue;
+  const isAmountReached = modalSelectedTotal >= amountDue!;
 
   // Handle the open state of the modal
   const handleOpenChange = (open: boolean) => {
@@ -67,7 +67,7 @@ export const AdvancedPaymentModal = ({
         </DialogHeader>
         <div className="flex justify-between items-center w-full">
           <p className="font-semibold">
-            Required amount: ${amountDue.toFixed(2)}
+            Required amount: ${amountDue!.toFixed(2)}
           </p>
           <p
             className={cn(
@@ -82,8 +82,8 @@ export const AdvancedPaymentModal = ({
         <div className="flex flex-col justify-start items-start w-full">
           <ScrollArea className="h-[255px] w-full">
             <div className="flex flex-col gap-2 justify-start items-start w-[98%]">
-              {userAssets && userAssets.length > 0 ? (
-                userAssets.map((token, index) => (
+              {userBalances && userBalances.length > 0 ? (
+                userBalances.map((token, index) => (
                   <SelectableToken
                     key={`${token.asset}-${token.chain}`}
                     token={token}
@@ -91,7 +91,6 @@ export const AdvancedPaymentModal = ({
                     setSelectedTokens={setModalSelectedTokens}
                     index={index}
                     isAmountReached={isAmountReached}
-                    amountDue={amountDue}
                   />
                 ))
               ) : (
@@ -119,7 +118,7 @@ export const AdvancedPaymentModal = ({
                   <Info className="size-3.5 text-warning" />
                   <p className="text-xs text-warning">
                     Selected tokens don&apos;t cover the required amount ($
-                    {amountDue.toFixed(2)})
+                    {amountDue!.toFixed(2)})
                   </p>
                 </div>
               </motion.div>

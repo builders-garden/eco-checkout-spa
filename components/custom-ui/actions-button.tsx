@@ -3,24 +3,24 @@ import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
 import { PageState } from "@/lib/enums";
+import { PageStateType } from "@/lib/types";
+import { usePaymentParams } from "../providers/payment-params-provider";
+import { useSelectedTokens } from "../providers/selected-tokens-provider";
+import { useUserBalances } from "../providers/user-balances-provider";
 
 interface ActionsButtonProps {
-  isLoading: boolean;
-  selectedTotal: number;
-  amountDue: number;
-  pageState: PageState;
-  setPageState: (
-    pageState: PageState | ((prev: PageState) => PageState)
-  ) => void;
+  pageState: PageStateType;
+  setPageState: (pageState: PageState) => void;
 }
 
 export const ActionsButton = ({
-  isLoading,
-  selectedTotal,
-  amountDue,
   pageState,
   setPageState,
 }: ActionsButtonProps) => {
+  const { paymentParams } = usePaymentParams();
+  const { amountDue } = paymentParams;
+  const { selectedTotal } = useSelectedTokens();
+  const { isLoadingUserBalances } = useUserBalances();
   const [mounted, setMounted] = useState(false);
   const { isConnected, status, address } = useAppKitAccount();
   const { open } = useAppKit();
@@ -32,8 +32,8 @@ export const ActionsButton = ({
   // States
   const ready = status !== "connecting" && status !== "reconnecting";
   const connected = isConnected && !!address;
-  const showLoader = !mounted || isLoading || !ready;
-  const isDisabled = connected && selectedTotal < amountDue;
+  const showLoader = !mounted || !ready || (connected && isLoadingUserBalances);
+  const isDisabled = connected && selectedTotal < amountDue!;
 
   // Button Props
   const { text, onClick, key } = useMemo(() => {
@@ -44,7 +44,7 @@ export const ActionsButton = ({
         key: "connect",
       };
     }
-    if (pageState === PageState.PAYMENT_RECAP) {
+    if (pageState.current === PageState.PAYMENT_RECAP) {
       return {
         text: "Confirm & Send",
         onClick: () => {
@@ -64,10 +64,16 @@ export const ActionsButton = ({
 
   return (
     <motion.button
-      initial={{ opacity: 1 }}
-      animate={{ opacity: showLoader || isDisabled ? 0.7 : 1 }}
-      whileHover={{ scale: showLoader || isDisabled ? 1 : 1.02 }}
-      whileTap={{ scale: showLoader || isDisabled ? 1 : 0.98 }}
+      initial={{ opacity: 0.7 }}
+      animate={{
+        opacity: showLoader || isDisabled ? 0.7 : 1,
+      }}
+      whileHover={{
+        scale: showLoader || isDisabled ? 1 : 1.02,
+      }}
+      whileTap={{
+        scale: showLoader || isDisabled ? 1 : 0.98,
+      }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={onClick}

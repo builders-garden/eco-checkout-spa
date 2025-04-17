@@ -1,34 +1,26 @@
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { TokenSymbols } from "@/lib/enums";
 import { TokenImages } from "@/lib/enums";
 import { ChainImages } from "@/lib/enums";
-import { UserAsset } from "@/lib/types";
 import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { CreditCard } from "lucide-react";
 
-interface ChosenTokenListProps {
-  selectedTokens: UserAsset[];
-  amountDue: number;
-}
+export const ChosenTokenList = () => {
+  const { selectedTokens } = useSelectedTokens();
+  const { paymentParams } = usePaymentParams();
+  const { amountDue } = paymentParams;
 
-export const ChosenTokenList = ({
-  selectedTokens,
-  amountDue,
-}: ChosenTokenListProps) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-start items-center gap-1.5">
         <CreditCard className="size-4 text-secondary" />
         <p className="text-sm text-secondary">Payment method</p>
       </div>
-      {selectedTokens.map((token, index) => (
-        <motion.div
+      {selectedTokens.map((token) => (
+        <div
           key={`${token.asset}-${token.chain}`}
           className="flex justify-between items-center bg-accent rounded-[8px] py-2 px-4"
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          layout
-          transition={{ duration: 0.3, delay: index * 0.1 }}
         >
           <div className="flex justify-start items-center gap-2">
             <div className="relative flex justify-center items-center">
@@ -62,10 +54,10 @@ export const ChosenTokenList = ({
             </p>
             <p className="text-xs text-secondary font-semibold text-right">
               -$
-              {getAmountDeducted(amountDue, selectedTokens, token).toFixed(2)}
+              {getAmountDeducted(amountDue!, selectedTokens, token).toFixed(2)}
             </p>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   );

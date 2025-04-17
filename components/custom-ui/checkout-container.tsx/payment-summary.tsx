@@ -6,20 +6,13 @@ import {
 import { Separator } from "../../shadcn-ui/separator";
 import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages } from "@/lib/enums";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
 
-interface PaymentSummaryProps {
-  recipient: string;
-  desiredNetworkId: string;
-  amountDue: number;
-}
+export const PaymentSummary = () => {
+  const { paymentParams } = usePaymentParams();
+  const { recipient, desiredNetworkId, amountDue } = paymentParams;
 
-export const PaymentSummary = ({
-  recipient,
-  desiredNetworkId,
-  amountDue,
-}: PaymentSummaryProps) => {
-  const desiredNetworkNumber = Number(desiredNetworkId);
-  const networkName = chainIdToChainName(desiredNetworkNumber);
+  const networkName = chainIdToChainName(desiredNetworkId!);
 
   return (
     <div className="flex flex-col justify-start items-start p-4 gap-6">
@@ -44,12 +37,12 @@ export const PaymentSummary = ({
               src={
                 ChainImages[
                   chainIdToChain(
-                    desiredNetworkNumber,
+                    desiredNetworkId!,
                     true
                   ) as keyof typeof ChainImages
                 ]
               }
-              alt={desiredNetworkId}
+              alt={desiredNetworkId!.toString()}
               className="size-5 rounded-full object-cover"
             />
           </div>
@@ -62,7 +55,7 @@ export const PaymentSummary = ({
         {/* Total */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-lg font-semibold">Amount</p>
-          <p className="text-lg font-semibold">${amountDue.toFixed(2)}</p>
+          <p className="text-lg font-semibold">${amountDue!.toFixed(2)}</p>
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
@@ -12,7 +13,6 @@ interface SelectableTokenProps {
   setSelectedTokens: (tokens: UserAsset[]) => void;
   index: number;
   isAmountReached: boolean;
-  amountDue: number;
 }
 
 export const SelectableToken = ({
@@ -21,8 +21,10 @@ export const SelectableToken = ({
   setSelectedTokens,
   index,
   isAmountReached,
-  amountDue,
 }: SelectableTokenProps) => {
+  const { paymentParams } = usePaymentParams();
+  const { amountDue } = paymentParams;
+
   const isSelected = selectedTokens.some((t) => t === token);
 
   const handleSelectToken = () => {
@@ -35,7 +37,7 @@ export const SelectableToken = ({
 
   // Calculate the amount deducted from this specific token
   const amountDeducted = useMemo(() => {
-    return getAmountDeducted(amountDue, selectedTokens, token);
+    return getAmountDeducted(amountDue!, selectedTokens, token);
   }, [amountDue, token.amount, selectedTokens]);
 
   return (

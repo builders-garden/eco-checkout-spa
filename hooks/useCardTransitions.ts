@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useState } from "react";
 import { CardState } from "@/lib/enums";
+import { useUserBalances } from "@/components/providers/user-balances-provider";
 
-export const useCardTransitions = (
-  isLoadingUserBalances: boolean,
-  hasFetchedUserBalances: boolean
-) => {
+export const useCardTransitions = () => {
+  const { hasFetchedUserBalances, isLoadingUserBalances } = useUserBalances();
+
   const { address, isConnected } = useAppKitAccount();
   const [isFirstRender, setIsFirstRender] = useState(true);
 

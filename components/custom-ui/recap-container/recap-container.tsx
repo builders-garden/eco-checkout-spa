@@ -1,62 +1,68 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ActionsButton } from "../actions-button";
-import { PageState } from "@/lib/enums";
+import { PageStateType } from "@/lib/types";
 import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";
-import { UserAsset } from "@/lib/types";
 import { ChosenTokenList } from "./chosen-token-list";
+import { PageState } from "@/lib/enums";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 
 interface RecapContainerProps {
-  recipient: string;
-  desiredNetwork: string;
-  amountDue: number;
-  selectedTokens: UserAsset[];
-  selectedTotal: number;
-  pageState: PageState;
-  setPageState: (
-    pageState: PageState | ((prev: PageState) => PageState)
-  ) => void;
+  pageState: PageStateType;
+  setPageState: (pageState: PageState) => void;
 }
 
 export const RecapContainer = ({
-  recipient,
-  desiredNetwork,
-  amountDue,
-  selectedTokens,
-  selectedTotal,
   pageState,
   setPageState,
 }: RecapContainerProps) => {
+  const initialDirection =
+    pageState.previous === PageState.TRANSACTIONS
+      ? -100
+      : pageState.previous === PageState.CHECKOUT
+      ? 100
+      : 0;
+
+  const variants = {
+    initial: { opacity: 0, x: initialDirection },
+    animate: { opacity: 1, x: 0 },
+    exit: (custom: PageState) => ({
+      opacity: 0,
+      x:
+        custom === PageState.CHECKOUT
+          ? 100
+          : custom === PageState.TRANSACTIONS
+          ? -100
+          : 0,
+    }),
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      variants={variants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      custom={pageState.current}
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden"
     >
       {/* Payment Summary/Recap */}
-      <PaymentRecap
-        recipient={recipient}
-        desiredNetworkId={desiredNetwork}
-        amountDue={amountDue}
-        setPageState={setPageState}
-      />
+      <PaymentRecap setPageState={setPageState} />
 
-      <ConnectedWalletButton
-        shouldAnimate={pageState !== PageState.PAYMENT_RECAP}
-        disabled={true}
-      />
-      <ChosenTokenList selectedTokens={selectedTokens} amountDue={amountDue} />
+      <AnimatePresence initial={false}>
+        <ConnectedWalletButton key="connected-wallet-button" disabled={true} />
+        <ChosenTokenList key="chosen-token-list" />
+      </AnimatePresence>
 
       {/* Connect Button */}
-      <ActionsButton
-        isLoading={false}
-        selectedTotal={selectedTotal}
-        amountDue={amountDue}
-        pageState={pageState}
-        setPageState={setPageState}
-      />
+      <AnimatePresence mode="wait">
+        <ActionsButton
+          key="actions-button"
+          pageState={pageState}
+          setPageState={setPageState}
+        />
+      </AnimatePresence>
     </motion.div>
   );
 };

@@ -1,82 +1,77 @@
 "use client";
 
-import { useQueryState } from "nuqs";
 import { AnimatePresence } from "framer-motion";
-import { useUserBalances } from "@/hooks/useUserBalances";
-import { useAppKitAccount } from "@reown/appkit/react";
-import { useEffect, useState } from "react";
-import { useSelectedTokens } from "@/hooks/useSelectedTokens";
-import { useCardTransitions } from "@/hooks/useCardTransitions";
 import { PageState } from "@/lib/enums";
 import { RecapContainer } from "@/components/custom-ui/recap-container/recap-container";
 import { CheckoutContainer } from "@/components/custom-ui/checkout-container.tsx/checkout-container";
-import { useCreateIntents } from "@/hooks/useCreateIntents";
-import { EMPTY_ADDRESS } from "@/lib/constants";
-import { Hex } from "viem";
 import TransactionsContainer from "@/components/custom-ui/transactions-container/transactions-container";
+import { usePageState } from "@/hooks/usePageState";
+import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container";
+import { useCreateIntents } from "@/hooks/useCreateIntents";
+import { useEffect } from "react";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useCardTransitions } from "@/hooks/useCardTransitions";
 
 export default function Home() {
-  const { address } = useAppKitAccount();
-  const [recipient] = useQueryState("recipient");
-  const [amount] = useQueryState("amount");
-  const [desiredNetwork] = useQueryState("network");
-  const [desiredToken] = useQueryState("token");
-  const [redirect] = useQueryState("redirect");
-  const { userBalances, isLoadingUserBalances, hasFetchedUserBalances } =
-    useUserBalances(address, desiredNetwork);
-  const amountDue = Number(amount ?? "0.00");
-  const [pageState, setPageState] = useState<PageState>(PageState.CHECKOUT);
+  // Payment Params
+  const { areAllPaymentParamsValid } = usePaymentParams();
 
-  // Selected Tokens & optimized selection
-  const {
-    selectedTokens,
-    selectedTotal,
-    setSelectedTokens,
-    optimizedSelection,
-  } = useSelectedTokens(userBalances, amountDue);
+  // Page State
+  const { pageState, setPageState } = usePageState(areAllPaymentParamsValid);
 
   // Card Transitions
-  const { animationState } = useCardTransitions(
-    isLoadingUserBalances,
-    hasFetchedUserBalances
-  );
+  // Must be handled in the parent component to avoid
+  // re-rendering and resetting the of the animation state
+  const { animationState } = useCardTransitions();
 
-  // Create Intent
-  // const { intents } = useCreateIntents({
+  // Create Intent & get optimized quotes
+  // const { intents, optimizedIntents } = useCreateIntents({
   //   selectedTokens,
-  //   destinationChainID: Number(desiredNetwork ?? "1"),
-  //   recipient: (recipient ?? EMPTY_ADDRESS) as Hex,
-  //   desiredToken: desiredToken ?? "",
+  //   paymentParams,
+  //   areAllPaymentParamsValid,
   // });
 
+  // Create Simple Intent
+  // const { intents: simpleIntents, optimizedIntents: simpleOptimizedIntents } =
+  //   useCreateSimpleIntents({
+  //     selectedTokens,
+  //     destinationChainID: Number(network ?? "1"),
+  //     recipient: (recipient ?? EMPTY_ADDRESS) as Hex,
+  //     desiredToken: token ?? "",
+  //   });
+
   // TODO: Remove these logs in production
+  // useEffect(() => {
+  //   console.log("simpleIntents", simpleIntents);
+  // }, [simpleIntents]);
+
+  // useEffect(() => {
+  //   console.log("simpleOptimizedIntents", simpleOptimizedIntents);
+  // }, [simpleOptimizedIntents]);
+
   // useEffect(() => {
   //   console.log("intents", intents);
   // }, [intents]);
 
   // useEffect(() => {
-  //   console.log("userBalances", userBalances);
-  // }, [userBalances]);
-
-  // useEffect(() => {
-  //   console.log("selectedTokens", selectedTokens);
-  // }, [selectedTokens]);
+  //   console.log("intents", intents);
+  // }, [intents]);
 
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
-      <AnimatePresence mode="wait" initial={false}>
-        {pageState === PageState.PAYMENT_RECAP ? (
+      <AnimatePresence mode="wait" custom={pageState.current}>
+        {pageState.current === PageState.MISSING_PARAMS ? (
+          <MissingParamsContainer
+            key="missing-params-container"
+            setPageState={setPageState}
+          />
+        ) : pageState.current === PageState.PAYMENT_RECAP ? (
           <RecapContainer
             key="recap-container"
-            recipient={recipient ?? ""}
-            desiredNetwork={desiredNetwork ?? "1"}
-            amountDue={amountDue}
-            selectedTokens={selectedTokens}
-            selectedTotal={selectedTotal}
             pageState={pageState}
             setPageState={setPageState}
           />
-        ) : pageState === PageState.TRANSACTIONS ? (
+        ) : pageState.current === PageState.TRANSACTIONS ? (
           <TransactionsContainer
             key="transactions-container"
             setPageState={setPageState}
@@ -84,18 +79,9 @@ export default function Home() {
         ) : (
           <CheckoutContainer
             key="checkout-container"
-            recipient={recipient ?? ""}
-            desiredNetwork={desiredNetwork ?? "1"}
-            amountDue={amountDue}
-            selectedTokens={selectedTokens}
-            setSelectedTokens={setSelectedTokens}
-            userBalances={userBalances}
-            optimizedSelection={optimizedSelection}
-            isLoadingUserBalances={isLoadingUserBalances}
-            selectedTotal={selectedTotal}
-            animationState={animationState}
             pageState={pageState}
             setPageState={setPageState}
+            animationState={animationState}
           />
         )}
       </AnimatePresence>

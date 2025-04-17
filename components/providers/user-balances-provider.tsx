@@ -1,23 +1,57 @@
 import { UserAsset } from "@/lib/types";
 import { chainIdToChain } from "@/lib/utils";
 import { useAppKitAccount } from "@reown/appkit/react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { usePaymentParams } from "./payment-params-provider";
 import ky from "ky";
-import { useEffect, useState } from "react";
 
-export const useUserBalances = (
-  userAddress: string | undefined,
-  destinationNetwork: string | null
-) => {
+export const UserBalancesContext = createContext<
+  UserBalancesContextType | undefined
+>(undefined);
+
+export type UserBalancesContextType = {
+  userBalances: UserAsset[];
+  isLoadingUserBalances: boolean;
+  hasFetchedUserBalances: boolean;
+  isErrorUserBalances: boolean;
+};
+
+export const useUserBalances = () => {
+  const context = useContext(UserBalancesContext);
+  if (!context) {
+    throw new Error(
+      "useUserBalances must be used within a UserBalancesProvider"
+    );
+  }
+  return context;
+};
+
+export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
   const { address, isConnected } = useAppKitAccount();
+
   const [userBalances, setUserBalances] = useState<UserAsset[]>([]);
   const [hasFetchedUserBalances, setHasFetchedUserBalances] = useState(false);
   const [isLoadingUserBalances, setIsLoadingUserBalances] = useState(false);
   const [isErrorUserBalances, setIsErrorUserBalances] = useState(false);
 
-  const destinationNetworkString = chainIdToChain(
-    Number(destinationNetwork ?? 1),
-    true
-  ) as string;
+  const { paymentParams } = usePaymentParams();
+  const { desiredNetworkId } = paymentParams;
+
+  const destinationNetworkString: string | null = useMemo(() => {
+    if (!desiredNetworkId) return null;
+    try {
+      return chainIdToChain(desiredNetworkId, true) as string;
+    } catch (error) {
+      return null;
+    }
+  }, [desiredNetworkId, chainIdToChain]);
 
   useEffect(() => {
     if (!isConnected && !address) {
@@ -30,12 +64,12 @@ export const useUserBalances = (
 
   useEffect(() => {
     const fetchUserBalances = async () => {
-      if (!userAddress) return;
+      if (!address || !destinationNetworkString) return;
       setIsLoadingUserBalances(true);
       setHasFetchedUserBalances(false);
       try {
         const response = await ky
-          .get<UserAsset[]>(`/api/user-balances?userAddress=${userAddress}`)
+          .get<UserAsset[]>(`/api/user-balances?userAddress=${address}`)
           .json();
 
         // Order the user balances following the rules:
@@ -84,12 +118,26 @@ export const useUserBalances = (
       }
     };
     fetchUserBalances();
-  }, [userAddress]);
+  }, [address, destinationNetworkString]);
 
-  return {
-    userBalances,
-    isLoadingUserBalances,
-    isErrorUserBalances,
-    hasFetchedUserBalances,
-  };
+  const value = useMemo(
+    () => ({
+      userBalances,
+      isLoadingUserBalances,
+      hasFetchedUserBalances,
+      isErrorUserBalances,
+    }),
+    [
+      userBalances,
+      isLoadingUserBalances,
+      hasFetchedUserBalances,
+      isErrorUserBalances,
+    ]
+  );
+
+  return (
+    <UserBalancesContext.Provider value={value}>
+      {children}
+    </UserBalancesContext.Provider>
+  );
 };

@@ -2,9 +2,7 @@ import { PageState } from "@/lib/enums";
 import { motion } from "framer-motion";
 
 interface TransactionsContainerProps {
-  setPageState: (
-    pageState: PageState | ((prev: PageState) => PageState)
-  ) => void;
+  setPageState: (pageState: PageState) => void;
 }
 
 export default function TransactionsContainer({

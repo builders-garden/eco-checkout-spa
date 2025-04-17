@@ -8,23 +8,19 @@ import { Wallet } from "lucide-react";
 
 interface ConnectedWalletButtonProps {
   disabled?: boolean;
-  shouldAnimate?: boolean;
 }
 
 export const ConnectedWalletButton = ({
   disabled,
-  shouldAnimate = true,
 }: ConnectedWalletButtonProps) => {
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
 
   return (
     <motion.div
-      initial={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
-      animate={
-        shouldAnimate ? { opacity: 1, height: "fit-content" } : undefined
-      }
-      exit={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "fit-content" }}
+      exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full gap-2"
     >

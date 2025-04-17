@@ -22,6 +22,7 @@ export const truncateAddress = (address: string, size: number = 4) => {
  * Converts a chain ID to a chain Viem object or string, defaulting to base
  * @param chainId - The chain ID
  * @param asString - Whether to return the chain as a string (default: false)
+ * @throws {Error} If the chain ID is not supported
  * @returns The chain object or string
  */
 export const chainIdToChain = (chainId: number, asString: boolean = false) => {
@@ -32,18 +33,21 @@ export const chainIdToChain = (chainId: number, asString: boolean = false) => {
       return asString ? "optimism" : optimism;
     case 137:
       return asString ? "polygon" : polygon;
+    case 8453:
+      return asString ? "base" : base;
     case 5000:
       return asString ? "mantle" : mantle;
     case 42161:
       return asString ? "arbitrum" : arbitrum;
     default:
-      return asString ? "base" : base;
+      throw new Error(`Unknown chain ID: ${chainId}`);
   }
 };
 
 /**
  * Converts a chain ID to a chain name with the first letter capitalized
  * @param chainId - The chain ID
+ * @throws {Error} If the chain ID is not supported
  * @returns The chain name
  */
 export const chainIdToChainName = (chainId: number): string => {
