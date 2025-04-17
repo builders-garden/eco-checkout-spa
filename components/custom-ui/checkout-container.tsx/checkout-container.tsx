@@ -8,7 +8,6 @@ import { ConnectedWalletButton } from "../connected-wallet-button";
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "../actions-button";
 import { PageStateType } from "@/lib/types";
-import { useEffect } from "react";
 
 interface CheckoutContainerProps {
   pageState: PageStateType;

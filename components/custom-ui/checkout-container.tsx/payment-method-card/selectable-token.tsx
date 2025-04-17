@@ -1,4 +1,5 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
@@ -9,19 +10,17 @@ import { useMemo } from "react";
 
 interface SelectableTokenProps {
   token: UserAsset;
-  selectedTokens: UserAsset[];
-  setSelectedTokens: (tokens: UserAsset[]) => void;
   index: number;
   isAmountReached: boolean;
 }
 
 export const SelectableToken = ({
   token,
-  selectedTokens,
-  setSelectedTokens,
   index,
   isAmountReached,
 }: SelectableTokenProps) => {
+  const { selectedTokens, setSelectedTokens } = useSelectedTokens();
+
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
 

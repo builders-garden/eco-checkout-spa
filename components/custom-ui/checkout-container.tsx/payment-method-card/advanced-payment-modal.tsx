@@ -87,8 +87,6 @@ export const AdvancedPaymentModal = ({
                   <SelectableToken
                     key={`${token.asset}-${token.chain}`}
                     token={token}
-                    selectedTokens={modalSelectedTokens}
-                    setSelectedTokens={setModalSelectedTokens}
                     index={index}
                     isAmountReached={isAmountReached}
                   />

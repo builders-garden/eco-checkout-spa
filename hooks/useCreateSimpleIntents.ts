@@ -1,38 +1,28 @@
 import {
   RoutesService,
-  CreateIntentParams,
-  RoutesSupportedChainId,
-  RoutesSupportedStable,
   selectCheapestQuote,
   OpenQuotingClient,
   CreateSimpleIntentParams,
+  RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
 import { IntentType } from "@eco-foundation/routes-ts";
-import { encodeFunctionData, erc20Abi, Hex } from "viem";
+import { Hex } from "viem";
 import { chainStringToChainId } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import { UserAsset } from "@/lib/types";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { EMPTY_ADDRESS } from "@/lib/constants";
 import { TokenSymbols } from "@/lib/enums";
 import { Token } from "@/lib/relayoor/types";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
 
 const routesService = new RoutesService();
 const openQuotingClient = new OpenQuotingClient({ dAppID: "eco-dapp" });
 
-interface UseCreateSimpleIntentsProps {
-  selectedTokens: UserAsset[];
-  destinationChainID: number;
-  recipient: Hex;
-  desiredToken: string;
-}
+export const useCreateSimpleIntents = () => {
+  const { selectedTokens } = useSelectedTokens();
+  const { paymentParams } = usePaymentParams();
 
-export const useCreateSimpleIntents = ({
-  selectedTokens,
-  destinationChainID,
-  recipient,
-  desiredToken,
-}: UseCreateSimpleIntentsProps) => {
   const [optimizedIntents, setOptimizedIntents] = useState<IntentType[]>([]);
   const [optimizedIntentsLoading, setOptimizedIntentsLoading] =
     useState<boolean>(false);
@@ -57,8 +47,8 @@ export const useCreateSimpleIntents = ({
 
       // Get the receiving token address
       const receivingToken = RoutesService.getStableAddress(
-        destinationChainID as RoutesSupportedChainId,
-        TokenSymbols[desiredToken.toLowerCase() as Token]
+        paymentParams.desiredNetworkId!,
+        TokenSymbols[paymentParams.desiredToken!.toLowerCase() as Token]
       ) as Hex;
 
       // Get the amount and limit of tokens to spend
@@ -71,14 +61,14 @@ export const useCreateSimpleIntents = ({
         originChainID: originChainID,
         spendingToken: spendingToken,
         amount: amount,
-        destinationChainID: destinationChainID as RoutesSupportedChainId,
-        recipient: recipient,
+        destinationChainID: paymentParams.desiredNetworkId!,
+        recipient: paymentParams.recipient!,
         receivingToken: receivingToken,
         prover: "HyperProver",
         spendingTokenLimit: limit,
       };
 
-      if (intentParams.originChainID !== destinationChainID) {
+      if (intentParams.originChainID !== paymentParams.desiredNetworkId!) {
         const intent = routesService.createSimpleIntent(intentParams);
         createdIntents.push(intent);
       }

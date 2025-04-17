@@ -5,7 +5,6 @@ import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { ChosenTokenList } from "./chosen-token-list";
 import { PageState } from "@/lib/enums";
-import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 
 interface RecapContainerProps {
   pageState: PageStateType;

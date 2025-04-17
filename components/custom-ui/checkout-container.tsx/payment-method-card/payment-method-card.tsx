@@ -1,5 +1,4 @@
 "use client";
-import { useMemo } from "react";
 import {
   AlertCircle,
   CreditCard,
@@ -8,7 +7,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/shadcn/utils";
-import { compareArrays, groupSelectedTokensByAssetName } from "@/lib/utils";
+import { compareArrays } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,

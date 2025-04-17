@@ -7,9 +7,8 @@ import {
   AccordionItem,
   AccordionContent,
 } from "../../../shadcn-ui/accordion";
-import { AlertCircle, SquarePen } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { Separator } from "../../../shadcn-ui/separator";
-import { UserAsset } from "@/lib/types";
 import { ChainImages, TokenImages, TokenSymbols } from "@/lib/enums";
 import {
   capitalizeFirstLetter,

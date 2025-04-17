@@ -7,8 +7,6 @@ import { CheckoutContainer } from "@/components/custom-ui/checkout-container.tsx
 import TransactionsContainer from "@/components/custom-ui/transactions-container/transactions-container";
 import { usePageState } from "@/hooks/usePageState";
 import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container";
-import { useCreateIntents } from "@/hooks/useCreateIntents";
-import { useEffect } from "react";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useCardTransitions } from "@/hooks/useCardTransitions";
 

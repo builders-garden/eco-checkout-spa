@@ -9,7 +9,6 @@ import { ChainImages, PageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { useMemo } from "react";
 
 interface PaymentRecapProps {
   setPageState: (pageState: PageState) => void;
