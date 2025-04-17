@@ -101,7 +101,8 @@ export const PaymentMethodCard = () => {
             <div className="flex flex-col justify-center items-center gap-1">
               <h1 className="text-lg font-semibold">No tokens available</h1>
               <p className="text-sm text-secondary font-semibold text-center px-16">
-                Your wallet doesn't have any tokens to complete this payment.
+                Your wallet doesn&apos;t have any tokens to complete this
+                payment.
               </p>
             </div>
             <motion.button
