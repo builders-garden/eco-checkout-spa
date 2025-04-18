@@ -5,6 +5,7 @@ import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { ChosenTokenList } from "./chosen-token-list";
 import { PageState } from "@/lib/enums";
+import { getPageStateVariants } from "@/lib/utils";
 
 interface RecapContainerProps {
   pageState: PageStateType;
@@ -15,27 +16,10 @@ export const RecapContainer = ({
   pageState,
   setPageState,
 }: RecapContainerProps) => {
-  const variants = {
-    initial: (custom: PageStateType) => ({
-      opacity: 0,
-      x:
-        custom.previous === PageState.TRANSACTIONS
-          ? -100
-          : custom.previous === PageState.CHECKOUT
-          ? 100
-          : 0,
-    }),
-    animate: { opacity: 1, x: 0 },
-    exit: (custom: PageStateType) => ({
-      opacity: 0,
-      x:
-        custom.current === PageState.CHECKOUT
-          ? 100
-          : custom.current === PageState.TRANSACTIONS
-          ? -100
-          : 0,
-    }),
-  };
+  const variants = getPageStateVariants(
+    PageState.CHECKOUT,
+    PageState.TRANSACTIONS
+  );
 
   return (
     <motion.div

@@ -6,7 +6,8 @@ import {
   arbitrum,
   base,
 } from "viem/chains";
-import { UserAsset } from "./types";
+import { PageStateType, UserAsset } from "./types";
+import { PageState } from "./enums";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -154,4 +155,37 @@ export const groupSelectedTokensByAssetName = (selectedTokens: UserAsset[]) => {
     }
     return acc;
   }, {} as Record<string, { assetName: string; chain: string }[]>);
+};
+
+/**
+ * Gets the variants for the page state animation
+ * @param leftState - The previous state, relative to the component's perspective (e.g. for the recap container, the left state is the checkout one)
+ * @param rightState - The next state, relative to the component's perspective (e.g. for the recap container, the right state is the transactions one)
+ * @returns The variants
+ */
+export const getPageStateVariants = (
+  leftState: PageState,
+  rightState: PageState
+) => {
+  return {
+    initial: (custom: PageStateType) => ({
+      opacity: 0,
+      x:
+        custom.previous === rightState
+          ? -100
+          : custom.previous === leftState
+          ? 100
+          : 0,
+    }),
+    animate: { opacity: 1, x: 0 },
+    exit: (custom: PageStateType) => ({
+      opacity: 0,
+      x:
+        custom.current === leftState
+          ? 100
+          : custom.current === rightState
+          ? -100
+          : 0,
+    }),
+  };
 };

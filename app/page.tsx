@@ -68,7 +68,6 @@ export default function Home() {
         ) : pageState.current === PageState.TRANSACTIONS ? (
           <TransactionsContainer
             key="transactions-container"
-            pageState={pageState}
             setPageState={setPageState}
           />
         ) : (
