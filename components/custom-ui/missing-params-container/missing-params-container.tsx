@@ -3,18 +3,24 @@
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Input } from "../shadcn-ui/input";
-import { SelectContent, SelectTrigger, SelectValue } from "../shadcn-ui/select";
-import { SelectItem } from "../shadcn-ui/select";
-import { Select } from "../shadcn-ui/select";
-import { Separator } from "../shadcn-ui/separator";
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { Input } from "../../shadcn-ui/input";
+import {
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "../../shadcn-ui/select";
+import { SelectItem } from "../../shadcn-ui/select";
+import { Select } from "../../shadcn-ui/select";
+import { Separator } from "../../shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
 import { chainIdToChainName } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
 import { PageState } from "@/lib/enums";
-import { usePaymentParams } from "../providers/payment-params-provider";
+import { usePaymentParams } from "../../providers/payment-params-provider";
+import { ChainSelection } from "./chain-selection";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface MissingParamsContainerProps {
   setPageState: (pageState: PageState) => void;
@@ -44,13 +50,15 @@ export const MissingParamsContainer = ({
   );
 
   // Check if all required fields are filled and valid
-  const isFormComplete = useMemo(() => {
-    return (
+  const validateForm = useCallback(() => {
+    return Boolean(
       PaymentParamsValidator.validateRecipient(userInputRecipient) &&
-      PaymentParamsValidator.validateAmount(userInputAmount) &&
-      PaymentParamsValidator.validateNetwork(userInputNetwork)
+        PaymentParamsValidator.validateAmount(userInputAmount) &&
+        PaymentParamsValidator.validateNetwork(userInputNetwork)
     );
   }, [userInputRecipient, userInputAmount, userInputNetwork]);
+
+  const isFormComplete = useDebounce(validateForm(), 250);
 
   // Handle form submission
   const handleContinue = () => {
@@ -109,56 +117,10 @@ export const MissingParamsContainer = ({
         <div className="space-y-2">
           <p className="text-secondary">Chain</p>
           {!paymentParams.desiredNetworkId ? (
-            <Select
-              value={userInputNetwork}
-              onValueChange={setUserInputNetwork}
-            >
-              <SelectTrigger id="chain" className="w-full h-[48px]">
-                <SelectValue placeholder="Select chain" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1" className="flex items-center gap-2">
-                  <img
-                    src="/images/chains/ethereum-logo.svg"
-                    alt="Ethereum"
-                    className="size-[18px] rounded-full"
-                  />
-                  Ethereum
-                </SelectItem>
-                <SelectItem value="137" className="flex items-center gap-2">
-                  <img
-                    src="/images/chains/polygon-logo.webp"
-                    alt="Polygon"
-                    className="size-[18px] rounded-full"
-                  />
-                  Polygon
-                </SelectItem>
-                <SelectItem value="42161" className="flex items-center gap-2">
-                  <img
-                    src="/images/chains/arbitrum-logo.png"
-                    alt="Arbitrum"
-                    className="size-[18px] rounded-full"
-                  />
-                  Arbitrum
-                </SelectItem>
-                <SelectItem value="10" className="flex items-center gap-2">
-                  <img
-                    src="/images/chains/op-logo.png"
-                    alt="Optimism"
-                    className="size-[18px] rounded-full"
-                  />
-                  Optimism
-                </SelectItem>
-                <SelectItem value="8453" className="flex items-center gap-2">
-                  <img
-                    src="/images/chains/base-logo.png"
-                    alt="Base"
-                    className="size-[18px] rounded-full"
-                  />
-                  Base
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <ChainSelection
+              userInputNetwork={userInputNetwork}
+              setUserInputNetwork={setUserInputNetwork}
+            />
           ) : (
             <div className="flex items-center gap-1.5 text-primary font-semibold border border-secondary-foreground rounded-md px-3 h-[48px]">
               <img

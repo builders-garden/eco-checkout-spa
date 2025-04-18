@@ -5,21 +5,17 @@ import { PageState } from "@/lib/enums";
 import { RecapContainer } from "@/components/custom-ui/recap-container/recap-container";
 import { CheckoutContainer } from "@/components/custom-ui/checkout-container.tsx/checkout-container";
 import TransactionsContainer from "@/components/custom-ui/transactions-container/transactions-container";
-import { usePageState } from "@/hooks/usePageState";
-import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container";
-import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { useCardTransitions } from "@/hooks/useCardTransitions";
+import { usePageState } from "@/hooks/use-page-state";
+import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container/missing-params-container";
+import { useCardTransitions } from "@/hooks/use-card-transitions";
 
 export default function Home() {
-  // Payment Params
-  const { areAllPaymentParamsValid } = usePaymentParams();
-
   // Page State
-  const { pageState, setPageState } = usePageState(areAllPaymentParamsValid);
+  const { pageState, setPageState } = usePageState();
 
-  // Card Transitions
+  // Card Transitions State
   // Must be handled in the parent component to avoid
-  // re-rendering and resetting the of the animation state
+  // re-rendering and resetting of the animation state
   const { animationState } = useCardTransitions();
 
   // Create Intent & get optimized quotes
