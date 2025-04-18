@@ -15,11 +15,14 @@ import {
 } from "../../../shadcn-ui/tooltip";
 import { TokensInfoAccordion } from "./tokens-info-accordion";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
-import { useDisconnect } from "@reown/appkit/react";
+import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 
 export const PaymentMethodCard = () => {
   const { disconnect } = useDisconnect();
+  const { isConnected, address } = useAppKitAccount();
+
+  const connected = isConnected && !!address;
 
   const {
     selectedTokens,
@@ -93,7 +96,7 @@ export const PaymentMethodCard = () => {
 
       {/* Payment card */}
       <div className="flex flex-col w-full gap-4 border border-success p-5 rounded-[8px]">
-        {selectedTokens.length === 0 ? (
+        {selectedTokens.length === 0 && connected ? (
           <div className="flex flex-col justify-center items-center gap-3.5">
             <div className="flex justify-center items-center bg-warning/10 rounded-full size-[56px]">
               <TriangleAlert className="text-warning" />
