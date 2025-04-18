@@ -1,6 +1,5 @@
 import { Separator } from "@/components/shadcn-ui/separator";
 import { PageState } from "@/lib/enums";
-import { PageStateType } from "@/lib/types";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle, Loader2, XCircle } from "lucide-react";
 import { useState } from "react";

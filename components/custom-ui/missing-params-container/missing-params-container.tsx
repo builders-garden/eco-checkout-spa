@@ -3,15 +3,8 @@
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Input } from "../../shadcn-ui/input";
-import {
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "../../shadcn-ui/select";
-import { SelectItem } from "../../shadcn-ui/select";
-import { Select } from "../../shadcn-ui/select";
 import { Separator } from "../../shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
