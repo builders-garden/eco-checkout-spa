@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
-      <AnimatePresence mode="wait" custom={pageState.current}>
+      <AnimatePresence mode="wait" custom={pageState}>
         {pageState.current === PageState.MISSING_PARAMS ? (
           <MissingParamsContainer
             key="missing-params-container"
@@ -68,6 +68,7 @@ export default function Home() {
         ) : pageState.current === PageState.TRANSACTIONS ? (
           <TransactionsContainer
             key="transactions-container"
+            pageState={pageState}
             setPageState={setPageState}
           />
         ) : (

@@ -32,7 +32,6 @@ export const CheckoutContainer = ({
       initial={{ opacity: 0, x: initialDirection }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      custom={pageState.current}
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden"
     >

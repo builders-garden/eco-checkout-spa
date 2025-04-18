@@ -17,6 +17,7 @@ import { TokensInfoAccordion } from "./tokens-info-accordion";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useEffect } from "react";
 
 export const PaymentMethodCard = () => {
   const { disconnect } = useDisconnect();
@@ -46,6 +47,14 @@ export const PaymentMethodCard = () => {
   const handleDisconnect = async () => {
     await disconnect();
   };
+
+  useEffect(() => {
+    console.log("selectedTokens", selectedTokens);
+  }, [selectedTokens]);
+
+  useEffect(() => {
+    console.log("connected", connected);
+  }, [connected]);
 
   return (
     <motion.div

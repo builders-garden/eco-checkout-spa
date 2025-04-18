@@ -15,22 +15,23 @@ export const RecapContainer = ({
   pageState,
   setPageState,
 }: RecapContainerProps) => {
-  const initialDirection =
-    pageState.previous === PageState.TRANSACTIONS
-      ? -100
-      : pageState.previous === PageState.CHECKOUT
-      ? 100
-      : 0;
-
   const variants = {
-    initial: { opacity: 0, x: initialDirection },
-    animate: { opacity: 1, x: 0 },
-    exit: (custom: PageState) => ({
+    initial: (custom: PageStateType) => ({
       opacity: 0,
       x:
-        custom === PageState.CHECKOUT
+        custom.previous === PageState.TRANSACTIONS
+          ? -100
+          : custom.previous === PageState.CHECKOUT
           ? 100
-          : custom === PageState.TRANSACTIONS
+          : 0,
+    }),
+    animate: { opacity: 1, x: 0 },
+    exit: (custom: PageStateType) => ({
+      opacity: 0,
+      x:
+        custom.current === PageState.CHECKOUT
+          ? 100
+          : custom.current === PageState.TRANSACTIONS
           ? -100
           : 0,
     }),
@@ -42,7 +43,7 @@ export const RecapContainer = ({
       initial="initial"
       animate="animate"
       exit="exit"
-      custom={pageState.current}
+      custom={pageState}
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden"
     >

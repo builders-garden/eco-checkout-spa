@@ -41,7 +41,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingUserBalances, setIsLoadingUserBalances] = useState(false);
   const [isErrorUserBalances, setIsErrorUserBalances] = useState(false);
 
-  const { paymentParams } = usePaymentParams();
+  const { paymentParams, areAllPaymentParamsValid } = usePaymentParams();
   const { desiredNetworkId } = paymentParams;
 
   const destinationNetworkString: string | null = useMemo(() => {
@@ -64,7 +64,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchUserBalances = async () => {
-      if (!address || !destinationNetworkString) return;
+      if (!address || !areAllPaymentParamsValid) return;
       setIsLoadingUserBalances(true);
       setHasFetchedUserBalances(false);
       try {
@@ -118,7 +118,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     fetchUserBalances();
-  }, [address, destinationNetworkString]);
+  }, [address, destinationNetworkString, areAllPaymentParamsValid]);
 
   const value = useMemo(
     () => ({
