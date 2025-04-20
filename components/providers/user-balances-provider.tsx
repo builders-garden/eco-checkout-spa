@@ -74,7 +74,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
 
         // Order the user balances following the rules:
         // 1. Tokens with chain equal to the destination network are preferred
-        // 2. Layer 2 > Layer 1 (optimism, base, arbitrum, mantle, polygon > ethereum)
+        // 2. Layer 2 > Layer 1 (optimism, base, arbitrum, polygon > ethereum)
         // 3. Chain balance (sort and pick the first ones)
 
         // Get all destination network balances (they may be ethereum)

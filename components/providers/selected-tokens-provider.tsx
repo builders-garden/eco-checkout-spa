@@ -57,7 +57,7 @@ export const SelectedTokensProvider = ({
     }
     setSelectedTokens(selectedArray);
     setOptimizedSelection(selectedArray);
-  }, [userBalances]);
+  }, [userBalances, amountDue]);
 
   const selectedTotal = selectedTokens?.reduce((acc, token) => {
     return acc + token.amount;

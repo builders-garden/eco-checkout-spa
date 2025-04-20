@@ -1,13 +1,7 @@
-import {
-  mainnet,
-  mantle,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-} from "viem/chains";
+import { mainnet, polygon, optimism, arbitrum, base } from "viem/chains";
 import { PageStateType, UserAsset } from "./types";
 import { PageState } from "./enums";
+import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -36,8 +30,6 @@ export const chainIdToChain = (chainId: number, asString: boolean = false) => {
       return asString ? "polygon" : polygon;
     case 8453:
       return asString ? "base" : base;
-    case 5000:
-      return asString ? "mantle" : mantle;
     case 42161:
       return asString ? "arbitrum" : arbitrum;
     default:
@@ -62,7 +54,7 @@ export const chainIdToChainName = (chainId: number): string => {
  * @throws {Error} If the chain is not supported
  * @returns The chain ID
  */
-export const chainStringToChainId = (chain: string) => {
+export const chainStringToChainId = (chain: string): RoutesSupportedChainId => {
   switch (chain) {
     case "ethereum":
       return 1;
@@ -72,8 +64,6 @@ export const chainStringToChainId = (chain: string) => {
       return 10;
     case "polygon":
       return 137;
-    case "mantle":
-      return 5000;
     case "base":
       return 8453;
     case "arbitrum":
@@ -188,4 +178,39 @@ export const getPageStateVariants = (
           : 0,
     }),
   };
+};
+
+/**
+ * Converts a wei bigint to a gwei bigint
+ * @param wei - The bigint in wei
+ * @returns The number in gwei
+ */
+export const bigIntWeiToGwei = (wei: bigint): number => {
+  return Number(wei) / 10 ** 9; // 1.000.000.000
+};
+
+/**
+ * Gets the estimated fee in US dollars by chain
+ * @param chainGasPrice - The gas price in gwei
+ * @param chainId - The chain id
+ * @returns The estimated fee in US dollars
+ */
+export const getEstimatedFeeByChain = (
+  chainGasPrice: number,
+  chainId: RoutesSupportedChainId
+) => {
+  switch (chainId) {
+    case 1:
+      return chainGasPrice * 1.5;
+    case 10:
+      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+    case 137:
+      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+    case 8453:
+      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+    case 42161:
+      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+    default:
+      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+  }
 };

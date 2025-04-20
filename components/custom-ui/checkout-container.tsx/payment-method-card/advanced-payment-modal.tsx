@@ -89,6 +89,8 @@ export const AdvancedPaymentModal = ({
                     token={token}
                     index={index}
                     isAmountReached={isAmountReached}
+                    selectedTokens={modalSelectedTokens}
+                    setSelectedTokens={setModalSelectedTokens}
                   />
                 ))
               ) : (

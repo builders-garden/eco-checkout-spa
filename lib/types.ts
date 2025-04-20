@@ -9,6 +9,8 @@ import {
 export type UserAsset = {
   asset: Token;
   amount: number;
+  spendableAmount: number;
+  estimatedFee: number;
   chain: Chain;
   decimals: number;
 };

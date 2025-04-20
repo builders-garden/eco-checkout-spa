@@ -3,7 +3,6 @@ export enum ChainImages {
   "ethereum" = "/images/chains/ethereum-logo.svg",
   "optimism" = "/images/chains/op-logo.png",
   "polygon" = "/images/chains/polygon-logo.webp",
-  "mantle" = "/images/chains/mantle-logo.png",
   "base" = "/images/chains/base-logo.png",
   "arbitrum" = "/images/chains/arbitrum-logo.png",
 
@@ -11,7 +10,6 @@ export enum ChainImages {
   "Ethereum" = "/images/chains/ethereum-logo.svg",
   "Optimism" = "/images/chains/op-logo.png",
   "Polygon" = "/images/chains/polygon-logo.webp",
-  "Mantle" = "/images/chains/mantle-logo.png",
   "Base" = "/images/chains/base-logo.png",
   "Arbitrum" = "/images/chains/arbitrum-logo.png",
 }

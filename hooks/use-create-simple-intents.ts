@@ -3,7 +3,6 @@ import {
   selectCheapestQuote,
   OpenQuotingClient,
   CreateSimpleIntentParams,
-  RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
 import { IntentType } from "@eco-foundation/routes-ts";
 import { Hex } from "viem";
@@ -35,9 +34,7 @@ export const useCreateSimpleIntents = () => {
     // Create a simple intent for each token
     for (const token of selectedTokens) {
       // Get the origin chain ID
-      const originChainID = chainStringToChainId(
-        token.chain
-      ) as RoutesSupportedChainId;
+      const originChainID = chainStringToChainId(token.chain);
 
       // Get the spending token address
       const spendingToken = RoutesService.getStableAddress(

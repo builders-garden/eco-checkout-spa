@@ -1,10 +1,4 @@
-export type Chain =
-  | "ethereum"
-  | "optimism"
-  | "polygon"
-  | "mantle"
-  | "base"
-  | "arbitrum";
+export type Chain = "ethereum" | "optimism" | "polygon" | "base" | "arbitrum";
 
 export type Token = "usdt" | "usdc" | "usdce" | "usdbc";
 

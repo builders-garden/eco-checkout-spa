@@ -1,5 +1,4 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
@@ -12,15 +11,17 @@ interface SelectableTokenProps {
   token: UserAsset;
   index: number;
   isAmountReached: boolean;
+  selectedTokens: UserAsset[];
+  setSelectedTokens: (tokens: UserAsset[]) => void;
 }
 
 export const SelectableToken = ({
   token,
   index,
   isAmountReached,
+  selectedTokens,
+  setSelectedTokens,
 }: SelectableTokenProps) => {
-  const { selectedTokens, setSelectedTokens } = useSelectedTokens();
-
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
 

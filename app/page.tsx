@@ -8,6 +8,8 @@ import TransactionsContainer from "@/components/custom-ui/transactions-container
 import { usePageState } from "@/hooks/use-page-state";
 import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container/missing-params-container";
 import { useCardTransitions } from "@/hooks/use-card-transitions";
+import { useCreateIntents } from "@/hooks/use-create-intents";
+import { useEffect } from "react";
 
 export default function Home() {
   // Page State
@@ -19,11 +21,7 @@ export default function Home() {
   const { animationState } = useCardTransitions();
 
   // Create Intent & get optimized quotes
-  // const { intents, optimizedIntents } = useCreateIntents({
-  //   selectedTokens,
-  //   paymentParams,
-  //   areAllPaymentParamsValid,
-  // });
+  // const { intents, optimizedIntents } = useCreateIntents();
 
   // Create Simple Intent
   // const { intents: simpleIntents, optimizedIntents: simpleOptimizedIntents } =
@@ -48,8 +46,8 @@ export default function Home() {
   // }, [intents]);
 
   // useEffect(() => {
-  //   console.log("intents", intents);
-  // }, [intents]);
+  //   console.log("optimizedIntents", optimizedIntents);
+  // }, [optimizedIntents]);
 
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">

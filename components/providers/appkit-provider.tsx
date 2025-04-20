@@ -7,7 +7,6 @@ import {
   mainnet,
   optimism,
   polygon,
-  mantle,
   base,
   arbitrum,
 } from "@reown/appkit/networks";
@@ -30,7 +29,7 @@ const metadata = {
 createAppKit({
   adapters: [wagmiAdapter],
   projectId,
-  networks: [mainnet, optimism, polygon, mantle, base, arbitrum],
+  networks: [mainnet, optimism, polygon, base, arbitrum],
   defaultNetwork: base,
   metadata: metadata,
   features: {

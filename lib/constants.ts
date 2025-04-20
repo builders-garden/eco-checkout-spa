@@ -9,7 +9,6 @@ export const validChains: Chain[] = [
   "ethereum",
   "optimism",
   "polygon",
-  "mantle",
   "base",
   "arbitrum",
 ];
