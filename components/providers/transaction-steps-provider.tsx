@@ -1,0 +1,361 @@
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useSelectedTokens } from "./selected-tokens-provider";
+import { usePaymentParams } from "./payment-params-provider";
+import { useAppKitAccount } from "@reown/appkit/react";
+import {
+  ApproveStep,
+  TransactionAsset,
+  TransactionStep,
+  UserAsset,
+} from "@/lib/types";
+import {
+  OpenQuotingClient,
+  RoutesService,
+  RoutesSupportedChainId,
+  selectCheapestQuote,
+} from "@eco-foundation/routes-sdk";
+import { CreateIntentParams } from "@eco-foundation/routes-sdk";
+import { encodeFunctionData, erc20Abi, Hex, maxUint256 } from "viem";
+import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
+import { TransactionStatus } from "@/lib/enums";
+import { readContract } from "@wagmi/core";
+import { config } from "@/lib/appkit";
+import { EcoProtocolAddresses } from "@eco-foundation/routes-ts";
+
+export const TransactionStepsContext = createContext<
+  TransactionStepsContextType | undefined
+>(undefined);
+
+export type TransactionStepsContextType = {
+  transactionSteps: TransactionStep[];
+  transactionStepsLoading: boolean;
+  totalProtocolFee: number;
+  transactionStepsError: string | null;
+};
+
+export const useTransactionSteps = () => {
+  const context = useContext(TransactionStepsContext);
+  if (!context) {
+    throw new Error(
+      "useTransactionSteps must be used within a TransactionStepsProvider"
+    );
+  }
+  return context;
+};
+
+const routesService = new RoutesService();
+const openQuotingClient = new OpenQuotingClient({ dAppID: "eco-dapp" });
+
+export const TransactionStepsProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const { selectedTokens, selectedTotal } = useSelectedTokens();
+  const { paymentParams, areAllPaymentParamsValid } = usePaymentParams();
+  const { address } = useAppKitAccount();
+  const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>(
+    []
+  );
+  const [transactionStepsLoading, setTransactionStepsLoading] =
+    useState<boolean>(true);
+  const [transactionStepsError, setTransactionStepsError] = useState<
+    string | null
+  >(null);
+
+  // Group tokens by chain
+  const tokensByChain = selectedTokens.reduce((acc, token) => {
+    const chain = token.chain;
+    if (!acc[chain]) {
+      acc[chain] = [];
+    }
+    acc[chain].push(token);
+    return acc;
+  }, {} as Record<string, UserAsset[]>);
+
+  // UseEffect to create the transaction steps
+  useEffect(() => {
+    const getTransactionSteps = async () => {
+      setTransactionStepsLoading(true);
+      if (!areAllPaymentParamsValid || !address) {
+        return;
+      }
+
+      // This check is separated to prevent the loader from showing when the user
+      // connects a wallet without tokens or when the amount due is not met
+      if (
+        selectedTokens.length === 0 ||
+        selectedTotal < paymentParams.amountDue!
+      ) {
+        setTransactionStepsLoading(false);
+        return;
+      }
+
+      // Create the transaction steps
+      const transactionSteps: TransactionStep[] = [];
+
+      // For each chain, create the transaction steps using all tokens on that chain
+      for (const [sourceChain, tokens] of Object.entries(tokensByChain)) {
+        // Get the chainId from the chain string
+        let chainId: RoutesSupportedChainId;
+        try {
+          chainId = chainStringToChainId(sourceChain);
+        } catch (error) {
+          console.error("Invalid chain string", error);
+          setTransactionStepsError("Invalid chain string, please try again");
+          setTransactionStepsLoading(false);
+          return;
+        }
+
+        // Get the intent source contract address
+        const intentSourceContract =
+          EcoProtocolAddresses[routesService.getEcoChainId(chainId)]
+            .IntentSource;
+
+        // If the chain is the same as the desired chain, create a transfer step
+        // I'm sure there's only one token on the same chain as the desired chain
+        if (chainId === paymentParams.desiredNetworkId) {
+          const token = tokens[0];
+
+          // Create the transaction asset
+          const transactionAsset: TransactionAsset = {
+            asset: token.asset,
+            amountToSend: getAmountDeducted(
+              paymentParams.amountDue!,
+              selectedTokens,
+              token
+            ),
+            chain: token.chain,
+            tokenContractAddress: token.tokenContractAddress,
+            decimals: token.decimals,
+          };
+
+          // Create the transfer step
+          transactionSteps.push({
+            type: "transfer",
+            status: TransactionStatus.TO_SEND,
+            assets: [transactionAsset],
+            to: paymentParams.recipient!,
+          });
+
+          // Else, create an intent step using all tokens on the chain
+        } else {
+          // Get the total amount of tokens to send
+          const totalAmountToSendOnCurrentChain = BigInt(
+            Math.round(
+              tokens.reduce(
+                (acc, token) =>
+                  acc +
+                  getAmountDeducted(
+                    paymentParams.amountDue!,
+                    selectedTokens,
+                    token
+                  ) *
+                    10 ** token.decimals,
+                0
+              )
+            )
+          );
+
+          // Get the desired token address of the receiving chain
+          const desiredTokenAddress = RoutesService.getStableAddress(
+            paymentParams.desiredNetworkId!,
+            paymentParams.desiredToken!
+          );
+
+          // create calls by encoding transfer function data
+          const calls = [
+            {
+              target: desiredTokenAddress,
+              data: encodeFunctionData({
+                abi: erc20Abi,
+                functionName: "transfer",
+                args: [
+                  paymentParams.recipient!,
+                  totalAmountToSendOnCurrentChain,
+                ],
+              }),
+              value: BigInt(0),
+            },
+          ];
+
+          // create callTokens based on your calls
+          const callTokens = [
+            {
+              token: desiredTokenAddress,
+              amount: totalAmountToSendOnCurrentChain,
+            },
+          ];
+
+          // Create the source tokens array
+          const sourceTokens: {
+            token: Hex;
+            amount: bigint;
+          }[] = [];
+          tokens.forEach((sourceToken) => {
+            const amountDeducted = Math.round(
+              (getAmountDeducted(
+                paymentParams.amountDue!,
+                selectedTokens,
+                sourceToken
+              ) +
+                sourceToken.estimatedFee) *
+                10 ** sourceToken.decimals
+            );
+
+            sourceTokens.push({
+              token: sourceToken.tokenContractAddress,
+              amount: BigInt(amountDeducted),
+            });
+          });
+
+          // console.log("sourceTokens", sourceTokens);
+
+          // Create the intent params
+          const intentParams: CreateIntentParams = {
+            creator: address as Hex,
+            originChainID: chainStringToChainId(
+              sourceChain
+            ) as RoutesSupportedChainId,
+            destinationChainID: paymentParams.desiredNetworkId!,
+            calls,
+            callTokens,
+            tokens: sourceTokens,
+            prover: "HyperProver",
+          };
+
+          // Create the intent
+          const intent = routesService.createIntent(intentParams);
+
+          // Get the optimized intent with quotes
+          try {
+            const quotes = await openQuotingClient.requestQuotesForIntent(
+              intent
+            );
+
+            // select the cheapest quote
+            const selectedQuote = selectCheapestQuote(quotes);
+
+            // apply quote to intent
+            const intentWithQuote = routesService.applyQuoteToIntent({
+              intent,
+              quote: selectedQuote,
+            });
+
+            const transactionAssets: TransactionAsset[] = tokens.map(
+              (token) => {
+                // Get the amount to send from the intent
+                const amountToSend = intentWithQuote.reward.tokens.find(
+                  (intentToken) =>
+                    intentToken.token.toLowerCase() ===
+                    token.tokenContractAddress.toLowerCase()
+                )?.amount;
+
+                return {
+                  asset: token.asset,
+                  amountToSend: Number(amountToSend),
+                  chain: token.chain,
+                  tokenContractAddress: token.tokenContractAddress,
+                  decimals: token.decimals,
+                };
+              }
+            );
+
+            // // For each transaction asset, check the allowance of the token
+            for (const transactionAsset of transactionAssets) {
+              const allowance = await readContract(config, {
+                abi: erc20Abi,
+                address: transactionAsset.tokenContractAddress,
+                functionName: "allowance",
+                args: [address as Hex, intentSourceContract],
+                chainId,
+              });
+
+              // If the allowance is less than the amount deducted, create the approve step
+              if (allowance < transactionAsset.amountToSend) {
+                const approveStep: ApproveStep = {
+                  type: "approve",
+                  status: TransactionStatus.TO_SEND,
+                  assets: [transactionAsset],
+                  allowanceAmount: maxUint256,
+                  intentSourceContract,
+                };
+
+                // Add the approve step to the transaction steps
+                transactionSteps.push(approveStep);
+              }
+            }
+
+            // add the optimized intent to the array
+            transactionSteps.push({
+              type: "intent",
+              status: TransactionStatus.TO_SEND,
+              assets: transactionAssets,
+              intent: intentWithQuote,
+              intentSourceContract,
+            });
+          } catch (error) {
+            console.error("Quotes not available", error);
+            setTransactionStepsError("Quotes not available, please try again");
+            setTransactionStepsLoading(false);
+            return;
+          }
+        }
+      }
+
+      console.log("transactionSteps", transactionSteps);
+
+      setTransactionSteps(transactionSteps);
+      setTransactionStepsLoading(false);
+    };
+
+    getTransactionSteps();
+  }, [selectedTokens, areAllPaymentParamsValid, address]);
+
+  // Calculate the total protocol fee of the operation
+  const totalProtocolFee = useMemo(() => {
+    return transactionSteps.reduce((acc, step) => {
+      if (step.type === "intent") {
+        // For each token in the intent, calculate the protocol fee
+        const totalReward = step.intent!.reward.tokens.reduce(
+          (acc, token) => acc + Number(token.amount),
+          0
+        );
+        const totalReceived = step.intent!.route.tokens.reduce(
+          (acc, token) => acc + Number(token.amount),
+          0
+        );
+        return acc + totalReward - totalReceived;
+      }
+      return acc;
+    }, 0);
+  }, [transactionSteps]);
+
+  const value = useMemo(
+    () => ({
+      transactionSteps,
+      transactionStepsLoading,
+      totalProtocolFee,
+      transactionStepsError,
+    }),
+    [
+      transactionSteps,
+      transactionStepsLoading,
+      totalProtocolFee,
+      transactionStepsError,
+    ]
+  );
+
+  return (
+    <TransactionStepsContext.Provider value={value}>
+      {children}
+    </TransactionStepsContext.Provider>
+  );
+};

@@ -3,6 +3,7 @@
 import AppKitProvider from "@/components/providers/appkit-provider";
 import { PaymentParamsProvider } from "@/components/providers/payment-params-provider";
 import { SelectedTokensProvider } from "@/components/providers/selected-tokens-provider";
+import { TransactionStepsProvider } from "@/components/providers/transaction-steps-provider";
 import { UserBalancesProvider } from "@/components/providers/user-balances-provider";
 import { TooltipProvider } from "@/components/shadcn-ui/tooltip";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
@@ -20,7 +21,9 @@ export const Providers = ({ children, cookies }: ProvidersProps) => {
         <PaymentParamsProvider>
           <UserBalancesProvider>
             <SelectedTokensProvider>
-              <TooltipProvider>{children}</TooltipProvider>
+              <TransactionStepsProvider>
+                <TooltipProvider>{children}</TooltipProvider>
+              </TransactionStepsProvider>
             </SelectedTokensProvider>
           </UserBalancesProvider>
         </PaymentParamsProvider>

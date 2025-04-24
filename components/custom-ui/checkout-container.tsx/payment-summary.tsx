@@ -7,10 +7,12 @@ import { Separator } from "../../shadcn-ui/separator";
 import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 
 export const PaymentSummary = () => {
   const { paymentParams } = usePaymentParams();
   const { recipient, desiredNetworkId, amountDue } = paymentParams;
+  const { totalSelectedTokensFees } = useSelectedTokens();
 
   const networkName = chainIdToChainName(desiredNetworkId!);
 
@@ -51,11 +53,27 @@ export const PaymentSummary = () => {
 
       <Separator className="w-full" />
 
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full gap-2">
+        {/* Amount Due */}
+        <div className="flex justify-between items-center w-full gap-2">
+          <p className="text-[16px] text-secondary">Amount</p>
+          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
+        </div>
+
+        {/* Total Fees */}
+        <div className="flex justify-between items-center w-full gap-2">
+          <p className="text-[16px] text-secondary">Est. Fees</p>
+          <p className="text-[16px] font-semibold">
+            ${totalSelectedTokensFees!.toFixed(2)}
+          </p>
+        </div>
+
         {/* Total */}
         <div className="flex justify-between items-center w-full gap-2">
-          <p className="text-lg font-semibold">Amount</p>
-          <p className="text-lg font-semibold">${amountDue!.toFixed(2)}</p>
+          <p className="text-lg font-semibold">Total</p>
+          <p className="text-lg font-semibold">
+            ${(amountDue! + totalSelectedTokensFees!).toFixed(2)}
+          </p>
         </div>
       </div>
     </div>

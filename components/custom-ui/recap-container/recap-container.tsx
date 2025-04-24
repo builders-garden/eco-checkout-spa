@@ -6,6 +6,7 @@ import { ConnectedWalletButton } from "../connected-wallet-button";
 import { ChosenTokenList } from "./chosen-token-list";
 import { PageState } from "@/lib/enums";
 import { getPageStateVariants } from "@/lib/utils";
+import { CustomButton } from "../customButton";
 
 interface RecapContainerProps {
   pageState: PageStateType;
@@ -39,14 +40,11 @@ export const RecapContainer = ({
         <ChosenTokenList key="chosen-token-list" />
       </AnimatePresence>
 
-      {/* Connect Button */}
-      <AnimatePresence mode="wait">
-        <ActionsButton
-          key="actions-button"
-          pageState={pageState}
-          setPageState={setPageState}
-        />
-      </AnimatePresence>
+      {/* Go to Transaction Button */}
+      <CustomButton
+        onClick={() => setPageState(PageState.TRANSACTIONS)}
+        text="Confirm & Send"
+      />
     </motion.div>
   );
 };

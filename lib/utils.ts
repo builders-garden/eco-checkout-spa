@@ -114,12 +114,12 @@ export const getAmountDeducted = (
   let total = amountDue;
   for (const t of orderedSelectedTokens) {
     if (t === token) {
-      if (t.amount > total) {
+      if (t.spendableAmount > total) {
         return total;
       }
-      return t.amount;
+      return t.spendableAmount;
     }
-    total -= t.amount;
+    total -= t.spendableAmount;
   }
   return total;
 };
@@ -199,18 +199,13 @@ export const getEstimatedFeeByChain = (
   chainGasPrice: number,
   chainId: RoutesSupportedChainId
 ) => {
+  const standardFee = 0.02;
   switch (chainId) {
     case 1:
-      return chainGasPrice * 1.5;
-    case 10:
-      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
-    case 137:
-      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
-    case 8453:
-      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
-    case 42161:
-      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+      return Math.ceil(chainGasPrice * 150) / 100; // Rounded to two decimal places
     default:
-      return chainGasPrice < 0.01 ? 0.01 : chainGasPrice + 0.01;
+      return chainGasPrice < 0.01
+        ? standardFee
+        : Math.ceil((chainGasPrice + standardFee) * 100) / 100;
   }
 };

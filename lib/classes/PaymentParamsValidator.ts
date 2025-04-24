@@ -4,6 +4,7 @@ import {
   RoutesSupportedStable,
   stables,
   chainIds,
+  RoutesService,
 } from "@eco-foundation/routes-sdk";
 import { PaymentParams, ValidatedPaymentParams } from "../types";
 
@@ -41,10 +42,25 @@ export class PaymentParamsValidator {
   }
 
   // Token must be included in the list of supported tokens (RoutesSupportedStable)
-  static validateToken(token: string | null): RoutesSupportedStable {
-    return stables.includes(token as RoutesSupportedStable)
-      ? (token as RoutesSupportedStable)
-      : "USDC";
+  static validateToken(
+    token: string | null,
+    networkId: string | null
+  ): RoutesSupportedStable {
+    if (stables.includes(token as RoutesSupportedStable)) {
+      try {
+        const validatedNetworkId = this.validateNetwork(networkId);
+        if (!validatedNetworkId) return "USDC";
+        RoutesService.getStableAddress(
+          validatedNetworkId,
+          token as RoutesSupportedStable
+        );
+        return token as RoutesSupportedStable;
+      } catch (error) {
+        console.log("Token not supported for this chain", error);
+        return "USDC";
+      }
+    }
+    return "USDC";
   }
 
   static validateRedirect(redirect: string | null): string | null {
@@ -58,7 +74,10 @@ export class PaymentParamsValidator {
       recipient: this.validateRecipient(paymentParams.recipient),
       amountDue: this.validateAmount(paymentParams.amountDue),
       desiredNetworkId: this.validateNetwork(paymentParams.desiredNetworkId),
-      desiredToken: this.validateToken(paymentParams.desiredToken),
+      desiredToken: this.validateToken(
+        paymentParams.desiredToken,
+        paymentParams.desiredNetworkId
+      ),
       redirect: this.validateRedirect(paymentParams.redirect),
     };
   }

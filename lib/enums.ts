@@ -51,3 +51,11 @@ export enum PageState {
   PAYMENT_RECAP = "payment-recap",
   TRANSACTIONS = "transactions",
 }
+
+// Transaction States
+export enum TransactionStatus {
+  TO_SEND = "to-send",
+  AWAITING_CONFIRMATION = "awaiting-confirmation",
+  SUCCESS = "success",
+  ERROR = "error",
+}

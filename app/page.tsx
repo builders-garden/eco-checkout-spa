@@ -8,8 +8,6 @@ import TransactionsContainer from "@/components/custom-ui/transactions-container
 import { usePageState } from "@/hooks/use-page-state";
 import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container/missing-params-container";
 import { useCardTransitions } from "@/hooks/use-card-transitions";
-import { useCreateIntents } from "@/hooks/use-create-intents";
-import { useEffect } from "react";
 
 export default function Home() {
   // Page State
@@ -19,35 +17,6 @@ export default function Home() {
   // Must be handled in the parent component to avoid
   // re-rendering and resetting of the animation state
   const { animationState } = useCardTransitions();
-
-  // Create Intent & get optimized quotes
-  // const { intents, optimizedIntents } = useCreateIntents();
-
-  // Create Simple Intent
-  // const { intents: simpleIntents, optimizedIntents: simpleOptimizedIntents } =
-  //   useCreateSimpleIntents({
-  //     selectedTokens,
-  //     destinationChainID: Number(network ?? "1"),
-  //     recipient: (recipient ?? EMPTY_ADDRESS) as Hex,
-  //     desiredToken: token ?? "",
-  //   });
-
-  // TODO: Remove these logs in production
-  // useEffect(() => {
-  //   console.log("simpleIntents", simpleIntents);
-  // }, [simpleIntents]);
-
-  // useEffect(() => {
-  //   console.log("simpleOptimizedIntents", simpleOptimizedIntents);
-  // }, [simpleOptimizedIntents]);
-
-  // useEffect(() => {
-  //   console.log("intents", intents);
-  // }, [intents]);
-
-  // useEffect(() => {
-  //   console.log("optimizedIntents", optimizedIntents);
-  // }, [optimizedIntents]);
 
   return (
     <main className="flex relative flex-col items-center justify-center min-h-screen py-6">

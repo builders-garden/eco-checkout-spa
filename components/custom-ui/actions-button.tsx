@@ -3,26 +3,26 @@ import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
 import { PageState } from "@/lib/enums";
-import { PageStateType } from "@/lib/types";
 import { usePaymentParams } from "../providers/payment-params-provider";
 import { useSelectedTokens } from "../providers/selected-tokens-provider";
 import { useUserBalances } from "../providers/user-balances-provider";
+import { useTransactionSteps } from "../providers/transaction-steps-provider";
+import { useDebounce } from "@/hooks/use-debounce";
+import { cn } from "@/lib/shadcn/utils";
 
 interface ActionsButtonProps {
-  pageState: PageStateType;
   setPageState: (pageState: PageState) => void;
 }
 
-export const ActionsButton = ({
-  pageState,
-  setPageState,
-}: ActionsButtonProps) => {
+export const ActionsButton = ({ setPageState }: ActionsButtonProps) => {
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
   const { selectedTotal } = useSelectedTokens();
   const { isLoadingUserBalances } = useUserBalances();
   const [mounted, setMounted] = useState(false);
   const { isConnected, status, address } = useAppKitAccount();
+  const { transactionStepsLoading, transactionStepsError } =
+    useTransactionSteps();
   const { open } = useAppKit();
 
   useEffect(() => {
@@ -32,8 +32,12 @@ export const ActionsButton = ({
   // States
   const ready = status !== "connecting" && status !== "reconnecting";
   const connected = isConnected && !!address;
-  const showLoader = !mounted || !ready || (connected && isLoadingUserBalances);
-  const isDisabled = connected && selectedTotal < amountDue!;
+  const showLoader =
+    !ready ||
+    !mounted ||
+    (connected && (isLoadingUserBalances || transactionStepsLoading));
+  const isDisabled =
+    (connected && selectedTotal < amountDue!) || !!transactionStepsError;
 
   // Button Props
   const { text, onClick, key } = useMemo(() => {
@@ -44,15 +48,6 @@ export const ActionsButton = ({
         key: "connect",
       };
     }
-    if (pageState.current === PageState.PAYMENT_RECAP) {
-      return {
-        text: "Confirm & Send",
-        onClick: () => {
-          setPageState(PageState.TRANSACTIONS);
-        },
-        key: "confirm-send",
-      };
-    }
     return {
       text: "Confirm",
       onClick: () => {
@@ -60,24 +55,25 @@ export const ActionsButton = ({
       },
       key: "confirm",
     };
-  }, [connected, open, pageState, setPageState]);
+  }, [connected, open, setPageState]);
 
   return (
     <motion.button
       initial={{ opacity: 0.7 }}
-      animate={{
-        opacity: showLoader || isDisabled ? 0.7 : 1,
-      }}
+      animate={{ opacity: 1 }}
       whileHover={{
-        scale: showLoader || isDisabled ? 1 : 1.02,
+        scale: showLoader || isDisabled ? 1 : 1.015,
       }}
       whileTap={{
-        scale: showLoader || isDisabled ? 1 : 0.98,
+        scale: showLoader || isDisabled ? 1 : 0.985,
       }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={onClick}
-      className="flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] cursor-pointer"
+      className={cn(
+        "flex justify-center items-center w-full rounded-[8px] p-4 h-[60px] cursor-pointer transition-all duration-200",
+        showLoader || isDisabled ? "bg-disabled cursor-default" : "bg-primary"
+      )}
       type="button"
       disabled={showLoader || isDisabled}
       style={{

@@ -9,6 +9,7 @@ import { ChainImages, PageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 
 interface PaymentRecapProps {
   setPageState: (pageState: PageState) => void;
@@ -16,10 +17,11 @@ interface PaymentRecapProps {
 
 export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
   const { paymentParams } = usePaymentParams();
-
+  const { totalProtocolFee } = useTransactionSteps();
   const { recipient, desiredNetworkId, amountDue } = paymentParams;
 
   const networkName = chainIdToChainName(desiredNetworkId!);
+  const humanReadableProtocolFee = (totalProtocolFee ?? 0) / 10 ** 6;
 
   return (
     <div className="flex flex-col justify-start items-start p-4 gap-6">
@@ -80,12 +82,16 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
           <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
         </div>
         <div className="flex justify-between items-center w-full">
-          <p className="text-[16px] text-secondary">Estimated Fees</p>
-          <p className="text-[16px] font-semibold">$0.0001</p>
+          <p className="text-[16px] text-secondary">Fees</p>
+          <p className="text-[16px] font-semibold">
+            ${humanReadableProtocolFee}
+          </p>
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-lg font-semibold">Total</p>
-          <p className="text-lg font-semibold">${amountDue!.toFixed(2)}</p>
+          <p className="text-lg font-semibold">
+            ${amountDue! + humanReadableProtocolFee}
+          </p>
         </div>
       </div>
     </div>

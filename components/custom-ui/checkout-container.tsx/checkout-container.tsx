@@ -54,11 +54,7 @@ export const CheckoutContainer = ({
 
       {/* Connect Button */}
       <AnimatePresence mode="wait" initial={false}>
-        <ActionsButton
-          key="actions-button"
-          pageState={pageState}
-          setPageState={setPageState}
-        />
+        <ActionsButton key="actions-button" setPageState={setPageState} />
       </AnimatePresence>
     </motion.div>
   );

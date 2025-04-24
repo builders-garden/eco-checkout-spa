@@ -35,13 +35,22 @@ export const AdvancedPaymentModal = ({
   const [modalSelectedTokens, setModalSelectedTokens] =
     useState<UserAsset[]>(selectedTokens);
 
+  // Calculate the total fees of the selected tokens inside the modal
+  const totalModalSelectedTokensFees = modalSelectedTokens?.reduce(
+    (acc, token) => {
+      return acc + token.estimatedFee;
+    },
+    0
+  );
+
   // Calculate the selected total inside the modal
   const modalSelectedTotal = modalSelectedTokens?.reduce((acc, token) => {
     return acc + token.amount;
   }, 0);
 
   // Check if the selected amount is enough to cover the required amount
-  const isAmountReached = modalSelectedTotal >= amountDue!;
+  const isAmountReached =
+    modalSelectedTotal >= amountDue! + totalModalSelectedTokensFees!;
 
   // Handle the open state of the modal
   const handleOpenChange = (open: boolean) => {
@@ -65,9 +74,10 @@ export const AdvancedPaymentModal = ({
             required amount.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-between items-center w-full">
+        <div className="flex justify-between items-center w-[98%]">
           <p className="font-semibold">
-            Required amount: ${amountDue!.toFixed(2)}
+            Required amount: $
+            {(amountDue! + totalModalSelectedTokensFees!).toFixed(2)}
           </p>
           <p
             className={cn(
@@ -80,7 +90,7 @@ export const AdvancedPaymentModal = ({
         </div>
 
         <div className="flex flex-col justify-start items-start w-full">
-          <ScrollArea className="h-[255px] w-full">
+          <ScrollArea className="h-[256px] w-full">
             <div className="flex flex-col gap-2 justify-start items-start w-[98%]">
               {userBalances && userBalances.length > 0 ? (
                 userBalances.map((token, index) => (

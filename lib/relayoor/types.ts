@@ -1,12 +1,17 @@
-export type Chain = "ethereum" | "optimism" | "polygon" | "base" | "arbitrum";
+export type RelayoorChain =
+  | "ethereum"
+  | "optimism"
+  | "polygon"
+  | "base"
+  | "arbitrum";
 
-export type Token = "usdt" | "usdc" | "usdce" | "usdbc";
+export type RelayoorToken = "usdt" | "usdc" | "usdce" | "usdbc";
 
 export interface RelayoorResponse {
-  data: Record<Chain, TokenBalance[]>;
+  data: Record<RelayoorChain, TokenBalance[]>;
 }
 
 export interface TokenBalance {
-  token: Token;
+  token: RelayoorToken;
   amount: string;
 }

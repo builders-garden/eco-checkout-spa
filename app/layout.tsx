@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { headers } from "next/headers";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default async function RootLayout({
     <html className="h-full" lang="en">
       <body className={`${inter.className} h-full text-primary antialiased`}>
         <Providers cookies={cookies}>{children}</Providers>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

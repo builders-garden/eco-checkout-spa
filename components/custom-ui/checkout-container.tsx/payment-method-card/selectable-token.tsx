@@ -38,14 +38,14 @@ export const SelectableToken = ({
   // Calculate the amount deducted from this specific token
   const amountDeducted = useMemo(() => {
     return getAmountDeducted(amountDue!, selectedTokens, token);
-  }, [amountDue, token.amount, selectedTokens]);
+  }, [amountDue, token.spendableAmount, selectedTokens]);
 
   return (
     <motion.button
       key={`${token.asset}-${token.chain}`}
       onClick={handleSelectToken}
       className={cn(
-        "flex justify-between w-full items-center rounded-[8px] border border-secondary-foreground p-3 cursor-pointer transition-all duration-200",
+        "flex justify-between w-full items-center rounded-[8px] h-[58px] border border-secondary-foreground p-3 cursor-pointer transition-all duration-200",
         isSelected && "border-success"
       )}
       initial={{ opacity: 0 }}
@@ -95,19 +95,18 @@ export const SelectableToken = ({
             {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
           </p>
           <p className="text-xs text-secondary">
-            {capitalizeFirstLetter(token.chain)}
+            {capitalizeFirstLetter(token.chain)} ($
+            {token.estimatedFee.toFixed(2)} fee)
           </p>
         </div>
       </div>
-      <div className="flex justify-between items-center gap-3">
+      <div className="flex flex-col justify-center items-end">
+        <p className="text-sm text-primary font-semibold">${token.amount}</p>
         {isSelected && (
-          <p className="text-sm text-secondary font-semibold">
+          <p className="text-xs text-secondary font-semibold">
             -${amountDeducted.toFixed(2)}
           </p>
         )}
-        <p className="text-sm text-primary font-semibold">
-          ${token.amount.toFixed(2)}
-        </p>
       </div>
     </motion.button>
   );

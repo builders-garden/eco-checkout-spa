@@ -11,6 +11,7 @@ import {
 } from "react";
 import { usePaymentParams } from "./payment-params-provider";
 import ky from "ky";
+import { toast } from "sonner";
 
 export const UserBalancesContext = createContext<
   UserBalancesContextType | undefined
@@ -42,9 +43,9 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
   const [isErrorUserBalances, setIsErrorUserBalances] = useState(false);
 
   const { paymentParams, areAllPaymentParamsValid } = usePaymentParams();
-  const { desiredNetworkId } = paymentParams;
+  const { desiredNetworkId, amountDue, desiredToken } = paymentParams;
 
-  const destinationNetworkString: string | null = useMemo(() => {
+  const desiredNetworkString: string | null = useMemo(() => {
     if (!desiredNetworkId) return null;
     try {
       return chainIdToChain(desiredNetworkId, true) as string;
@@ -69,7 +70,10 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
       setHasFetchedUserBalances(false);
       try {
         const response = await ky
-          .get<UserAsset[]>(`/api/user-balances?userAddress=${address}`)
+          .get<UserAsset[]>(
+            `/api/supported-user-balances?userAddress=${address}&amountDue=${amountDue}&desiredNetwork=${desiredNetworkString}&desiredToken=${desiredToken}`,
+            { timeout: false }
+          )
           .json();
 
         // Order the user balances following the rules:
@@ -79,12 +83,12 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
 
         // Get all destination network balances (they may be ethereum)
         const destinationNetworkBalances = response
-          .filter((balance) => balance.chain === destinationNetworkString)
+          .filter((balance) => balance.chain === desiredNetworkString)
           .sort((a, b) => b.amount - a.amount);
 
         // Get all ethereum balances if the destination network is not ethereum
         let ethereumBalances: UserAsset[] = [];
-        if (destinationNetworkString !== "ethereum") {
+        if (desiredNetworkString !== "ethereum") {
           ethereumBalances = response
             .filter((balance) => balance.chain === "ethereum")
             .sort((a, b) => b.amount - a.amount);
@@ -94,13 +98,13 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
         const otherBalances = response
           .filter(
             (balance) =>
-              balance.chain !== destinationNetworkString &&
+              balance.chain !== desiredNetworkString &&
               balance.chain !== "ethereum"
           )
           .sort((a, b) => b.amount - a.amount);
 
         // Combine all balances following the rules
-        if (destinationNetworkString === "ethereum") {
+        if (desiredNetworkString === "ethereum") {
           setUserBalances([...destinationNetworkBalances, ...otherBalances]);
         } else {
           setUserBalances([
@@ -110,7 +114,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
           ]);
         }
       } catch (error) {
-        console.error("Error fetching user balances:", error);
+        toast.error("Error fetching user balances");
         setIsErrorUserBalances(true);
       } finally {
         setIsLoadingUserBalances(false);
@@ -118,7 +122,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     fetchUserBalances();
-  }, [address, destinationNetworkString, areAllPaymentParamsValid]);
+  }, [address, desiredNetworkString, areAllPaymentParamsValid]);
 
   const value = useMemo(
     () => ({
