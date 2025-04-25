@@ -42,7 +42,7 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
         >
           <ArrowLeft className="size-5.5" />
         </motion.button>
-        <div className="flex justify-between items-center w-full gap-0.5">
+        <div className="flex justify-between items-center w-full">
           <h1 className="text-xl font-bold">Payment Recap</h1>
           <PoweredByCapsule />
         </div>

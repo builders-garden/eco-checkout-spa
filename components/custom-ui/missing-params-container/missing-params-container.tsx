@@ -14,6 +14,7 @@ import { PageState } from "@/lib/enums";
 import { usePaymentParams } from "../../providers/payment-params-provider";
 import { ChainSelection } from "./chain-selection";
 import { useDebounce } from "@/hooks/use-debounce";
+import { PoweredByCapsule } from "../powered-by-capsule";
 
 interface MissingParamsContainerProps {
   setPageState: (pageState: PageState) => void;
@@ -90,7 +91,10 @@ export const MissingParamsContainer = ({
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden bg-background"
     >
-      <h2 className="text-2xl font-bold my-2">Payment Summary</h2>
+      <div className="flex justify-between items-center w-full mb-1">
+        <h1 className="text-2xl font-bold my-2">Payment Details</h1>
+        <PoweredByCapsule />
+      </div>
 
       <div className="flex flex-col gap-6">
         <div className="space-y-2">
