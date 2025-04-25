@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { PoweredByCapsule } from "../powered-by-capsule";
-import { ThreeDecimalsAmount } from "../three-decimals-amount";
 
 interface PaymentRecapProps {
   setPageState: (pageState: PageState) => void;
@@ -84,15 +83,21 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
       <div className="flex flex-col w-full gap-2">
         <div className="flex justify-between items-center w-full">
           <p className="text-[16px] text-secondary">Amount</p>
-          <ThreeDecimalsAmount amount={amountDue!} />
+          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-[16px] text-secondary">Fees</p>
-          <ThreeDecimalsAmount amount={humanReadableProtocolFee} />
+          <p className="text-[16px] font-semibold">
+            {humanReadableProtocolFee < 0.01
+              ? "< $0.01"
+              : `$${humanReadableProtocolFee.toFixed(2)}`}
+          </p>
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-lg font-semibold">Total</p>
-          <ThreeDecimalsAmount amount={amountDue! + humanReadableProtocolFee} />
+          <p className="text-[16px] font-semibold">
+            ${(amountDue! + humanReadableProtocolFee).toFixed(2)}
+          </p>
         </div>
       </div>
     </div>

@@ -14,12 +14,13 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { CheckCircle, SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { chainStringToChainId, extractStepParams } from "@/lib/utils";
 import { Hex } from "viem";
 import { TxContainerHeader } from "./tx-container-header";
 import { CustomButton } from "../customButton";
+import { cn } from "@/lib/shadcn/utils";
 
 export default function TransactionsContainer() {
   const {
@@ -79,7 +80,6 @@ export default function TransactionsContainer() {
   // Update the status of the current step to success
   useEffect(() => {
     if (isTxSuccess) {
-      console.log("SUCCESS");
       setTxHashes((prev) => [
         ...prev,
         {
@@ -98,7 +98,6 @@ export default function TransactionsContainer() {
   // Update the status of the current step to error
   useEffect(() => {
     if (isTxError || isWalletError) {
-      console.log("ERROR");
       handleChangeStatus(currentStepIndex, TransactionStatus.ERROR);
     }
   }, [isTxError, isWalletError]);
@@ -113,7 +112,6 @@ export default function TransactionsContainer() {
 
     // If the current step is to send and the process is started, trigger the next step
     if (currentStep?.status === TransactionStatus.TO_SEND && isStarted) {
-      console.log("Triggered next step");
       setTimeout(() => {
         handleAction();
       }, 750);
@@ -135,9 +133,23 @@ export default function TransactionsContainer() {
       />
 
       {/* Transactions */}
-      <div className="flex flex-col justify-center items-center bg-accent rounded-[8px] p-4 w-full gap-4">
+      <div className="relative flex flex-col justify-center items-center bg-accent rounded-[8px] p-4 w-full gap-[22px]">
+        <motion.div
+          animate={{
+            height: isFinished
+              ? (transactionSteps.length - 1) * 60
+              : currentStepIndex * 60,
+          }}
+          transition={{ duration: 0.55 }}
+          className={cn(
+            "absolute left-[32px] top-[35px] w-[6px] rounded-full bg-success/97"
+          )}
+        />
         {transactionSteps.map((step, index) => (
-          <div key={index} className="flex justify-between items-center w-full">
+          <div
+            key={index}
+            className="flex justify-between items-center w-full z"
+          >
             <div className="flex justify-start items-center w-full gap-3">
               {/* Status */}
               <StatusIndicator status={step.status} />
@@ -206,26 +218,42 @@ export default function TransactionsContainer() {
         Please confirm all the transactions in your wallet.
       </p>
 
-      {/* Actions Button */}
-      <CustomButton
-        text={
-          isTxError || isWalletError
-            ? "Retry"
-            : currentStep?.status === TransactionStatus.AWAITING_CONFIRMATION
-            ? "Confirm in wallet"
-            : isFinished && redirect
-            ? "Return to website"
-            : isFinished
-            ? "Payment successful"
-            : "Pay"
-        }
-        onClick={handleAction}
-        isDisabled={
-          (!isFinished || (isFinished && !redirect)) &&
-          currentStep?.status !== TransactionStatus.TO_SEND &&
-          currentStep?.status !== TransactionStatus.ERROR
-        }
-      />
+      {/* Actions Button & Payment Completed */}
+      <AnimatePresence mode="wait">
+        {isFinished && !redirect ? (
+          <motion.div
+            key="payment-completed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex justify-center items-center gap-2 fixed bottom-0 left-0 right-0 px-4 pb-4 pt-2 sm:relative sm:p-0 sm:bg-transparent bg-background h-[60px]"
+          >
+            <CheckCircle className="size-6 text-success" />
+            <p className="text-success">Payment Completed</p>
+          </motion.div>
+        ) : (
+          <CustomButton
+            key="custom-action-button"
+            text={
+              isTxError || isWalletError
+                ? "Retry"
+                : currentStep?.status ===
+                  TransactionStatus.AWAITING_CONFIRMATION
+                ? "Confirm in wallet"
+                : isFinished && redirect
+                ? "Return to website"
+                : "Pay"
+            }
+            onClick={handleAction}
+            isDisabled={
+              (!isFinished || (isFinished && !redirect)) &&
+              currentStep?.status !== TransactionStatus.TO_SEND &&
+              currentStep?.status !== TransactionStatus.ERROR
+            }
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

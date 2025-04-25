@@ -53,7 +53,7 @@ export const ChosenTokenList = () => {
                   </div>
                   <div className="flex flex-col justify-center items-end">
                     <p className="text-sm text-primary font-semibold">
-                      ${token.amountToSend / 10 ** token.decimals}
+                      ${(token.amountToSend / 10 ** token.decimals).toFixed(2)}
                     </p>
                   </div>
                 </div>
