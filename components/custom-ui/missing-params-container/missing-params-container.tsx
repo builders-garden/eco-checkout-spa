@@ -1,14 +1,12 @@
 "use client";
 
-import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
-import { AlertCircle } from "lucide-react";
 import { useMemo, useState, useCallback } from "react";
 import { Input } from "../../shadcn-ui/input";
 import { Separator } from "../../shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
-import { chainIdToChainName, truncateAddress } from "@/lib/utils";
+import { chainIdToChainName } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
 import { PageState } from "@/lib/enums";
 import { usePaymentParams } from "../../providers/payment-params-provider";
