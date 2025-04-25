@@ -56,10 +56,13 @@ export const MissingParamsContainer = ({
   // Handle form submission
   const handleContinue = () => {
     if (isFormComplete) {
-      setRecipient(userInputRecipient);
-      setNetwork(userInputNetwork);
-      setAmount(userInputAmount);
       setPageState(PageState.CHECKOUT);
+      // This will prevent the input fields from changing before the page state is updated
+      setTimeout(() => {
+        setRecipient(userInputRecipient);
+        setNetwork(userInputNetwork);
+        setAmount(userInputAmount);
+      }, 300);
     }
   };
 

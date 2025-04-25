@@ -66,7 +66,10 @@ export const PaymentParamsProvider = ({
 
   // Check if all payment info is valid (every value is not null)
   const areAllPaymentParamsValid = useMemo(() => {
-    return Object.values(paymentParams).every(Boolean);
+    return Object.entries(paymentParams).every(([key, value]) => {
+      if (key === "redirect") return true; // Skip validation for redirect
+      return Boolean(value);
+    });
   }, [paymentParams]);
 
   const value = useMemo(

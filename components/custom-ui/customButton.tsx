@@ -29,7 +29,9 @@ export const CustomButton = ({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       onClick={onClick}
-      className="flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] cursor-pointer"
+      className={`flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] transition-all duration-300 ${
+        isDisabled || isLoading ? "cursor-default" : "cursor-pointer"
+      }`}
       type="button"
       disabled={isLoading || isDisabled}
     >

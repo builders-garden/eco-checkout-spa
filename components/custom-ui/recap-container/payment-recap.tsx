@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
+import { PoweredByCapsule } from "../powered-by-capsule";
 
 interface PaymentRecapProps {
   setPageState: (pageState: PageState) => void;
@@ -26,7 +27,7 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
   return (
     <div className="flex flex-col justify-start items-start p-4 gap-6">
       {/* Header */}
-      <div className="flex justify-start items-center w-full gap-2">
+      <div className="flex justify-start items-center w-full gap-2 mb-1">
         <motion.button
           whileTap={{
             scale: 0.95,
@@ -41,7 +42,10 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
         >
           <ArrowLeft className="size-5.5" />
         </motion.button>
-        <h1 className="text-xl font-bold">Payment Recap</h1>
+        <div className="flex justify-between items-center w-full gap-0.5">
+          <h1 className="text-xl font-bold">Payment Recap</h1>
+          <PoweredByCapsule />
+        </div>
       </div>
 
       {/* Info */}

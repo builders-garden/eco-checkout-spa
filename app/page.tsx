@@ -33,10 +33,7 @@ export default function Home() {
             setPageState={setPageState}
           />
         ) : pageState.current === PageState.TRANSACTIONS ? (
-          <TransactionsContainer
-            key="transactions-container"
-            setPageState={setPageState}
-          />
+          <TransactionsContainer key="transactions-container" />
         ) : (
           <CheckoutContainer
             key="checkout-container"

@@ -6,7 +6,7 @@ import { CardState } from "@/lib/enums";
 import { ConnectWalletInfo } from "./connect-wallet-info";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
-import { ActionsButton } from "../actions-button";
+import { ActionsButton } from "./actions-button";
 import { PageStateType } from "@/lib/types";
 import { getPageStateVariants } from "@/lib/utils";
 

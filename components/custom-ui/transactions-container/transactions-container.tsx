@@ -1,90 +1,125 @@
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { Separator } from "@/components/shadcn-ui/separator";
-import { PageState } from "@/lib/enums";
-import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle, Loader2, XCircle } from "lucide-react";
-import { useState } from "react";
+import {
+  ChainExplorerUrls,
+  ChainImages,
+  TokenImages,
+  TransactionStatus,
+} from "@/lib/enums";
+import { AnimatePresence, motion } from "framer-motion";
+import StatusIndicator from "./status-indicator";
+import { OperationLabel } from "./operation-label";
+import {
+  useSwitchChain,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
+import { SquareArrowOutUpRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { chainStringToChainId, extractStepParams } from "@/lib/utils";
+import { Hex } from "viem";
+import { TxContainerHeader } from "./tx-container-header";
+import { CustomButton } from "../customButton";
 
-interface TransactionsContainerProps {
-  setPageState: (pageState: PageState) => void;
-}
+export default function TransactionsContainer() {
+  const {
+    transactionSteps,
+    handleChangeStatus,
+    currentStep,
+    currentStepIndex,
+  } = useTransactionSteps();
+  const { paymentParams } = usePaymentParams();
+  const { totalProtocolFee } = useTransactionSteps();
+  const { amountDue, redirect } = paymentParams;
+  const [isStarted, setIsStarted] = useState(false);
+  const [txHashes, setTxHashes] = useState<{ hash: Hex; link: string }[]>([]);
+  const [isFinished, setIsFinished] = useState(false);
 
-export default function TransactionsContainer({
-  setPageState,
-}: TransactionsContainerProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [mockedTransactions, setMockedTransactions] = useState<
-    {
-      name: string;
-      status: "to-send" | "pending" | "completed" | "failed";
-    }[]
-  >([
-    {
-      name: "Approve USDC",
-      status: "to-send",
-    },
-    {
-      name: "Transfer USDC",
-      status: "to-send",
-    },
-    {
-      name: "Approve USDT",
-      status: "to-send",
-    },
-    {
-      name: "Bridge USDT",
-      status: "to-send",
-    },
-  ]);
-
-  const handleStart = () => {
-    setIsLoading(true);
-    // Change the first transaction status to "pending"
-    setMockedTransactions((prev) => {
-      return prev.map((transaction, index) => {
-        if (index === 0) {
-          return { ...transaction, status: "pending" };
-        }
-        return transaction;
-      });
+  // wagmi hooks
+  const {
+    data: hash,
+    isError: isWalletError,
+    writeContract,
+  } = useWriteContract();
+  const { isError: isTxError, isSuccess: isTxSuccess } =
+    useWaitForTransactionReceipt({
+      hash,
     });
+  const { switchChain } = useSwitchChain();
 
-    // After 3 seconds, change the first transaction status to "completed"
-    setTimeout(() => {
-      setMockedTransactions((prev) => {
-        return prev.map((transaction, index) => {
-          if (index === 0) {
-            return { ...transaction, status: "completed" };
-          }
-          return transaction;
-        });
-      });
+  const humanReadableProtocolFee = (totalProtocolFee ?? 0) / 10 ** 6;
 
-      // Change second transaction status to "pending"
-      setMockedTransactions((prev) => {
-        return prev.map((transaction, index) => {
-          if (index === 1) {
-            return { ...transaction, status: "pending" };
-          }
-          return transaction;
-        });
-      });
+  const chainId = useMemo(() => {
+    if (!currentStep) return null;
+    return chainStringToChainId(currentStep.assets[0].chain);
+  }, [currentStep]);
 
-      // After 6 seconds, change the second transaction status to "failed"
-      setTimeout(() => {
-        setMockedTransactions((prev) => {
-          return prev.map((transaction, index) => {
-            if (index === 1) {
-              return { ...transaction, status: "failed" };
-            }
-            return transaction;
-          });
-        });
+  const handleAction = () => {
+    // If the process is finished, go to the redirect url
+    if (isFinished) {
+      window.location.href = redirect!;
+      return;
+    }
 
-        setIsLoading(false);
-      }, 6000);
-    }, 3000);
+    // If there is no current step or chainId, return
+    if (!currentStep || !chainId) return;
+
+    // If the process is not started, set it as started
+    if (!isStarted) setIsStarted(true);
+
+    // Write the contract
+    const writeContractParams = extractStepParams(currentStep, chainId);
+    writeContract(writeContractParams);
+    handleChangeStatus(
+      currentStepIndex,
+      TransactionStatus.AWAITING_CONFIRMATION
+    );
   };
+
+  // Update the status of the current step to success
+  useEffect(() => {
+    if (isTxSuccess) {
+      console.log("SUCCESS");
+      setTxHashes((prev) => [
+        ...prev,
+        {
+          hash: hash!,
+          link: `${
+            ChainExplorerUrls[
+              currentStep?.assets[0].chain as keyof typeof ChainExplorerUrls
+            ]
+          }/tx/${hash}`,
+        },
+      ]);
+      handleChangeStatus(currentStepIndex, TransactionStatus.SUCCESS);
+    }
+  }, [isTxSuccess]);
+
+  // Update the status of the current step to error
+  useEffect(() => {
+    if (isTxError || isWalletError) {
+      console.log("ERROR");
+      handleChangeStatus(currentStepIndex, TransactionStatus.ERROR);
+    }
+  }, [isTxError, isWalletError]);
+
+  // Automatically start the transaction if the current step is to send
+  useEffect(() => {
+    // If there is no current step, set the process as finished
+    if (!currentStep) setIsFinished(true);
+
+    // If there is a current step, switch to the chain
+    if (chainId) switchChain({ chainId });
+
+    // If the current step is to send and the process is started, trigger the next step
+    if (currentStep?.status === TransactionStatus.TO_SEND && isStarted) {
+      console.log("Triggered next step");
+      setTimeout(() => {
+        handleAction();
+      }, 750);
+    }
+  }, [currentStep]);
 
   return (
     <motion.div
@@ -95,77 +130,103 @@ export default function TransactionsContainer({
       className="flex flex-col w-full sm:max-w-[496px] p-4 gap-4 sm:p-5 border border-secondary-foreground rounded-[8px] overflow-hidden"
     >
       {/* Header */}
-      <div className="flex flex-col justify-start items-start w-full gap-6 p-4">
-        <div className="flex justify-start items-center w-full gap-2">
-          <motion.button
-            whileTap={{
-              scale: 0.95,
-            }}
-            whileHover={{
-              scale: 1.05,
-            }}
-            className="flex justify-center items-center cursor-pointer pr-1"
-            onClick={() => {
-              setPageState(PageState.PAYMENT_RECAP);
-            }}
-          >
-            <ArrowLeft className="size-5.5" />
-          </motion.button>
-          <h1 className="text-xl font-bold">Perform Transactions</h1>
-        </div>
-        <p className="text-[16px] text-secondary">
-          Execute all the listed transactions to complete the payment
-        </p>
-        <Separator className="w-full" />
-      </div>
+      <TxContainerHeader
+        amountDue={amountDue!}
+        humanReadableProtocolFee={humanReadableProtocolFee}
+      />
 
       {/* Transactions */}
-      <div className="flex flex-col justify-start items-start w-full gap-4">
-        <h1 className="text-xl font-bold">Transactions</h1>
-        <div className="flex flex-col justify-start items-start w-full gap-2">
-          {mockedTransactions.map((transaction, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center w-full"
-            >
-              <p className="text-[16px] font-semibold">{transaction.name}</p>
-              <p className="text-[16px] text-secondary">
-                {transaction.status === "pending" ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : transaction.status === "completed" ? (
-                  <CheckCircle className="size-4 text-green-500" />
-                ) : transaction.status === "failed" ? (
-                  <XCircle className="size-4 text-red-500" />
-                ) : null}
-              </p>
+      <div className="flex flex-col justify-center items-center bg-accent rounded-[8px] p-4 w-full gap-4">
+        {transactionSteps.map((step, index) => (
+          <div key={index} className="flex justify-between items-center w-full">
+            <div className="flex justify-start items-center w-full gap-3">
+              {/* Status */}
+              <StatusIndicator status={step.status} />
+
+              <div className="flex justify-center items-center gap-5">
+                {/* Tokens */}
+                <div className="flex justify-start items-center -space-x-4">
+                  {step.assets.map((token, index) => (
+                    <div
+                      key={index}
+                      className="relative flex justify-center items-center"
+                    >
+                      <img
+                        src={
+                          TokenImages[token.asset as keyof typeof TokenImages]
+                        }
+                        alt={`${token.chain} logo`}
+                        width={31}
+                        height={31}
+                        className="object-cover rounded-full"
+                      />
+                      {index === step.assets.length - 1 && (
+                        <img
+                          src={ChainImages[token.chain]}
+                          alt={`${token.chain} logo`}
+                          className="absolute bottom-0 right-0 object-cover rounded-full"
+                          width={12}
+                          height={12}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action description */}
+                <OperationLabel step={step} />
+              </div>
             </div>
-          ))}
-        </div>
+
+            {/* Tx hash */}
+            <AnimatePresence>
+              {txHashes[index] && (
+                <motion.div
+                  key={txHashes[index].hash}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                    scale: [1, 1.025, 1.075, 1.15, 1.075, 1.025, 1],
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
+                  onClick={() => window.open(txHashes[index].link, "_blank")}
+                >
+                  View tx
+                  <SquareArrowOutUpRight className="size-3" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
       </div>
 
-      {/* Start Button */}
-      <motion.button
-        initial={{ opacity: 0.7 }}
-        animate={{
-          opacity: isLoading ? 0.7 : 1,
-        }}
-        whileHover={{
-          scale: isLoading ? 1 : 1.02,
-        }}
-        whileTap={{
-          scale: isLoading ? 1 : 0.98,
-        }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        onClick={handleStart}
-        className="flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] cursor-pointer mt-5"
-        type="button"
-        disabled={isLoading}
-      >
-        <p key="start-button" className="text-xl text-white font-bold">
-          {isLoading ? <Loader2 className="size-6 animate-spin" /> : "Start"}
-        </p>
-      </motion.button>
+      {/* Message */}
+      <p className="text-sm text-secondary text-center">
+        Please confirm all the transactions in your wallet.
+      </p>
+
+      {/* Actions Button */}
+      <CustomButton
+        text={
+          isTxError || isWalletError
+            ? "Retry"
+            : currentStep?.status === TransactionStatus.AWAITING_CONFIRMATION
+            ? "Confirm in wallet"
+            : isFinished && redirect
+            ? "Return to website"
+            : isFinished
+            ? "Payment successful"
+            : "Pay"
+        }
+        onClick={handleAction}
+        isDisabled={
+          (!isFinished || (isFinished && !redirect)) &&
+          currentStep?.status !== TransactionStatus.TO_SEND &&
+          currentStep?.status !== TransactionStatus.ERROR
+        }
+      />
     </motion.div>
   );
 }

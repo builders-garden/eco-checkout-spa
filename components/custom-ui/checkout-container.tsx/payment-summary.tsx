@@ -8,6 +8,7 @@ import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
+import { PoweredByCapsule } from "../powered-by-capsule";
 
 export const PaymentSummary = () => {
   const { paymentParams } = usePaymentParams();
@@ -19,7 +20,10 @@ export const PaymentSummary = () => {
   return (
     <div className="flex flex-col justify-start items-start p-4 gap-6">
       {/* Header */}
-      <h1 className="text-xl font-bold">Payment Summary</h1>
+      <div className="flex justify-between items-center w-full mb-1">
+        <h1 className="text-xl font-bold">Payment Summary</h1>
+        <PoweredByCapsule />
+      </div>
 
       {/* Info */}
       <div className="flex flex-col w-full gap-3">

@@ -3,10 +3,10 @@ import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
 import { PageState } from "@/lib/enums";
-import { usePaymentParams } from "../providers/payment-params-provider";
-import { useSelectedTokens } from "../providers/selected-tokens-provider";
-import { useUserBalances } from "../providers/user-balances-provider";
-import { useTransactionSteps } from "../providers/transaction-steps-provider";
+import { usePaymentParams } from "../../providers/payment-params-provider";
+import { useSelectedTokens } from "../../providers/selected-tokens-provider";
+import { useUserBalances } from "../../providers/user-balances-provider";
+import { useTransactionSteps } from "../../providers/transaction-steps-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/shadcn/utils";
 
@@ -71,7 +71,7 @@ export const ActionsButton = ({ setPageState }: ActionsButtonProps) => {
       transition={{ duration: 0.2 }}
       onClick={onClick}
       className={cn(
-        "flex justify-center items-center w-full rounded-[8px] p-4 h-[60px] cursor-pointer transition-all duration-200",
+        "flex justify-center items-center w-full rounded-[8px] p-4 h-[60px] cursor-pointer transition-all duration-300",
         showLoader || isDisabled ? "bg-disabled cursor-default" : "bg-primary"
       )}
       type="button"

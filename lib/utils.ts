@@ -1,7 +1,17 @@
 import { mainnet, polygon, optimism, arbitrum, base } from "viem/chains";
-import { PageStateType, UserAsset } from "./types";
+import {
+  ContractParams,
+  PageStateType,
+  TransactionStep,
+  UserAsset,
+} from "./types";
 import { PageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
+import { erc20Abi } from "viem";
+import { IntentSourceAbi } from "@eco-foundation/routes-ts";
+import { Config, type UseWriteContractParameters } from "wagmi";
+import { type WriteContractVariables } from "@wagmi/core/query";
+import { Abi } from "viem";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -207,5 +217,42 @@ export const getEstimatedFeeByChain = (
       return chainGasPrice < 0.01
         ? standardFee
         : Math.ceil((chainGasPrice + standardFee) * 100) / 100;
+  }
+};
+
+/**
+ * Extracts the parameters for a transaction step
+ * @param step - The transaction step
+ * @param chainId - The chain id
+ * @returns The parameters for the transaction step
+ */
+export const extractStepParams = (
+  step: TransactionStep,
+  chainId: RoutesSupportedChainId
+): ContractParams => {
+  if (step.type === "approve") {
+    return {
+      abi: erc20Abi,
+      functionName: "approve",
+      address: step.assets[0].tokenContractAddress,
+      args: [step.intentSourceContract, step.allowanceAmount],
+      chainId,
+    };
+  } else if (step.type === "transfer") {
+    return {
+      abi: erc20Abi,
+      functionName: "transfer",
+      address: step.assets[0].tokenContractAddress,
+      args: [step.to, BigInt(step.assets[0].amountToSend)],
+      chainId,
+    };
+  } else {
+    return {
+      abi: IntentSourceAbi,
+      address: step.intentSourceContract,
+      functionName: "publishAndFund",
+      args: [step.intent!, false],
+      chainId,
+    };
   }
 };

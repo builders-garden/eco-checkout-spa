@@ -1,4 +1,4 @@
-import { Hex } from "viem";
+import { Abi, Hex } from "viem";
 import { PageState, TransactionStatus } from "./enums";
 import { RelayoorChain, RelayoorToken } from "./relayoor/types";
 import {
@@ -75,3 +75,11 @@ export type IntentStep = {
 };
 
 export type TransactionStep = ApproveStep | TransferStep | IntentStep;
+
+export type ContractParams = {
+  abi: Abi;
+  functionName: string;
+  address: `0x${string}`;
+  args: readonly unknown[];
+  chainId: number;
+};

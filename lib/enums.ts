@@ -14,6 +14,14 @@ export enum ChainImages {
   "Arbitrum" = "/images/chains/arbitrum-logo.png",
 }
 
+export enum ChainExplorerUrls {
+  "ethereum" = "https://etherscan.io",
+  "optimism" = "https://optimistic.etherscan.io",
+  "polygon" = "https://polygonscan.com",
+  "base" = "https://basescan.org",
+  "arbitrum" = "https://arbiscan.io",
+}
+
 // Token Images
 export enum TokenImages {
   "usdbc" = "/images/tokens/usdc-logo.png",

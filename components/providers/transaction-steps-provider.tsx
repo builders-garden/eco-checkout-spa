@@ -38,6 +38,9 @@ export type TransactionStepsContextType = {
   transactionStepsLoading: boolean;
   totalProtocolFee: number;
   transactionStepsError: string | null;
+  handleChangeStatus: (index: number, status: TransactionStatus) => void;
+  currentStep: TransactionStep | undefined;
+  currentStepIndex: number;
 };
 
 export const useTransactionSteps = () => {
@@ -127,11 +130,13 @@ export const TransactionStepsProvider = ({
           // Create the transaction asset
           const transactionAsset: TransactionAsset = {
             asset: token.asset,
-            amountToSend: getAmountDeducted(
-              paymentParams.amountDue!,
-              selectedTokens,
-              token
-            ),
+            amountToSend:
+              getAmountDeducted(
+                paymentParams.amountDue!,
+                selectedTokens,
+                token
+              ) *
+              10 ** token.decimals,
             chain: token.chain,
             tokenContractAddress: token.tokenContractAddress,
             decimals: token.decimals,
@@ -338,18 +343,44 @@ export const TransactionStepsProvider = ({
     }, 0);
   }, [transactionSteps]);
 
+  // Handle the change of status of a transaction step
+  const handleChangeStatus = (index: number, status: TransactionStatus) => {
+    setTransactionSteps((prevSteps) => {
+      const newSteps = [...prevSteps];
+      newSteps[index] = { ...newSteps[index], status };
+      return newSteps;
+    });
+  };
+
+  // The current step
+  // (the step that is not yet successful)
+  const { currentStep, currentStepIndex } = useMemo(() => {
+    const currentStepIndex = transactionSteps.findIndex(
+      (step) => step.status !== TransactionStatus.SUCCESS
+    );
+    return {
+      currentStep: transactionSteps[currentStepIndex],
+      currentStepIndex,
+    };
+  }, [transactionSteps]);
+
   const value = useMemo(
     () => ({
       transactionSteps,
       transactionStepsLoading,
       totalProtocolFee,
       transactionStepsError,
+      handleChangeStatus,
+      currentStep,
+      currentStepIndex,
     }),
     [
       transactionSteps,
       transactionStepsLoading,
       totalProtocolFee,
       transactionStepsError,
+      handleChangeStatus,
+      currentStep,
     ]
   );
 
