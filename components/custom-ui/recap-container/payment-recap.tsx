@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { PoweredByCapsule } from "../powered-by-capsule";
+import { ThreeDecimalsAmount } from "../three-decimals-amount";
 
 interface PaymentRecapProps {
   setPageState: (pageState: PageState) => void;
@@ -25,7 +26,7 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
   const humanReadableProtocolFee = (totalProtocolFee ?? 0) / 10 ** 6;
 
   return (
-    <div className="flex flex-col justify-start items-start p-4 gap-6">
+    <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
       {/* Header */}
       <div className="flex justify-start items-center w-full gap-2 mb-1">
         <motion.button
@@ -43,7 +44,7 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
           <ArrowLeft className="size-5.5" />
         </motion.button>
         <div className="flex justify-between items-center w-full">
-          <h1 className="text-xl font-bold">Payment Recap</h1>
+          <h1 className="text-[22px] font-bold">Payment Recap</h1>
           <PoweredByCapsule />
         </div>
       </div>
@@ -83,19 +84,15 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
       <div className="flex flex-col w-full gap-2">
         <div className="flex justify-between items-center w-full">
           <p className="text-[16px] text-secondary">Amount</p>
-          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
+          <ThreeDecimalsAmount amount={amountDue!} />
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-[16px] text-secondary">Fees</p>
-          <p className="text-[16px] font-semibold">
-            ${humanReadableProtocolFee}
-          </p>
+          <ThreeDecimalsAmount amount={humanReadableProtocolFee} />
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-lg font-semibold">Total</p>
-          <p className="text-lg font-semibold">
-            ${amountDue! + humanReadableProtocolFee}
-          </p>
+          <ThreeDecimalsAmount amount={amountDue! + humanReadableProtocolFee} />
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import AppKitProvider from "@/components/providers/appkit-provider";
+import { IsMobileProvider } from "@/components/providers/is-mobile-provider";
 import { PaymentParamsProvider } from "@/components/providers/payment-params-provider";
 import { SelectedTokensProvider } from "@/components/providers/selected-tokens-provider";
 import { TransactionStepsProvider } from "@/components/providers/transaction-steps-provider";
@@ -16,18 +17,20 @@ interface ProvidersProps {
 // NOTE: The AppKit Provider also provides the Tanstack Query Client
 export const Providers = ({ children, cookies }: ProvidersProps) => {
   return (
-    <AppKitProvider cookies={cookies}>
-      <NuqsAdapter>
-        <PaymentParamsProvider>
-          <UserBalancesProvider>
-            <SelectedTokensProvider>
-              <TransactionStepsProvider>
-                <TooltipProvider>{children}</TooltipProvider>
-              </TransactionStepsProvider>
-            </SelectedTokensProvider>
-          </UserBalancesProvider>
-        </PaymentParamsProvider>
-      </NuqsAdapter>
-    </AppKitProvider>
+    <IsMobileProvider>
+      <AppKitProvider cookies={cookies}>
+        <NuqsAdapter>
+          <PaymentParamsProvider>
+            <UserBalancesProvider>
+              <SelectedTokensProvider>
+                <TransactionStepsProvider>
+                  <TooltipProvider>{children}</TooltipProvider>
+                </TransactionStepsProvider>
+              </SelectedTokensProvider>
+            </UserBalancesProvider>
+          </PaymentParamsProvider>
+        </NuqsAdapter>
+      </AppKitProvider>
+    </IsMobileProvider>
   );
 };

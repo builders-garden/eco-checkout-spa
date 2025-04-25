@@ -197,27 +197,6 @@ export const bigIntWeiToGwei = (wei: bigint): number => {
 };
 
 /**
- * Gets the estimated fee in US dollars by chain
- * @param chainGasPrice - The gas price in gwei
- * @param chainId - The chain id
- * @returns The estimated fee in US dollars
- */
-export const getEstimatedFeeByChain = (
-  chainGasPrice: number,
-  chainId: RoutesSupportedChainId
-) => {
-  const standardFee = 0.02;
-  switch (chainId) {
-    case 1:
-      return 1.5;
-    default:
-      return chainGasPrice < 0.01
-        ? standardFee
-        : Math.ceil((chainGasPrice + standardFee) * 100) / 100;
-  }
-};
-
-/**
  * Extracts the parameters for a transaction step
  * @param step - The transaction step
  * @param chainId - The chain id
@@ -252,4 +231,13 @@ export const extractStepParams = (
       chainId,
     };
   }
+};
+
+/**
+ * Checks if the current device is a mobile device
+ * @returns True if the device is a mobile device, false otherwise
+ */
+export const isDeviceMobile = () => {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth < 768;
 };

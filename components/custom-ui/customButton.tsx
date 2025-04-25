@@ -15,29 +15,31 @@ export const CustomButton = ({
   text,
 }: CustomButtonProps) => {
   return (
-    <motion.button
-      initial={{ opacity: 0 }}
-      animate={{
-        opacity: isLoading || isDisabled ? 0.7 : 1,
-      }}
-      whileHover={{
-        scale: isLoading || isDisabled ? 1 : 1.015,
-      }}
-      whileTap={{
-        scale: isLoading || isDisabled ? 1 : 0.985,
-      }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      onClick={onClick}
-      className={`flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] transition-all duration-300 ${
-        isDisabled || isLoading ? "cursor-default" : "cursor-pointer"
-      }`}
-      type="button"
-      disabled={isLoading || isDisabled}
-    >
-      <p className="text-xl text-white font-bold">
-        {isLoading ? <Loader2 className="size-6 animate-spin" /> : text}
-      </p>
-    </motion.button>
+    <div className="fixed bottom-0 left-0 right-0 px-4 pb-4 pt-2 sm:relative sm:p-0 sm:bg-transparent bg-background">
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: isLoading || isDisabled ? 0.7 : 1,
+        }}
+        whileHover={{
+          scale: isLoading || isDisabled ? 1 : 1.015,
+        }}
+        whileTap={{
+          scale: isLoading || isDisabled ? 1 : 0.985,
+        }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={onClick}
+        className={`flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] transition-all duration-300 ${
+          isDisabled || isLoading ? "cursor-default" : "cursor-pointer"
+        }`}
+        type="button"
+        disabled={isLoading || isDisabled}
+      >
+        <p className="text-xl text-white font-bold">
+          {isLoading ? <Loader2 className="size-6 animate-spin" /> : text}
+        </p>
+      </motion.button>
+    </div>
   );
 };

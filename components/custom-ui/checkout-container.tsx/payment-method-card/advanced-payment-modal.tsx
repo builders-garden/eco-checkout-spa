@@ -62,26 +62,25 @@ export const AdvancedPaymentModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="flex flex-col gap-4 justify-start items-start sm:max-w-[487px]"
+        className="flex flex-col gap-4 justify-start items-start sm:max-w-[487px] max-w-[95%]"
         style={{
           zIndex: 1000,
         }}
       >
         <DialogHeader className="flex flex-col gap-1 justify-start items-start">
           <DialogTitle>Advanced Payment Options</DialogTitle>
-          <DialogDescription>
-            Select tokens to use for payment. Total selected must cover the
-            required amount.
+          <DialogDescription className="text-left text-[13px] sm:text-sm">
+            Select tokens to use for payment. <br />
+            Total selected must cover the required amount.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-between items-center w-[98%]">
           <p className="font-semibold">
-            Required amount: $
-            {(amountDue! + totalModalSelectedTokensFees!).toFixed(2)}
+            Required: ${(amountDue! + totalModalSelectedTokensFees!).toFixed(2)}
           </p>
           <p
             className={cn(
-              "transition-all duration-300 font-semibold",
+              "transition-all duration-300 font-semibold text-right",
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
@@ -136,7 +135,7 @@ export const AdvancedPaymentModal = ({
           </AnimatePresence>
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between items-center w-full">
+        <DialogFooter className="flex flex-row justify-between sm:justify-between items-center w-[98%]">
           <Button
             type="button"
             variant="outline"

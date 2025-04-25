@@ -19,7 +19,7 @@ export default function Home() {
   const { animationState } = useCardTransitions();
 
   return (
-    <main className="flex relative flex-col items-center justify-center min-h-screen py-6">
+    <main className="flex relative flex-col items-center justify-start sm:justify-center min-h-screen h-auto sm:py-6 overflow-y-auto">
       <AnimatePresence mode="wait" custom={pageState}>
         {pageState.current === PageState.MISSING_PARAMS ? (
           <MissingParamsContainer

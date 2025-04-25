@@ -4,13 +4,7 @@ import ky from "ky";
 import { RelayoorChain, RelayoorResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals, TokenSymbols } from "@/lib/enums";
-import { getGasPrice } from "@wagmi/core";
-import { config } from "@/lib/appkit";
-import {
-  bigIntWeiToGwei,
-  chainStringToChainId,
-  getEstimatedFeeByChain,
-} from "@/lib/utils";
+import { chainStringToChainId } from "@/lib/utils";
 import {
   RoutesService,
   RoutesSupportedStable,
@@ -86,7 +80,7 @@ export const GET = async (req: NextRequest) => {
           // Get the chain id, if the chain is not supported, return an empty array
           let chainId: RoutesSupportedChainId | null = null;
           try {
-            chainId = chainStringToChainId(chain as RelayoorChain);
+            chainId = chainStringToChainId(chain);
           } catch (error) {
             return [];
           }
@@ -94,23 +88,8 @@ export const GET = async (req: NextRequest) => {
           // Check if the chain is supported
           if (!ecoSupportedChains.includes(chainId)) return [];
 
-          // Get the chain gas price
-          let chainGasPrice: number | null = null;
-          try {
-            chainGasPrice = bigIntWeiToGwei(
-              await getGasPrice(config, {
-                chainId,
-              })
-            );
-          } catch (error) {
-            console.error(error);
-          }
-
           // Get the estimated fee for the chain
-          const estimatedFee = getEstimatedFeeByChain(
-            chainGasPrice ?? 0.5,
-            chainId
-          );
+          const estimatedFee = chainId === 1 ? 1 : 0.02;
 
           return response.data[chain as RelayoorChain]
             .map((balance) => {
@@ -126,7 +105,7 @@ export const GET = async (req: NextRequest) => {
                 Math.floor(Number(balance.amount) / 10 ** (decimals - 2)) / 100;
 
               // If the token amount is less than the estimated fee, return undefined
-              if (amount < estimatedFee) return undefined;
+              if (amount <= estimatedFee) return undefined;
 
               // If one the same chain, check if the token is the desired token
               // if not, return undefined

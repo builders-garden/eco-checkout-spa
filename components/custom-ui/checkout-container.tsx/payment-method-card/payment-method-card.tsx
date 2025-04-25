@@ -17,10 +17,13 @@ import { TokensInfoAccordion } from "./tokens-info-accordion";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useIsMobile } from "@/components/providers/is-mobile-provider";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export const PaymentMethodCard = () => {
   const { disconnect } = useDisconnect();
   const { isConnected, address } = useAppKitAccount();
+  const { isMobile } = useIsMobile();
 
   const connected = isConnected && !!address;
 
@@ -33,6 +36,18 @@ export const PaymentMethodCard = () => {
 
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
+
+  // Debounces the insufficient balance warning to prevent flickering
+  const debouncedInsufficientBalanceWarning = useDebounce(
+    amountDue && selectedTotal < amountDue,
+    300
+  );
+
+  // Debounces the selected tokens to prevent flickering
+  const debouncedSelectedTokens = useDebounce(
+    selectedTokens.length === 0 && connected,
+    300
+  );
 
   // A deep comparison of the optimized selection and the selected tokens
   const isOptimized = compareArrays(optimizedSelection, selectedTokens);
@@ -49,9 +64,9 @@ export const PaymentMethodCard = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "fit-content" }}
-      exit={{ opacity: 0, height: 0 }}
+      initial={{ opacity: 0, height: isMobile ? "auto" : 0 }}
+      animate={{ opacity: 1, height: isMobile ? "auto" : "fit-content" }}
+      exit={{ opacity: 0, height: isMobile ? "auto" : 0 }}
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full gap-2"
     >
@@ -96,7 +111,7 @@ export const PaymentMethodCard = () => {
 
       {/* Payment card */}
       <div className="flex flex-col w-full gap-4 border border-success p-5 rounded-[8px]">
-        {selectedTokens.length === 0 && connected ? (
+        {debouncedSelectedTokens ? (
           <div className="flex flex-col justify-center items-center gap-3.5">
             <div className="flex justify-center items-center bg-warning/10 rounded-full size-[56px]">
               <TriangleAlert className="text-warning" />
@@ -124,7 +139,7 @@ export const PaymentMethodCard = () => {
         ) : (
           <>
             <TokensInfoAccordion />
-            {amountDue && selectedTotal < amountDue && (
+            {debouncedInsufficientBalanceWarning && (
               <AnimatePresence mode="wait">
                 <motion.div
                   key="insufficient-balance-warning"

@@ -57,33 +57,35 @@ export const ActionsButton = ({ setPageState }: ActionsButtonProps) => {
   }, [connected, open, setPageState]);
 
   return (
-    <motion.button
-      initial={{ opacity: 0.7 }}
-      animate={{ opacity: 1 }}
-      whileHover={{
-        scale: showLoader || isDisabled ? 1 : 1.015,
-      }}
-      whileTap={{
-        scale: showLoader || isDisabled ? 1 : 0.985,
-      }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-      onClick={onClick}
-      className={cn(
-        "flex justify-center items-center w-full rounded-[8px] p-4 h-[60px] cursor-pointer transition-all duration-300",
-        showLoader || isDisabled ? "bg-disabled cursor-default" : "bg-primary"
-      )}
-      type="button"
-      disabled={showLoader || isDisabled}
-      style={{
-        zIndex: 50,
-      }}
-    >
-      <AnimatePresence mode="wait">
-        <p key={key} className="text-xl text-white font-bold">
-          {showLoader ? <Loader2 className="size-6 animate-spin" /> : text}
-        </p>
-      </AnimatePresence>
-    </motion.button>
+    <div className="fixed bottom-0 left-0 right-0 px-4 pb-4 pt-2 sm:relative sm:p-0 sm:bg-transparent bg-background">
+      <motion.button
+        initial={{ opacity: 0.7 }}
+        animate={{ opacity: 1 }}
+        whileHover={{
+          scale: showLoader || isDisabled ? 1 : 1.015,
+        }}
+        whileTap={{
+          scale: showLoader || isDisabled ? 1 : 0.985,
+        }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={onClick}
+        className={cn(
+          "flex justify-center items-center w-full rounded-[8px] p-4 h-[60px] cursor-pointer transition-all duration-300",
+          showLoader || isDisabled ? "bg-disabled cursor-default" : "bg-primary"
+        )}
+        type="button"
+        disabled={showLoader || isDisabled}
+        style={{
+          zIndex: 50,
+        }}
+      >
+        <AnimatePresence mode="wait">
+          <p key={key} className="text-xl text-white font-bold">
+            {showLoader ? <Loader2 className="size-6 animate-spin" /> : text}
+          </p>
+        </AnimatePresence>
+      </motion.button>
+    </div>
   );
 };

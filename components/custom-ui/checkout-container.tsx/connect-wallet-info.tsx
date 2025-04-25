@@ -1,16 +1,19 @@
 "use client";
 
+import { useIsMobile } from "@/components/providers/is-mobile-provider";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 
 export const ConnectWalletInfo = () => {
+  const { isMobile } = useIsMobile();
+
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "fit-content" }}
-      exit={{ opacity: 0, height: 0 }}
+      initial={{ opacity: 0, height: isMobile ? "auto" : 0 }}
+      animate={{ opacity: 1, height: isMobile ? "auto" : "fit-content" }}
+      exit={{ opacity: 0, height: isMobile ? "auto" : 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col justify-center w-full items-center text-center gap-3.5 -mt-1"
+      className="flex flex-col justify-center w-full items-center text-center gap-3.5 mt-7 sm:-mt-1"
     >
       <div className="flex p-3.5 justify-center items-center bg-secondary-foreground rounded-full">
         <Wallet className="size-[27px]" />

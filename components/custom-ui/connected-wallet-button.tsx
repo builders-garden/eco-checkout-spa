@@ -5,6 +5,7 @@ import { cn } from "@/lib/shadcn/utils";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Wallet } from "lucide-react";
+import { useIsMobile } from "@/components/providers/is-mobile-provider";
 
 interface ConnectedWalletButtonProps {
   disabled?: boolean;
@@ -15,12 +16,13 @@ export const ConnectedWalletButton = ({
 }: ConnectedWalletButtonProps) => {
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
+  const { isMobile } = useIsMobile();
 
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "fit-content" }}
-      exit={{ opacity: 0, height: 0 }}
+      initial={{ opacity: 0, height: isMobile ? "auto" : 0 }}
+      animate={{ opacity: 1, height: isMobile ? "auto" : "fit-content" }}
+      exit={{ opacity: 0, height: isMobile ? "auto" : 0 }}
       transition={{ duration: 0.3 }}
       className="flex flex-col w-full gap-2"
     >

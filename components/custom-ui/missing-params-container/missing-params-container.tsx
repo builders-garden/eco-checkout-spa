@@ -8,13 +8,15 @@ import { Input } from "../../shadcn-ui/input";
 import { Separator } from "../../shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
-import { chainIdToChainName } from "@/lib/utils";
+import { chainIdToChainName, truncateAddress } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
 import { PageState } from "@/lib/enums";
 import { usePaymentParams } from "../../providers/payment-params-provider";
 import { ChainSelection } from "./chain-selection";
 import { useDebounce } from "@/hooks/use-debounce";
 import { PoweredByCapsule } from "../powered-by-capsule";
+import { ScrollArea, ScrollBar } from "@/components/shadcn-ui/scroll-area";
+import { BlueInfoBox } from "./blue-info-box";
 
 interface MissingParamsContainerProps {
   setPageState: (pageState: PageState) => void;
@@ -89,102 +91,84 @@ export const MissingParamsContainer = ({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col w-full sm:max-w-[496px] p-4 sm:p-5 gap-4 border border-secondary-foreground rounded-[8px] overflow-hidden bg-background"
+      className="flex flex-col justify-start size-full min-h-screen sm:min-h-0 sm:max-w-[496px] p-4 sm:p-5 gap-6 sm:border sm:border-secondary-foreground sm:rounded-[8px] overflow-hidden bg-background"
     >
-      <div className="flex justify-between items-center w-full mb-1">
-        <h1 className="text-2xl font-bold my-2">Payment Details</h1>
+      <div className="flex justify-between items-center w-full">
+        <h1 className="text-[22px] font-bold sm:my-2">Payment Details</h1>
         <PoweredByCapsule />
       </div>
-
-      <div className="flex flex-col gap-6">
-        <div className="space-y-2">
-          <p className="text-secondary">Recipient</p>
-          {!paymentParams.recipient ? (
-            <Input
-              id="recipient"
-              placeholder="0x..."
-              value={userInputRecipient}
-              onChange={(e) => setUserInputRecipient(e.target.value)}
-              className="h-[48px]"
-            />
-          ) : (
-            <div className="flex items-center text-primary border border-secondary-foreground rounded-md px-3 h-[48px]">
-              {paymentParams.recipient}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-secondary">Chain</p>
-          {!paymentParams.desiredNetworkId ? (
-            <ChainSelection
-              userInputNetwork={userInputNetwork}
-              setUserInputNetwork={setUserInputNetwork}
-            />
-          ) : (
-            <div className="flex items-center gap-1.5 text-primary font-semibold border border-secondary-foreground rounded-md px-3 h-[48px]">
-              <img
-                src={chainInfo.image}
-                alt={chainInfo.name}
-                className="size-[18px] rounded-full"
-              />
-              {chainInfo.name}
-            </div>
-          )}
-        </div>
-
-        <Separator />
-
-        <div className="flex flex-col">
-          <div className="flex justify-between items-center">
-            <p className="text-lg font-semibold">Amount</p>
-            {!paymentParams.amountDue ? (
-              <div className="relative w-[35%]">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <span className="text-primary font-semibold">$</span>
-                </div>
-                <Input
-                  id="amount"
-                  type="text"
-                  placeholder="0.00"
-                  value={userInputAmount}
-                  onChange={(e) => {
-                    // Only allow numbers and decimals
-                    const value = e.target.value.replace(/[^0-9.]/g, "");
-                    setUserInputAmount(value);
-                  }}
-                  className="pl-8 h-[48px] text-right text-primary font-semibold"
-                />
-              </div>
-            ) : (
-              <p className="text-primary font-semibold">
-                $ {paymentParams.amountDue.toFixed(2)}
-              </p>
-            )}
+      <div className="space-y-2">
+        <p className="text-secondary">Recipient</p>
+        {!paymentParams.recipient ? (
+          <Input
+            id="recipient"
+            placeholder="0x..."
+            value={userInputRecipient}
+            onChange={(e) => setUserInputRecipient(e.target.value)}
+            className="h-[48px]"
+          />
+        ) : (
+          <div className="flex items-center text-primary border border-secondary-foreground rounded-md px-3 h-[48px] overflow-hidden">
+            <ScrollArea className="w-full">
+              <p className="text-primary">{paymentParams.recipient}</p>
+              <ScrollBar orientation="horizontal" className="hidden" />
+            </ScrollArea>
           </div>
+        )}
+      </div>
 
-          <AnimatePresence mode="wait">
-            {!isFormComplete && (
-              <motion.div
-                key="blue-warning"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "96px" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="flex items-end w-full overflow-hidden"
-              >
-                <div className="flex items-center gap-3 px-4 rounded-md bg-blue-50 border border-blue-700 text-blue-700 h-[72px]">
-                  <AlertCircle className="size-5 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm">
-                    Please fill out all required fields to continue with the
-                    payment
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      <div className="space-y-2">
+        <p className="text-secondary">Chain</p>
+        {!paymentParams.desiredNetworkId ? (
+          <ChainSelection
+            userInputNetwork={userInputNetwork}
+            setUserInputNetwork={setUserInputNetwork}
+          />
+        ) : (
+          <div className="flex items-center gap-1.5 text-primary font-semibold border border-secondary-foreground rounded-md px-3 h-[48px]">
+            <img
+              src={chainInfo.image}
+              alt={chainInfo.name}
+              className="size-[18px] rounded-full"
+            />
+            {chainInfo.name}
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      <div className="flex flex-col">
+        <div className="flex justify-between items-center">
+          <p className="text-lg font-semibold">Amount</p>
+          {!paymentParams.amountDue ? (
+            <div className="relative w-[35%]">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <span className="text-primary font-semibold">$</span>
+              </div>
+              <Input
+                id="amount"
+                type="text"
+                placeholder="0.00"
+                value={userInputAmount}
+                onChange={(e) => {
+                  // Only allow numbers and decimals
+                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                  setUserInputAmount(value);
+                }}
+                className="pl-8 h-[48px] text-right text-primary font-semibold"
+              />
+            </div>
+          ) : (
+            <p className="text-primary font-semibold">
+              $ {paymentParams.amountDue.toFixed(2)}
+            </p>
+          )}
         </div>
+        <BlueInfoBox isFormComplete={isFormComplete} />
+      </div>
 
+      <div className="fixed bottom-0 left-0 right-0 p-4 sm:relative sm:p-0">
         <motion.button
           whileHover={{ scale: !isFormComplete ? 1 : 1.02 }}
           whileTap={{ scale: !isFormComplete ? 1 : 0.98 }}
