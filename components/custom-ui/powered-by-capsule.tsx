@@ -9,7 +9,7 @@ export const PoweredByCapsule = () => {
       whileHover={{
         scale: 1.015,
       }}
-      className="flex justify-start items-center gap-1 text-[11px] px-2 py-0.5 border border-blue-500 rounded-full cursor-pointer"
+      className="flex shrink-0 justify-start items-center gap-1 text-[11px] px-2 py-0.5 border border-blue-500 rounded-full cursor-pointer"
       onClick={() => {
         window.open("https://eco.com/", "_blank");
       }}

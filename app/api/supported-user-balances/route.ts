@@ -89,7 +89,8 @@ export const GET = async (req: NextRequest) => {
           if (!ecoSupportedChains.includes(chainId)) return [];
 
           // Get the estimated fee for the chain
-          const estimatedFee = chainId === 1 ? 1 : 0.02;
+          const estimatedFee =
+            chainId === 1 ? 1.25 : chainId === 42161 ? 0.03 : 0.02;
 
           return response.data[chain as RelayoorChain]
             .map((balance) => {

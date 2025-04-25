@@ -1,0 +1,33 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/shadcn-ui/tooltip";
+import { Info } from "lucide-react";
+import { useState } from "react";
+
+export const PartialTokenListTooltip = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Tooltip open={open} onOpenChange={setOpen}>
+      <TooltipTrigger asChild>
+        <div
+          className="flex gap-1 justify-start items-center cursor-pointer mb-2.5"
+          onClick={() => setOpen(!open)}
+        >
+          <Info className="size-3.5" />
+          <p className="text-xs underline font-bold">
+            Why I don&apos;t see all my tokens?
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent className="flex min-w-0 max-w-[80vw] ml-3 z-[1500] sm:w-full text-center">
+        <p className="text-xs font-medium">
+          We only show tokens and chains that are currently supported by the Eco
+          protocol.
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+};

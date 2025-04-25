@@ -18,6 +18,8 @@ import { SelectableToken } from "./selectable-token";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useUserBalances } from "@/components/providers/user-balances-provider";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
+import { PartialTokenListTooltip } from "./partial-token-list-tooltip";
+import { useIsMobile } from "@/components/providers/is-mobile-provider";
 
 interface AdvancedPaymentModalProps {
   children: React.ReactNode;
@@ -26,6 +28,7 @@ interface AdvancedPaymentModalProps {
 export const AdvancedPaymentModal = ({
   children,
 }: AdvancedPaymentModalProps) => {
+  const { isMobile } = useIsMobile();
   const { selectedTokens, setSelectedTokens } = useSelectedTokens();
   const { userBalances } = useUserBalances();
   const { paymentParams } = usePaymentParams();
@@ -76,7 +79,8 @@ export const AdvancedPaymentModal = ({
         </DialogHeader>
         <div className="flex justify-between items-center w-[98%]">
           <p className="font-semibold">
-            Required: ${(amountDue! + totalModalSelectedTokensFees!).toFixed(2)}
+            Required: {isMobile && <br />}$
+            {(amountDue! + totalModalSelectedTokensFees!).toFixed(2)}
           </p>
           <p
             className={cn(
@@ -84,11 +88,12 @@ export const AdvancedPaymentModal = ({
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
-            Selected: ${modalSelectedTotal.toFixed(2)}
+            Selected: {isMobile && <br />}${modalSelectedTotal.toFixed(2)}
           </p>
         </div>
 
         <div className="flex flex-col justify-start items-start w-full">
+          <PartialTokenListTooltip />
           <ScrollArea className="h-[256px] w-full">
             <div className="flex flex-col gap-2 justify-start items-start w-[98%]">
               {userBalances && userBalances.length > 0 ? (
@@ -118,14 +123,14 @@ export const AdvancedPaymentModal = ({
               <motion.div
                 key={`warning-${amountDue}`}
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "44px" }}
+                animate={{ opacity: 1, height: isMobile ? "40px" : "44px" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="flex items-end w-full overflow-hidden"
+                className="flex items-end overflow-hidden w-[98%]"
               >
                 <div className="flex justify-start items-center w-full border border-warning bg-warning/10 rounded-[8px] h-[32px] px-2 gap-2">
-                  <Info className="size-3.5 text-warning" />
-                  <p className="text-xs text-warning">
+                  <Info className="size-4 sm:size-3.5 text-warning" />
+                  <p className="text-[11px] leading-3 sm:leading-4 sm:text-xs text-warning">
                     Selected tokens don&apos;t cover the required amount ($
                     {amountDue!.toFixed(2)})
                   </p>

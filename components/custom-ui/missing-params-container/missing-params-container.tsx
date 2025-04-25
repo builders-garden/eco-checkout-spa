@@ -52,7 +52,7 @@ export const MissingParamsContainer = ({
     );
   }, [userInputRecipient, userInputAmount, userInputNetwork]);
 
-  const isFormComplete = useDebounce(validateForm(), 250);
+  const isFormComplete = useDebounce(validateForm(), 200);
 
   // Handle form submission
   const handleContinue = () => {
@@ -150,9 +150,21 @@ export const MissingParamsContainer = ({
                 placeholder="0.00"
                 value={userInputAmount}
                 onChange={(e) => {
-                  // Only allow numbers and decimals
+                  // Only allow numbers and maximum 2 decimals
                   const value = e.target.value.replace(/[^0-9.]/g, "");
-                  setUserInputAmount(value);
+                  const parts = value.split(".");
+
+                  // Prevent numbers starting with 0 unless it's a decimal
+                  if (value.startsWith("0") && !value.startsWith("0.")) {
+                    setUserInputAmount(value.slice(1));
+                    return;
+                  }
+
+                  if (parts.length > 1 && parts[1].length > 2) {
+                    setUserInputAmount(parts[0] + "." + parts[1].slice(0, 2));
+                  } else {
+                    setUserInputAmount(value);
+                  }
                 }}
                 className="pl-8 h-[48px] text-right text-primary font-semibold"
               />

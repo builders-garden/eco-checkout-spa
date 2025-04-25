@@ -56,7 +56,7 @@ export const SelectableToken = ({
       <div className="flex justify-start items-center gap-2">
         <div
           className={cn(
-            "flex justify-center items-center rounded-[6px] border border-secondary-foreground size-[20px] mr-1 transition-all duration-200",
+            "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-secondary-foreground size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200",
             isSelected && "border-success"
           )}
         >
@@ -67,7 +67,7 @@ export const SelectableToken = ({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="flex justify-center items-center bg-success rounded-[6px] size-[20px]"
+                className="flex justify-center items-center bg-success rounded-[5px] sm:rounded-[6px] size-[17px] sm:size-[20px]"
               >
                 <Check className="size-3 text-white" />
               </motion.div>
@@ -94,7 +94,7 @@ export const SelectableToken = ({
           <p className="text-sm text-primary font-semibold leading-4">
             {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
           </p>
-          <p className="text-xs text-secondary">
+          <p className="text-[11px] sm:text-xs text-secondary">
             {capitalizeFirstLetter(token.chain)} ($
             {token.estimatedFee.toFixed(2)} fee)
           </p>

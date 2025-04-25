@@ -21,13 +21,14 @@ export class PaymentParamsValidator {
     return recipient as Hex;
   }
 
-  // Amount must be a positive number
+  // Amount must be a positive number with up to 2 decimal places
   static validateAmount(amount: string | null): number | null {
     if (!amount) return null;
     if (isNaN(Number(amount)) || Number(amount) <= 0) {
       return null;
     }
-    return Number(amount);
+    const amountWithoutDecimals = Math.floor(Number(amount) * 100) / 100;
+    return amountWithoutDecimals;
   }
 
   // Network must be a valid chain ID
