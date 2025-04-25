@@ -56,7 +56,6 @@ export class PaymentParamsValidator {
         );
         return token as RoutesSupportedStable;
       } catch (error) {
-        console.log("Token not supported for this chain", error);
         return "USDC";
       }
     }

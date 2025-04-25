@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ActionsButton } from "../checkout-container.tsx/actions-button";
 import { PageStateType } from "@/lib/types";
 import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";

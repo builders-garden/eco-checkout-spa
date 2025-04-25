@@ -1,6 +1,5 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
-import { Separator } from "@/components/shadcn-ui/separator";
 import {
   ChainExplorerUrls,
   ChainImages,

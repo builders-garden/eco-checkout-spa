@@ -52,9 +52,8 @@ export const GET = async (req: NextRequest) => {
   }
 
   // Check if the desired network is a valid chain
-  let desiredNetworkId;
   try {
-    desiredNetworkId = chainStringToChainId(desiredNetwork);
+    chainStringToChainId(desiredNetwork);
   } catch (error) {
     return NextResponse.json(
       { error: "Desired network is invalid" },

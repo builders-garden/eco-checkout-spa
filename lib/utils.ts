@@ -9,9 +9,6 @@ import { PageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 import { erc20Abi } from "viem";
 import { IntentSourceAbi } from "@eco-foundation/routes-ts";
-import { Config, type UseWriteContractParameters } from "wagmi";
-import { type WriteContractVariables } from "@wagmi/core/query";
-import { Abi } from "viem";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -212,7 +209,7 @@ export const getEstimatedFeeByChain = (
   const standardFee = 0.02;
   switch (chainId) {
     case 1:
-      return Math.ceil(chainGasPrice * 150) / 100; // Rounded to two decimal places
+      return 1.5;
     default:
       return chainGasPrice < 0.01
         ? standardFee
