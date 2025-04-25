@@ -307,15 +307,12 @@ export const TransactionStepsProvider = ({
               intentSourceContract,
             });
           } catch (error) {
-            console.error("Quotes not available", error);
             setTransactionStepsError("Quotes not available, please try again");
             setTransactionStepsLoading(false);
             return;
           }
         }
       }
-
-      console.log("transactionSteps", transactionSteps);
 
       setTransactionSteps(transactionSteps);
       setTransactionStepsLoading(false);

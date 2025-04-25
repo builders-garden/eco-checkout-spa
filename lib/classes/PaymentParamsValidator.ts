@@ -64,7 +64,7 @@ export class PaymentParamsValidator {
   }
 
   static validateRedirect(redirect: string | null): string | null {
-    return redirect ? redirect : ""; // TODO: Decide what to do with empty redirects
+    return redirect ? redirect : "";
   }
 
   static validatePaymentParams(
