@@ -1,5 +1,6 @@
 import { Separator } from "@/components/shadcn-ui/separator";
 import { PoweredByCapsule } from "../powered-by-capsule";
+import { ThreeDecimalsAmount } from "../three-decimals-amount";
 
 interface TxContainerHeaderProps {
   amountDue: number;
@@ -20,9 +21,7 @@ export const TxContainerHeader = ({
       {/* Total Amount */}
       <div className="flex justify-between items-center w-full">
         <p className="text-[16px] text-secondary">Total amount</p>
-        <p className="text-[16px] font-semibold">
-          ${amountDue! + humanReadableProtocolFee}
-        </p>
+        <ThreeDecimalsAmount amount={amountDue! + humanReadableProtocolFee} />
       </div>
 
       <Separator className="w-full" />
