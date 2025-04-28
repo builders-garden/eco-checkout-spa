@@ -32,9 +32,17 @@ export default function TransactionsContainer() {
   const { paymentParams } = usePaymentParams();
   const { totalProtocolFee } = useTransactionSteps();
   const { amountDue, redirect } = paymentParams;
-  const [isStarted, setIsStarted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [txHashes, setTxHashes] = useState<{ hash: Hex; link: string }[]>([]);
   const [isFinished, setIsFinished] = useState(false);
+
+  // Set the process as started when the component mounts
+  // To prevent the button from being enabled before the component is mounted
+  useEffect(() => {
+    setTimeout(() => {
+      setIsMounted(true);
+    }, 650);
+  }, []);
 
   // wagmi hooks
   const {
@@ -47,8 +55,6 @@ export default function TransactionsContainer() {
       hash,
     });
   const { switchChain } = useSwitchChain();
-
-  const humanReadableProtocolFee = (totalProtocolFee ?? 0) / 10 ** 6;
 
   const chainId = useMemo(() => {
     if (!currentStep) return null;
@@ -64,9 +70,6 @@ export default function TransactionsContainer() {
 
     // If there is no current step or chainId, return
     if (!currentStep || !chainId) return;
-
-    // If the process is not started, set it as started
-    if (!isStarted) setIsStarted(true);
 
     // Write the contract
     const writeContractParams = extractStepParams(currentStep, chainId);
@@ -105,16 +108,20 @@ export default function TransactionsContainer() {
   // Automatically start the transaction if the current step is to send
   useEffect(() => {
     // If there is no current step, set the process as finished
-    if (!currentStep) setIsFinished(true);
+    if (!currentStep) {
+      setIsFinished(true);
+      return;
+    }
 
-    // If there is a current step, switch to the chain
-    if (chainId) switchChain({ chainId });
+    // If the current step is to send, trigger the next step
+    if (currentStep.status === TransactionStatus.TO_SEND) {
+      // If there is a current step, switch to the chain
+      if (chainId) switchChain({ chainId });
 
-    // If the current step is to send and the process is started, trigger the next step
-    if (currentStep?.status === TransactionStatus.TO_SEND && isStarted) {
+      // Wait for the chain to be switched and then trigger the action
       setTimeout(() => {
         handleAction();
-      }, 750);
+      }, 600);
     }
   }, [currentStep]);
 
@@ -129,7 +136,7 @@ export default function TransactionsContainer() {
       {/* Header */}
       <TxContainerHeader
         amountDue={amountDue!}
-        humanReadableProtocolFee={humanReadableProtocolFee}
+        humanReadableProtocolFee={(totalProtocolFee ?? 0) / 10 ** 6}
       />
 
       {/* Transactions */}
@@ -235,6 +242,7 @@ export default function TransactionsContainer() {
         ) : (
           <CustomButton
             key="custom-action-button"
+            isLoading={!isMounted}
             text={
               isTxError || isWalletError
                 ? "Retry"
@@ -243,7 +251,7 @@ export default function TransactionsContainer() {
                 ? "Confirm in wallet"
                 : isFinished && redirect
                 ? "Return to website"
-                : "Pay"
+                : ""
             }
             onClick={handleAction}
             isDisabled={

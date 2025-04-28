@@ -221,8 +221,6 @@ export const TransactionStepsProvider = ({
             });
           });
 
-          // console.log("sourceTokens", sourceTokens);
-
           // Create the intent params
           const intentParams: CreateIntentParams = {
             creator: address as Hex,
@@ -378,6 +376,7 @@ export const TransactionStepsProvider = ({
       transactionStepsError,
       handleChangeStatus,
       currentStep,
+      currentStepIndex,
     ]
   );
 

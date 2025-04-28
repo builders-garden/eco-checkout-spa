@@ -52,7 +52,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       return null;
     }
-  }, [desiredNetworkId, chainIdToChain]);
+  }, [desiredNetworkId]);
 
   useEffect(() => {
     if (!isConnected && !address) {
