@@ -9,7 +9,7 @@ interface StatusIndicatorProps {
 
 export default function StatusIndicator({ status }: StatusIndicatorProps) {
   return (
-    <div className="z-10 bg-accent rounded-full">
+    <div className="z-10 bg-secondary-foreground rounded-full">
       <div
         className={cn(
           "flex justify-center items-center rounded-full size-9.5 transition-all duration-300",

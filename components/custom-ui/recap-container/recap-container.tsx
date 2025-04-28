@@ -42,7 +42,7 @@ export const RecapContainer = ({
       {/* Go to Transaction Button */}
       <CustomButton
         onClick={() => setPageState(PageState.TRANSACTIONS)}
-        text="Confirm & Send"
+        text="Confirm & Pay"
       />
     </motion.div>
   );

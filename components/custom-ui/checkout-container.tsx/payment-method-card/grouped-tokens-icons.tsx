@@ -33,7 +33,9 @@ export const GroupedTokensIcons = ({
               <img
                 src={TokenImages[asset as keyof typeof TokenImages]}
                 alt={`${tokens[0].chain} logo`}
-                className="size-[48px] object-cover rounded-full"
+                className="object-cover rounded-full"
+                width={48}
+                height={48}
               />
               <div className="absolute bottom-0 right-0 flex justify-center items-center -space-x-1.5">
                 {tokens
@@ -48,8 +50,8 @@ export const GroupedTokensIcons = ({
                       className="rounded-full object-cover"
                       src={ChainImages[token.chain as keyof typeof ChainImages]}
                       alt={`${token.chain} logo`}
-                      width={14}
-                      height={14}
+                      width={18}
+                      height={18}
                       layout
                     />
                   ))}

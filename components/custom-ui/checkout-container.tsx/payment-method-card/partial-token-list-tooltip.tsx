@@ -14,10 +14,13 @@ export const PartialTokenListTooltip = () => {
       <TooltipTrigger asChild>
         <div
           className="flex gap-1 justify-start items-center cursor-pointer mb-2.5"
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            window.open("https://eco.com/docs/routes/chain-support", "_blank");
+            setOpen(!open);
+          }}
         >
-          <Info className="size-3.5" />
-          <p className="text-xs underline font-bold">
+          <Info className="size-3.5 text-secondary" />
+          <p className="text-xs underline text-secondary">
             Why I don&apos;t see all my tokens?
           </p>
         </div>

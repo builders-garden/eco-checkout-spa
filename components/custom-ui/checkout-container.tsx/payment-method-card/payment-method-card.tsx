@@ -140,28 +140,16 @@ export const PaymentMethodCard = () => {
           <>
             <TokensInfoAccordion />
             {debouncedInsufficientBalanceWarning && (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key="insufficient-balance-warning"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-end w-full overflow-hidden"
-                >
-                  <div className="flex items-center w-full gap-3 px-4 rounded-md bg-warning/10 border border-warning text-warning h-[72px]">
-                    <AlertCircle className="size-5 flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-col justify-center items-start gap-2">
-                      <p className="font-semibold">
-                        Insufficient balance - ${selectedTotal?.toFixed(2)} / $
-                        {amountDue?.toFixed(2)}
-                      </p>
-                      <p className="text-xs">
-                        Try another wallet or add funds.
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+              <div className="flex items-center w-full gap-3 px-4 py-2 rounded-md bg-warning/10 border border-warning text-warning">
+                <AlertCircle className="size-5 flex-shrink-0 mt-0.5" />
+                <div className="flex flex-col justify-center items-start gap-1">
+                  <p className="font-semibold leading-5">
+                    Insufficient balance - ${selectedTotal?.toFixed(2)} / $
+                    {amountDue?.toFixed(2)}
+                  </p>
+                  <p className="text-xs">Try another wallet or add funds.</p>
+                </div>
+              </div>
             )}
           </>
         )}

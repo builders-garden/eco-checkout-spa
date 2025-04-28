@@ -48,7 +48,7 @@ export const TokensInfoAccordion = () => {
               >
                 <motion.div
                   key={`${token.asset}-${token.chain}`}
-                  className="flex justify-between items-center bg-accent rounded-[8px] py-2 px-4"
+                  className="flex justify-between items-center bg-secondary-foreground/40 rounded-[8px] py-2 px-4"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
@@ -79,7 +79,8 @@ export const TokensInfoAccordion = () => {
                         {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
                       </p>
                       <p className="text-xs text-secondary">
-                        {capitalizeFirstLetter(token.chain)}
+                        {capitalizeFirstLetter(token.chain)} ($
+                        {token.estimatedFee.toFixed(2)} fee)
                       </p>
                     </div>
                   </div>

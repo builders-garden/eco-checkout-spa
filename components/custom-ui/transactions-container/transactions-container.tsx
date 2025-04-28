@@ -133,7 +133,7 @@ export default function TransactionsContainer() {
       />
 
       {/* Transactions */}
-      <div className="relative flex flex-col justify-center items-center bg-accent rounded-[8px] p-4 w-full gap-[22px]">
+      <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 w-full gap-[22px]">
         <motion.div
           animate={{
             height: isFinished

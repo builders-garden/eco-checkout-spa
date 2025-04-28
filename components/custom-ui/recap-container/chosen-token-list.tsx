@@ -21,7 +21,7 @@ export const ChosenTokenList = () => {
               {step.assets.map((token) => (
                 <div
                   key={`${token.tokenContractAddress}`}
-                  className="flex justify-between items-center bg-accent rounded-[8px] py-2 px-4"
+                  className="flex justify-between items-center bg-secondary-foreground/40 rounded-[8px] py-2 px-4 h-[60px]"
                 >
                   <div className="flex justify-start items-center gap-2">
                     <div className="relative flex justify-center items-center">
