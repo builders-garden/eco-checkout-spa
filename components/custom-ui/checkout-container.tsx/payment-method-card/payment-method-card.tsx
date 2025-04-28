@@ -5,7 +5,7 @@ import {
   TriangleAlert,
   WandSparkles,
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/shadcn/utils";
 import { compareArrays } from "@/lib/utils";
 import {
