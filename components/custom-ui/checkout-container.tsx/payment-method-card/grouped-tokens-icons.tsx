@@ -16,7 +16,7 @@ export const GroupedTokensIcons = ({
   groupedTokens,
 }: GroupedTokensIconsProps) => {
   return (
-    <div className="flex w-full -space-x-2">
+    <div className="flex -space-x-2">
       {Object.entries(groupedTokens).map(([asset, tokens], index) => (
         <Tooltip key={asset}>
           <TooltipTrigger asChild>
@@ -33,11 +33,9 @@ export const GroupedTokensIcons = ({
               <img
                 src={TokenImages[asset as keyof typeof TokenImages]}
                 alt={`${tokens[0].chain} logo`}
-                className="object-cover rounded-full"
-                width={48}
-                height={48}
+                className="sm:size-[48px] size-[42px] object-cover rounded-full"
               />
-              <div className="absolute bottom-0 right-0 flex justify-center items-center -space-x-1.5">
+              <div className="absolute bottom-0 right-0 flex justify-center items-center -space-x-2">
                 {tokens
                   .slice(0, tokens.length > 3 ? 2 : tokens.length)
                   .map((token) => (
@@ -47,11 +45,9 @@ export const GroupedTokensIcons = ({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.1 }}
-                      className="rounded-full object-cover"
+                      className="sm:size-[18px] size-[16px] rounded-full object-cover"
                       src={ChainImages[token.chain as keyof typeof ChainImages]}
                       alt={`${token.chain} logo`}
-                      width={18}
-                      height={18}
                       layout
                     />
                   ))}

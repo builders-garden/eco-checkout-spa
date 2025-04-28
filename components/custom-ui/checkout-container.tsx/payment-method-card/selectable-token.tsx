@@ -101,7 +101,9 @@ export const SelectableToken = ({
         </div>
       </div>
       <div className="flex flex-col justify-center items-end">
-        <p className="text-sm text-primary font-semibold">${token.amount}</p>
+        <p className="text-sm text-primary font-semibold">
+          ${token.amount.toFixed(2)}
+        </p>
         {isSelected && (
           <p className="text-xs text-secondary font-semibold">
             -${amountDeducted.toFixed(2)}

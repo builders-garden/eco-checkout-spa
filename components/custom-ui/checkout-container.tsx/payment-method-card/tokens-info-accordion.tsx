@@ -31,12 +31,48 @@ export const TokensInfoAccordion = () => {
     return groupSelectedTokensByAssetName(selectedTokens);
   }, [selectedTokens]);
 
+  // Get the token with the highest amount deducted
+  const highestDeductedToken = useMemo(() => {
+    let highestToken = null;
+    for (const token of selectedTokens) {
+      const amountDeducted = getAmountDeducted(
+        amountDue!,
+        selectedTokens,
+        token
+      );
+      if (amountDeducted > (highestToken?.amount ?? 0)) {
+        highestToken = token;
+      }
+    }
+    return highestToken;
+  }, [selectedTokens, amountDue]);
+
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
-        <AccordionTrigger className="flex justify-start items-center gap-2 py-1 cursor-pointer">
+        <AccordionTrigger className="flex justify-start text-primary items-center gap-2 py-1 cursor-pointer hover:no-underline">
           {/* Selected Tokens */}
-          <GroupedTokensIcons groupedTokens={groupedTokens} />
+          <div className="flex justify-start items-center sm:gap-6 gap-3 w-full">
+            <GroupedTokensIcons groupedTokens={groupedTokens} />
+            <div className="flex flex-col">
+              <h1 className="text-[16px] text-primary font-semibold">
+                {
+                  TokenSymbols[
+                    highestDeductedToken?.asset as keyof typeof TokenSymbols
+                  ]
+                }{" "}
+                {highestDeductedToken?.chain
+                  ? `on ${capitalizeFirstLetter(highestDeductedToken.chain)}`
+                  : ""}
+              </h1>
+              {selectedTokens.length > 1 && (
+                <p className="text-sm text-secondary">
+                  +{selectedTokens.length - 1} more token
+                  {selectedTokens.length - 1 > 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+          </div>
         </AccordionTrigger>
         <AccordionContent className="pb-2">
           <Separator className="my-2" />
