@@ -94,7 +94,7 @@ export const AdvancedPaymentModal = ({
 
         <div className="flex flex-col justify-start items-start w-full">
           <PartialTokenListTooltip />
-          <ScrollArea className="h-[256px] w-full">
+          <ScrollArea className="h-[190px] sm:h-[256px] w-full">
             <div className="flex flex-col gap-2 justify-start items-start w-[98%]">
               {userBalances && userBalances.length > 0 ? (
                 userBalances.map((token, index) => (
