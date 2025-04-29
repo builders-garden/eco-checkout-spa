@@ -28,8 +28,8 @@ export const TokensInfoAccordion = () => {
 
   // Group the selected tokens by asset name
   const groupedTokens = useMemo(() => {
-    return groupSelectedTokensByAssetName(selectedTokens);
-  }, [selectedTokens]);
+    return groupSelectedTokensByAssetName(selectedTokens, amountDue!);
+  }, [selectedTokens, amountDue]);
 
   // Get the token with the highest amount deducted
   const highestDeductedToken = useMemo(() => {
@@ -115,8 +115,10 @@ export const TokensInfoAccordion = () => {
                         {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
                       </p>
                       <p className="text-xs text-secondary">
-                        {capitalizeFirstLetter(token.chain)} ($
-                        {token.estimatedFee.toFixed(2)} fee)
+                        {capitalizeFirstLetter(token.chain)}
+                        {token.estimatedFee < 0.01
+                          ? "(< $0.01 fee)"
+                          : `($${token.estimatedFee.toFixed(2)} fee)`}
                       </p>
                     </div>
                   </div>

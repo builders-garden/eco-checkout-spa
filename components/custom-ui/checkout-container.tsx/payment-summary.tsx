@@ -68,7 +68,9 @@ export const PaymentSummary = () => {
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Est. Fees</p>
           <p className="text-[16px] font-semibold">
-            ${totalSelectedTokensFees!.toFixed(2)}
+            {totalSelectedTokensFees < 0.01
+              ? "< $0.01"
+              : `$${totalSelectedTokensFees.toFixed(2)}`}
           </p>
         </div>
 

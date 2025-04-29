@@ -6,6 +6,7 @@ import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { useMemo } from "react";
+import { estimateFee } from "viem/zksync";
 
 interface SelectableTokenProps {
   token: UserAsset;
@@ -95,8 +96,12 @@ export const SelectableToken = ({
             {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
           </p>
           <p className="text-[11px] sm:text-xs text-secondary">
-            {capitalizeFirstLetter(token.chain)} ($
-            {token.estimatedFee.toFixed(2)} fee)
+            {capitalizeFirstLetter(token.chain)}{" "}
+            <span className="text-[10px] sm:text-[11px]">
+              {token.estimatedFee < 0.01
+                ? "(< $0.01 fee)"
+                : `($${token.estimatedFee.toFixed(2)} fee)`}
+            </span>
           </p>
         </div>
       </div>

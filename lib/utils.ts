@@ -132,12 +132,21 @@ export const getAmountDeducted = (
 };
 
 /**
- * Groups selected tokens by asset name and chain, takes only one occurrence for each token+chain combination
+ * Groups selected tokens by asset name and chain ordered by amount deducted, takes only one occurrence for each token+chain combination
  * @param selectedTokens - The selected tokens
+ * @param amountDue - The amount due
  * @returns The grouped tokens
  */
-export const groupSelectedTokensByAssetName = (selectedTokens: UserAsset[]) => {
-  return selectedTokens.reduce((acc, token) => {
+export const groupSelectedTokensByAssetName = (
+  selectedTokens: UserAsset[],
+  amountDue: number
+) => {
+  const orderedSelectedTokens = [...selectedTokens].sort(
+    (a, b) =>
+      getAmountDeducted(amountDue, selectedTokens, b) -
+      getAmountDeducted(amountDue, selectedTokens, a)
+  );
+  return orderedSelectedTokens.reduce((acc, token) => {
     const assetName =
       token.asset === "usdce" || token.asset === "usdbc" ? "usdc" : token.asset;
     const chain = token.chain;
@@ -240,4 +249,26 @@ export const extractStepParams = (
 export const isDeviceMobile = () => {
   if (typeof window === "undefined") return false;
   return window.innerWidth < 768;
+};
+
+/**
+ * Gets the estimated fees for a token on a specific chain
+ * @param amountDue - The amount due
+ * @param tokenAmount - The amount of the token
+ * @param tokenChainId - The chain id of the token
+ * @returns The estimated fees
+ */
+export const getEstimatedFees = (
+  amountDue: number,
+  tokenAmount: number,
+  tokenChainId: RoutesSupportedChainId,
+  desiredChainId: RoutesSupportedChainId
+) => {
+  if (tokenChainId === desiredChainId) return 0; // The Eco fee is 0, because no intent is needed
+  const referenceAmount = tokenAmount > amountDue ? amountDue : tokenAmount;
+  if (tokenChainId === 1) {
+    return Math.floor(referenceAmount / 100) * 0.015 + 0.35;
+  } else {
+    return Math.floor(referenceAmount / 100) * 0.00075 + 0.002;
+  }
 };

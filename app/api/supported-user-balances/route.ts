@@ -4,7 +4,7 @@ import ky from "ky";
 import { RelayoorChain, RelayoorResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals, TokenSymbols } from "@/lib/enums";
-import { chainStringToChainId } from "@/lib/utils";
+import { chainStringToChainId, getEstimatedFees } from "@/lib/utils";
 import {
   RoutesService,
   RoutesSupportedStable,
@@ -46,8 +46,9 @@ export const GET = async (req: NextRequest) => {
   }
 
   // Check if the desired network is a valid chain
+  let desiredChainId: RoutesSupportedChainId | null = null;
   try {
-    chainStringToChainId(desiredNetwork);
+    desiredChainId = chainStringToChainId(desiredNetwork);
   } catch (error) {
     return NextResponse.json(
       { error: "Desired network is invalid" },
@@ -88,10 +89,6 @@ export const GET = async (req: NextRequest) => {
           // Check if the chain is supported
           if (!ecoSupportedChains.includes(chainId)) return [];
 
-          // Get the estimated fee for the chain
-          const estimatedFee =
-            chainId === 1 ? 1.25 : chainId === 42161 ? 0.03 : 0.02;
-
           return response.data[chain as RelayoorChain]
             .map((balance) => {
               // If the token is not in the valid tokens array, return undefined
@@ -104,6 +101,14 @@ export const GET = async (req: NextRequest) => {
               // Get the token amount rounded to two decimal places
               const amount =
                 Math.floor(Number(balance.amount) / 10 ** (decimals - 2)) / 100;
+
+              // Get the estimated fee for the chain
+              const estimatedFee = getEstimatedFees(
+                amountDue,
+                amount,
+                chainId,
+                desiredChainId
+              );
 
               // If the token amount is less than the estimated fee, return undefined
               if (amount <= estimatedFee) return undefined;
