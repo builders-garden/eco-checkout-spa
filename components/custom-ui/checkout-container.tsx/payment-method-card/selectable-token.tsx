@@ -6,7 +6,6 @@ import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { useMemo } from "react";
-import { estimateFee } from "viem/zksync";
 
 interface SelectableTokenProps {
   token: UserAsset;
