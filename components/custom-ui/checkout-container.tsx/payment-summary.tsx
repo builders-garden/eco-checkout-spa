@@ -2,6 +2,7 @@ import {
   chainIdToChain,
   chainIdToChainName,
   truncateAddress,
+  twoDecimalsSlicingString,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
 import { EMPTY_ADDRESS } from "@/lib/constants";
@@ -61,16 +62,20 @@ export const PaymentSummary = () => {
         {/* Amount Due */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Amount</p>
-          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
+          <p className="text-[16px] font-semibold">
+            ${twoDecimalsSlicingString(amountDue!)}
+          </p>
         </div>
 
         {/* Total Fees */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Est. Fees</p>
           <p className="text-[16px] font-semibold">
-            {totalSelectedTokensFees < 0.01
+            {totalSelectedTokensFees === 0
+              ? "$0.00"
+              : totalSelectedTokensFees < 0.01
               ? "< $0.01"
-              : `$${totalSelectedTokensFees.toFixed(2)}`}
+              : `$${twoDecimalsSlicingString(totalSelectedTokensFees!)}`}
           </p>
         </div>
 
@@ -78,7 +83,7 @@ export const PaymentSummary = () => {
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-lg font-semibold">Total</p>
           <p className="text-lg font-semibold">
-            ${(amountDue! + totalSelectedTokensFees!).toFixed(2)}
+            ${twoDecimalsSlicingString(amountDue! + totalSelectedTokensFees!)}
           </p>
         </div>
       </div>

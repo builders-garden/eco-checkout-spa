@@ -27,8 +27,8 @@ export const PartialTokenListTooltip = () => {
       </TooltipTrigger>
       <TooltipContent className="flex min-w-0 max-w-[80vw] sm:ml-0 ml-3 z-[1500] sm:w-full sm:max-w-full text-center">
         <p className="text-xs font-medium">
-          We only show tokens and chains that are currently supported by the Eco
-          protocol.
+          We only show tokens supported by the Eco protocol <br />
+          and whose balance is more than $0.01.
         </p>
       </TooltipContent>
     </Tooltip>

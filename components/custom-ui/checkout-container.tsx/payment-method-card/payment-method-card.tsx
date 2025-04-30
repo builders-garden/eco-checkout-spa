@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/shadcn/utils";
-import { compareArrays } from "@/lib/utils";
+import { compareArrays, twoDecimalsSlicingString } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -144,8 +144,9 @@ export const PaymentMethodCard = () => {
                 <AlertCircle className="size-5 flex-shrink-0 mt-0.5" />
                 <div className="flex flex-col justify-center items-start gap-1">
                   <p className="font-semibold leading-5">
-                    Insufficient balance - ${selectedTotal?.toFixed(2)} / $
-                    {amountDue?.toFixed(2)}
+                    Insufficient balance - $
+                    {twoDecimalsSlicingString(selectedTotal!)} / $
+                    {twoDecimalsSlicingString(amountDue!)}
                   </p>
                   <p className="text-xs">Try another wallet or add funds.</p>
                 </div>

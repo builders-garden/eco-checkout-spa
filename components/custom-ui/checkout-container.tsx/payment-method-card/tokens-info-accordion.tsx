@@ -14,6 +14,7 @@ import {
   capitalizeFirstLetter,
   getAmountDeducted,
   groupSelectedTokensByAssetName,
+  twoDecimalsSlicingString,
 } from "@/lib/utils";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { GroupedTokensIcons } from "./grouped-tokens-icons";
@@ -115,24 +116,26 @@ export const TokensInfoAccordion = () => {
                         {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
                       </p>
                       <p className="text-xs text-secondary">
-                        {capitalizeFirstLetter(token.chain)}
-                        {token.estimatedFee < 0.01
+                        {capitalizeFirstLetter(token.chain)}{" "}
+                        {token.estimatedFee === 0
+                          ? "(free)"
+                          : token.estimatedFee < 0.01
                           ? "(< $0.01 fee)"
-                          : `($${token.estimatedFee.toFixed(2)} fee)`}
+                          : `($${twoDecimalsSlicingString(
+                              token.estimatedFee
+                            )} fee)`}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col justify-center items-end">
                     <p className="text-sm text-primary font-semibold">
-                      ${token.amount.toFixed(2)}
+                      ${twoDecimalsSlicingString(token.amount)}
                     </p>
                     <p className="text-xs text-secondary font-semibold text-right">
                       -$
-                      {getAmountDeducted(
-                        amountDue!,
-                        selectedTokens,
-                        token
-                      ).toFixed(2)}
+                      {twoDecimalsSlicingString(
+                        getAmountDeducted(amountDue!, selectedTokens, token)
+                      )}
                     </p>
                   </div>
                 </motion.div>

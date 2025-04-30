@@ -20,6 +20,7 @@ import { useUserBalances } from "@/components/providers/user-balances-provider";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { PartialTokenListTooltip } from "./partial-token-list-tooltip";
 import { useIsMobile } from "@/components/providers/is-mobile-provider";
+import { twoDecimalsSlicingString } from "@/lib/utils";
 
 interface AdvancedPaymentModalProps {
   children: React.ReactNode;
@@ -80,7 +81,9 @@ export const AdvancedPaymentModal = ({
         <div className="flex justify-between items-center w-[98%]">
           <p className="font-semibold">
             Required: {isMobile && <br />}$
-            {(amountDue! + totalModalSelectedTokensFees!).toFixed(2)}
+            {twoDecimalsSlicingString(
+              amountDue! + totalModalSelectedTokensFees!
+            )}
           </p>
           <p
             className={cn(
@@ -88,7 +91,8 @@ export const AdvancedPaymentModal = ({
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
-            Selected: {isMobile && <br />}${modalSelectedTotal.toFixed(2)}
+            Selected: {isMobile && <br />}$
+            {twoDecimalsSlicingString(modalSelectedTotal!)}
           </p>
         </div>
 
@@ -132,7 +136,7 @@ export const AdvancedPaymentModal = ({
                   <Info className="size-4 sm:size-3.5 text-warning" />
                   <p className="text-[11px] leading-3 sm:leading-4 sm:text-xs text-warning">
                     Selected tokens don&apos;t cover the required amount ($
-                    {amountDue!.toFixed(2)})
+                    {twoDecimalsSlicingString(amountDue!)})
                   </p>
                 </div>
               </motion.div>

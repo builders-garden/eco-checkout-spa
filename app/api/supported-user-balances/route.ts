@@ -98,9 +98,10 @@ export const GET = async (req: NextRequest) => {
               // Get the token decimals
               const decimals = TokenDecimals[balance.token];
 
-              // Get the token amount rounded to two decimal places
+              // Get the token amount rounded to 5 decimal places
               const amount =
-                Math.floor(Number(balance.amount) / 10 ** (decimals - 2)) / 100;
+                Math.floor(Number(balance.amount) / 10 ** (decimals - 5)) /
+                100000;
 
               // Get the estimated fee for the chain
               const estimatedFee = getEstimatedFees(
@@ -110,8 +111,8 @@ export const GET = async (req: NextRequest) => {
                 desiredChainId
               );
 
-              // If the token amount is less than the estimated fee, return undefined
-              if (amount <= estimatedFee) return undefined;
+              // If the token amount is less than the estimated fee plus 0.01, return undefined
+              if (amount <= estimatedFee + 0.01) return undefined;
 
               // If one the same chain, check if the token is the desired token
               // if not, return undefined
@@ -147,7 +148,7 @@ export const GET = async (req: NextRequest) => {
                 asset: balance.token,
                 amount,
                 spendableAmount:
-                  Math.round((amount - estimatedFee) * 100) / 100,
+                  Math.round((amount - estimatedFee) * 100000) / 100000,
                 estimatedFee,
                 chain: chain as RelayoorChain,
                 tokenContractAddress,

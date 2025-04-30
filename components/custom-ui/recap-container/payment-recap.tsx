@@ -2,6 +2,7 @@ import {
   chainIdToChain,
   chainIdToChainName,
   truncateAddress,
+  twoDecimalsSlicingString,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
 import { EMPTY_ADDRESS } from "@/lib/constants";
@@ -83,20 +84,24 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
       <div className="flex flex-col w-full gap-2">
         <div className="flex justify-between items-center w-full">
           <p className="text-[16px] text-secondary">Amount</p>
-          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
+          <p className="text-[16px] font-semibold">
+            ${twoDecimalsSlicingString(amountDue!)}
+          </p>
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-[16px] text-secondary">Fees</p>
           <p className="text-[16px] font-semibold">
-            {humanReadableProtocolFee < 0.01
+            {humanReadableProtocolFee === 0
+              ? "$0.00"
+              : humanReadableProtocolFee < 0.01
               ? "< $0.01"
-              : `$${humanReadableProtocolFee.toFixed(2)}`}
+              : `$${twoDecimalsSlicingString(humanReadableProtocolFee)}`}
           </p>
         </div>
         <div className="flex justify-between items-center w-full">
           <p className="text-lg font-semibold">Total</p>
           <p className="text-[16px] font-semibold">
-            ${(amountDue! + humanReadableProtocolFee).toFixed(2)}
+            ${twoDecimalsSlicingString(amountDue! + humanReadableProtocolFee)}
           </p>
         </div>
       </div>

@@ -2,7 +2,11 @@ import { usePaymentParams } from "@/components/providers/payment-params-provider
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
-import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
+import {
+  capitalizeFirstLetter,
+  getAmountDeducted,
+  twoDecimalsSlicingString,
+} from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { useMemo } from "react";
@@ -97,20 +101,22 @@ export const SelectableToken = ({
           <p className="text-[11px] sm:text-xs text-secondary">
             {capitalizeFirstLetter(token.chain)}{" "}
             <span className="text-[10px] sm:text-[11px]">
-              {token.estimatedFee < 0.01
+              {token.estimatedFee === 0
+                ? "(free)"
+                : token.estimatedFee < 0.01
                 ? "(< $0.01 fee)"
-                : `($${token.estimatedFee.toFixed(2)} fee)`}
+                : `($${twoDecimalsSlicingString(token.estimatedFee)} fee)`}
             </span>
           </p>
         </div>
       </div>
       <div className="flex flex-col justify-center items-end">
         <p className="text-sm text-primary font-semibold">
-          ${token.amount.toFixed(2)}
+          ${twoDecimalsSlicingString(token.amount)}
         </p>
         {isSelected && (
           <p className="text-xs text-secondary font-semibold">
-            -${amountDeducted.toFixed(2)}
+            -${twoDecimalsSlicingString(amountDeducted)}
           </p>
         )}
       </div>

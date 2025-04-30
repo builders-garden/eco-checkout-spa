@@ -6,7 +6,7 @@ import { Input } from "../../shadcn-ui/input";
 import { Separator } from "../../shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
-import { chainIdToChainName } from "@/lib/utils";
+import { chainIdToChainName, twoDecimalsSlicingString } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
 import { PageState } from "@/lib/enums";
 import { usePaymentParams } from "../../providers/payment-params-provider";
@@ -171,7 +171,7 @@ export const MissingParamsContainer = ({
             </div>
           ) : (
             <p className="text-primary font-semibold">
-              $ {paymentParams.amountDue.toFixed(2)}
+              $ {twoDecimalsSlicingString(paymentParams.amountDue!)}
             </p>
           )}
         </div>

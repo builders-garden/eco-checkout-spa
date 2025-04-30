@@ -2,7 +2,7 @@ import { useTransactionSteps } from "@/components/providers/transaction-steps-pr
 import { TokenSymbols } from "@/lib/enums";
 import { TokenImages } from "@/lib/enums";
 import { ChainImages } from "@/lib/enums";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { capitalizeFirstLetter, twoDecimalsSlicingString } from "@/lib/utils";
 import { CreditCard } from "lucide-react";
 
 export const ChosenTokenList = () => {
@@ -53,7 +53,10 @@ export const ChosenTokenList = () => {
                   </div>
                   <div className="flex flex-col justify-center items-end">
                     <p className="text-sm text-primary font-semibold">
-                      ${(token.amountToSend / 10 ** token.decimals).toFixed(2)}
+                      $
+                      {twoDecimalsSlicingString(
+                        token.amountToSend / 10 ** token.decimals
+                      )}
                     </p>
                   </div>
                 </div>

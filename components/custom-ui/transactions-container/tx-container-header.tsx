@@ -1,5 +1,6 @@
 import { Separator } from "@/components/shadcn-ui/separator";
 import { PoweredByCapsule } from "../powered-by-capsule";
+import { twoDecimalsSlicingString } from "@/lib/utils";
 
 interface TxContainerHeaderProps {
   amountDue: number;
@@ -21,7 +22,7 @@ export const TxContainerHeader = ({
       <div className="flex justify-between items-center w-full">
         <p className="text-[16px] text-secondary">Total amount</p>
         <p className="text-[16px] font-semibold">
-          ${(amountDue! + humanReadableProtocolFee).toFixed(2)}
+          ${twoDecimalsSlicingString(amountDue! + humanReadableProtocolFee)}
         </p>
       </div>
 

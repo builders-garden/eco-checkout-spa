@@ -272,3 +272,28 @@ export const getEstimatedFees = (
     return Math.floor(referenceAmount / 100) * 0.00075 + 0.002;
   }
 };
+
+/**
+ * Slices a number to 2 decimal places without rounding, it always returns *.00
+ * @param amount - The number to slice
+ * @returns The sliced number
+ */
+export const twoDecimalsSlicingString = (amount: number) => {
+  const amountString = amount.toString();
+  const [integerPart, decimalPart] = amountString.split(".");
+  if (decimalPart) {
+    if (decimalPart.length === 0) {
+      return `${integerPart}.00`;
+    }
+    if (decimalPart.length === 1) {
+      return `${integerPart}.${decimalPart}0`;
+    }
+    if (decimalPart.length === 2) {
+      return `${integerPart}.${decimalPart}`;
+    }
+    if (decimalPart.length > 2) {
+      return `${integerPart}.${decimalPart.slice(0, 2)}`;
+    }
+  }
+  return `${amountString}.00`;
+};
