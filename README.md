@@ -1,10 +1,12 @@
 # Eco Checkout SPA 
 
-A single-page application for handling stablecoin payments and transactions across multiple blockchain networks.
+A single-page application for handling stablecoin payments across multiple blockchain networks.
 
 ## Overview
+The Eco Checkout SPA is a web application that allows merchants to redirect their users to a simple and intuitive interface for receiving stablecoin payments via [Eco Routes](https://eco.com/docs/routes/overview).
 
-The Eco Checkout SPA is a web application that enables merchants to redirect their users to a simple and intuitive interface for receiving cryptocurrency payments from various blockchain networks via intents.
+The SPA leverages the [Eco Routes SDK](https://github.com/eco-toolkit/sdk/blob/main/README.md) to create and send intents easily.
+
 
 ## Installation
 
@@ -100,4 +102,4 @@ If any required query parameters are missing, users can fill them in using a sim
 5. If the user is not satisfied with the optimized token selection, they can change it by opening the advanced token selection modal
 6. The user reviews the checkout through the payment recap step before proceeding with the actual payment
 7. The user lands in the transactions view, where the first transaction is automatically started
-8. Once the user completes all transactions, if a redirect link is provided as a query parameter, the user is shown a button that redirects to the merchant's website; otherwise, the payment process finishes with a success message and the window can be closed
+8. Once the user completes all transactions, if a redirect link is provided as a query parameter, the user is shown a button that redirects to the merchant's website; otherwise, the payment process finishes with a success message and the window can be closed.
