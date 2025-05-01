@@ -10,8 +10,6 @@ import { IntentType } from "@eco-foundation/routes-ts";
 export type UserAsset = {
   asset: RelayoorToken;
   amount: number;
-  spendableAmount: number;
-  estimatedFee: number;
   chain: RelayoorChain;
   tokenContractAddress: Hex;
   decimals: number;
@@ -19,8 +17,8 @@ export type UserAsset = {
 
 export type TransactionAsset = {
   asset: RelayoorToken;
-  chain: RelayoorChain;
   amountToSend: number;
+  chain: RelayoorChain;
   tokenContractAddress: Hex;
   decimals: number;
 };

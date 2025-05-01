@@ -23,11 +23,12 @@ import {
 } from "@eco-foundation/routes-sdk";
 import { CreateIntentParams } from "@eco-foundation/routes-sdk";
 import { encodeFunctionData, erc20Abi, Hex, maxUint256 } from "viem";
-import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
-import { TransactionStatus } from "@/lib/enums";
+import { chainStringToChainId, getAmountDeducted, getFees } from "@/lib/utils";
+import { TokenDecimals, TransactionStatus } from "@/lib/enums";
 import { readContract } from "@wagmi/core";
 import { config } from "@/lib/appkit";
 import { EcoProtocolAddresses } from "@eco-foundation/routes-ts";
+import { useSwitchChain } from "wagmi";
 
 export const TransactionStepsContext = createContext<
   TransactionStepsContextType | undefined
@@ -36,7 +37,6 @@ export const TransactionStepsContext = createContext<
 export type TransactionStepsContextType = {
   transactionSteps: TransactionStep[];
   transactionStepsLoading: boolean;
-  totalProtocolFee: number;
   transactionStepsError: string | null;
   handleChangeStatus: (index: number, status: TransactionStatus) => void;
   currentStep: TransactionStep | undefined;
@@ -72,6 +72,7 @@ export const TransactionStepsProvider = ({
   const [transactionStepsError, setTransactionStepsError] = useState<
     string | null
   >(null);
+  const { switchChain } = useSwitchChain();
 
   // Group tokens by chain
   const tokensByChain = selectedTokens.reduce((acc, token) => {
@@ -153,20 +154,27 @@ export const TransactionStepsProvider = ({
           // Else, create an intent step using all tokens on the chain
         } else {
           // Get the total amount of tokens to send
-          const totalAmountToSendOnCurrentChain = BigInt(
-            Math.round(
-              tokens.reduce(
-                (acc, token) =>
-                  acc +
-                  getAmountDeducted(
-                    paymentParams.amountDue!,
-                    selectedTokens,
-                    token
-                  ) *
-                    10 ** token.decimals,
-                0
-              )
+          const totalAmountToSendOnCurrentChain = Math.round(
+            tokens.reduce(
+              (acc, token) =>
+                acc +
+                getAmountDeducted(
+                  paymentParams.amountDue!,
+                  selectedTokens,
+                  token
+                ) *
+                  10 ** token.decimals,
+              0
             )
+          );
+
+          // Get the estimated fees
+          const protocolFees = getFees(
+            totalAmountToSendOnCurrentChain,
+            chainId,
+            TokenDecimals[
+              paymentParams.desiredToken!.toLowerCase() as keyof typeof TokenDecimals
+            ]
           );
 
           // Get the desired token address of the receiving chain
@@ -184,7 +192,7 @@ export const TransactionStepsProvider = ({
                 functionName: "transfer",
                 args: [
                   paymentParams.recipient!,
-                  totalAmountToSendOnCurrentChain,
+                  BigInt(totalAmountToSendOnCurrentChain - protocolFees),
                 ],
               }),
               value: BigInt(0),
@@ -195,7 +203,7 @@ export const TransactionStepsProvider = ({
           const callTokens = [
             {
               token: desiredTokenAddress,
-              amount: totalAmountToSendOnCurrentChain,
+              amount: BigInt(totalAmountToSendOnCurrentChain - protocolFees),
             },
           ];
 
@@ -206,12 +214,11 @@ export const TransactionStepsProvider = ({
           }[] = [];
           tokens.forEach((sourceToken) => {
             const amountDeducted = Math.round(
-              (getAmountDeducted(
+              getAmountDeducted(
                 paymentParams.amountDue!,
                 selectedTokens,
                 sourceToken
-              ) +
-                sourceToken.estimatedFee) *
+              ) *
                 10 ** sourceToken.decimals
             );
 
@@ -319,25 +326,6 @@ export const TransactionStepsProvider = ({
     getTransactionSteps();
   }, [selectedTokens, areAllPaymentParamsValid, address]);
 
-  // Calculate the total protocol fee of the operation
-  const totalProtocolFee = useMemo(() => {
-    return transactionSteps.reduce((acc, step) => {
-      if (step.type === "intent") {
-        // For each token in the intent, calculate the protocol fee
-        const totalReward = step.intent!.reward.tokens.reduce(
-          (acc, token) => acc + Number(token.amount),
-          0
-        );
-        const totalReceived = step.intent!.route.tokens.reduce(
-          (acc, token) => acc + Number(token.amount),
-          0
-        );
-        return acc + totalReward - totalReceived;
-      }
-      return acc;
-    }, 0);
-  }, [transactionSteps]);
-
   // Handle the change of status of a transaction step
   const handleChangeStatus = (index: number, status: TransactionStatus) => {
     setTransactionSteps((prevSteps) => {
@@ -346,6 +334,14 @@ export const TransactionStepsProvider = ({
       return newSteps;
     });
   };
+
+  // Change the network to the one required for the first step
+  useEffect(() => {
+    if (transactionSteps.length > 0) {
+      const chainId = chainStringToChainId(transactionSteps[0].assets[0].chain);
+      switchChain({ chainId });
+    }
+  }, [transactionSteps]);
 
   // The current step
   // (the step that is not yet successful)
@@ -363,7 +359,6 @@ export const TransactionStepsProvider = ({
     () => ({
       transactionSteps,
       transactionStepsLoading,
-      totalProtocolFee,
       transactionStepsError,
       handleChangeStatus,
       currentStep,
@@ -372,7 +367,6 @@ export const TransactionStepsProvider = ({
     [
       transactionSteps,
       transactionStepsLoading,
-      totalProtocolFee,
       transactionStepsError,
       handleChangeStatus,
       currentStep,

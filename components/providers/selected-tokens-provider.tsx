@@ -19,7 +19,6 @@ export type SelectedTokensContextType = {
   selectedTotal: number;
   setSelectedTokens: (tokens: UserAsset[]) => void;
   optimizedSelection: UserAsset[];
-  totalSelectedTokensFees: number;
 };
 
 export const useSelectedTokens = () => {
@@ -49,23 +48,21 @@ export const SelectedTokensProvider = ({
     let selectedArray: UserAsset[] = [];
     for (const asset of userBalances) {
       const selectedArraySum = selectedArray.reduce(
-        (acc, curr) => acc + curr.spendableAmount,
+        (acc, curr) => acc + curr.amount,
         0
       );
       if (selectedArraySum < amountDue) {
         selectedArray.push(asset);
+      } else {
+        break;
       }
     }
     setSelectedTokens(selectedArray);
     setOptimizedSelection(selectedArray);
   }, [userBalances, amountDue]);
 
-  const selectedTotal = selectedTokens?.reduce((acc, token) => {
-    return acc + token.spendableAmount;
-  }, 0);
-
-  const totalSelectedTokensFees = selectedTokens?.reduce((acc, token) => {
-    return acc + token.estimatedFee;
+  const selectedTotal = selectedTokens.reduce((acc, token) => {
+    return acc + token.amount;
   }, 0);
 
   const value = useMemo(
@@ -74,15 +71,8 @@ export const SelectedTokensProvider = ({
       selectedTotal,
       setSelectedTokens,
       optimizedSelection,
-      totalSelectedTokensFees,
     }),
-    [
-      selectedTokens,
-      selectedTotal,
-      setSelectedTokens,
-      optimizedSelection,
-      totalSelectedTokensFees,
-    ]
+    [selectedTokens, selectedTotal, setSelectedTokens, optimizedSelection]
   );
 
   return (

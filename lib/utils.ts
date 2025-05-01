@@ -9,6 +9,12 @@ import { PageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 import { erc20Abi } from "viem";
 import { IntentSourceAbi } from "@eco-foundation/routes-ts";
+import {
+  INCREASE_L2_PROTOCOL_FEE,
+  MIN_L2_PROTOCOL_FEE,
+  INCREASE_MAINNET_PROTOCOL_FEE,
+  MIN_MAINNET_PROTOCOL_FEE,
+} from "./constants";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -121,12 +127,12 @@ export const getAmountDeducted = (
   let total = amountDue;
   for (const t of orderedSelectedTokens) {
     if (t === token) {
-      if (t.spendableAmount > total) {
+      if (t.amount > total) {
         return total;
       }
-      return t.spendableAmount;
+      return t.amount;
     }
-    total -= t.spendableAmount;
+    total -= t.amount;
   }
   return total;
 };
@@ -252,48 +258,30 @@ export const isDeviceMobile = () => {
 };
 
 /**
- * Gets the estimated fees for a token on a specific chain
- * @param amountDue - The amount due
- * @param tokenAmount - The amount of the token
- * @param tokenChainId - The chain id of the token
- * @returns The estimated fees
+ * Gets the fees, given the amount to send and the chain id
+ * @param amountToSend - The amount to send
+ * @param tokenChainId - The chain id where the amount will be sent
+ * @param tokenDecimals - The decimals of the token
+ * @returns The fees
  */
-export const getEstimatedFees = (
-  amountDue: number,
-  tokenAmount: number,
+export const getFees = (
+  amountToSend: number,
   tokenChainId: RoutesSupportedChainId,
-  desiredChainId: RoutesSupportedChainId
+  tokenDecimals: number
 ) => {
-  if (tokenChainId === desiredChainId) return 0; // The Eco fee is 0, because no intent is needed
-  const referenceAmount = tokenAmount > amountDue ? amountDue : tokenAmount;
   if (tokenChainId === 1) {
-    return Math.floor(referenceAmount / 100) * 0.015 + 0.35;
+    return (
+      (Math.floor(amountToSend / 10 ** (tokenDecimals + 2)) *
+        INCREASE_MAINNET_PROTOCOL_FEE +
+        MIN_MAINNET_PROTOCOL_FEE) *
+      10 ** tokenDecimals
+    );
   } else {
-    return Math.floor(referenceAmount / 100) * 0.00075 + 0.002;
+    return (
+      (Math.floor(amountToSend / 10 ** (tokenDecimals + 2)) *
+        INCREASE_L2_PROTOCOL_FEE +
+        MIN_L2_PROTOCOL_FEE) *
+      10 ** tokenDecimals
+    );
   }
-};
-
-/**
- * Slices a number to 2 decimal places without rounding, it always returns *.00
- * @param amount - The number to slice
- * @returns The sliced number
- */
-export const twoDecimalsSlicingString = (amount: number) => {
-  const amountString = amount.toString();
-  const [integerPart, decimalPart] = amountString.split(".");
-  if (decimalPart) {
-    if (decimalPart.length === 0) {
-      return `${integerPart}.00`;
-    }
-    if (decimalPart.length === 1) {
-      return `${integerPart}.${decimalPart}0`;
-    }
-    if (decimalPart.length === 2) {
-      return `${integerPart}.${decimalPart}`;
-    }
-    if (decimalPart.length > 2) {
-      return `${integerPart}.${decimalPart.slice(0, 2)}`;
-    }
-  }
-  return `${amountString}.00`;
 };

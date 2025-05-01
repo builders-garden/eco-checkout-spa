@@ -30,7 +30,6 @@ export default function TransactionsContainer() {
     currentStepIndex,
   } = useTransactionSteps();
   const { paymentParams } = usePaymentParams();
-  const { totalProtocolFee } = useTransactionSteps();
   const { amountDue, redirect } = paymentParams;
   const [isMounted, setIsMounted] = useState(false);
   const [txHashes, setTxHashes] = useState<{ hash: Hex; link: string }[]>([]);
@@ -134,10 +133,7 @@ export default function TransactionsContainer() {
       className="flex flex-col justify-start size-full min-h-screen sm:min-h-0 sm:max-w-[496px] px-4 py-4 pb-[92px] sm:p-5 gap-4 sm:border sm:border-secondary-foreground sm:rounded-[8px] overflow-hidden"
     >
       {/* Header */}
-      <TxContainerHeader
-        amountDue={amountDue!}
-        humanReadableProtocolFee={(totalProtocolFee ?? 0) / 10 ** 6}
-      />
+      <TxContainerHeader amountDue={amountDue!} />
 
       {/* Transactions */}
       <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 w-full gap-[22px]">

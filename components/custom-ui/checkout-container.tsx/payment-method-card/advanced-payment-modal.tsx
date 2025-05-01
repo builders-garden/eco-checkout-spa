@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "../../../shadcn-ui/button";
 import {
   DialogContent,
@@ -20,7 +20,6 @@ import { useUserBalances } from "@/components/providers/user-balances-provider";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { PartialTokenListTooltip } from "./partial-token-list-tooltip";
 import { useIsMobile } from "@/components/providers/is-mobile-provider";
-import { twoDecimalsSlicingString } from "@/lib/utils";
 
 interface AdvancedPaymentModalProps {
   children: React.ReactNode;
@@ -39,28 +38,27 @@ export const AdvancedPaymentModal = ({
   const [modalSelectedTokens, setModalSelectedTokens] =
     useState<UserAsset[]>(selectedTokens);
 
-  // Calculate the total fees of the selected tokens inside the modal
-  const totalModalSelectedTokensFees = modalSelectedTokens?.reduce(
-    (acc, token) => {
-      return acc + token.estimatedFee;
-    },
-    0
-  );
-
   // Calculate the selected total inside the modal
   const modalSelectedTotal = modalSelectedTokens?.reduce((acc, token) => {
     return acc + token.amount;
   }, 0);
 
   // Check if the selected amount is enough to cover the required amount
-  const isAmountReached =
-    modalSelectedTotal >= amountDue! + totalModalSelectedTokensFees!;
+  const isAmountReached = modalSelectedTotal >= amountDue!;
 
   // Handle the open state of the modal
   const handleOpenChange = (open: boolean) => {
     setOpen(open);
     setModalSelectedTokens(selectedTokens);
   };
+
+  const scrollAreaHeight = useMemo(() => {
+    const tokenCount = userBalances?.length;
+    if (isMobile) {
+      return tokenCount >= 3 ? 190 : tokenCount * 58 + (tokenCount - 1) * 8;
+    }
+    return tokenCount >= 4 ? 256 : tokenCount * 58 + (tokenCount - 1) * 8;
+  }, [isMobile, userBalances]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -80,10 +78,7 @@ export const AdvancedPaymentModal = ({
         </DialogHeader>
         <div className="flex justify-between items-center w-[98%]">
           <p className="font-semibold">
-            Required: {isMobile && <br />}$
-            {twoDecimalsSlicingString(
-              amountDue! + totalModalSelectedTokensFees!
-            )}
+            Required: {isMobile && <br />}${amountDue!.toFixed(2)}
           </p>
           <p
             className={cn(
@@ -91,14 +86,13 @@ export const AdvancedPaymentModal = ({
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
-            Selected: {isMobile && <br />}$
-            {twoDecimalsSlicingString(modalSelectedTotal!)}
+            Selected: {isMobile && <br />}${modalSelectedTotal!.toFixed(2)}
           </p>
         </div>
 
         <div className="flex flex-col justify-start items-start w-full">
           <PartialTokenListTooltip />
-          <ScrollArea className="h-[190px] sm:h-[256px] w-full">
+          <ScrollArea className="w-full" style={{ height: scrollAreaHeight }}>
             <div className="flex flex-col gap-2 justify-start items-start w-[98%]">
               {userBalances && userBalances.length > 0 ? (
                 userBalances.map((token, index) => (
@@ -136,7 +130,7 @@ export const AdvancedPaymentModal = ({
                   <Info className="size-4 sm:size-3.5 text-warning" />
                   <p className="text-[11px] leading-3 sm:leading-4 sm:text-xs text-warning">
                     Selected tokens don&apos;t cover the required amount ($
-                    {twoDecimalsSlicingString(amountDue!)})
+                    {amountDue!.toFixed(2)})
                   </p>
                 </div>
               </motion.div>

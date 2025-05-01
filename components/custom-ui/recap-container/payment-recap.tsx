@@ -2,7 +2,6 @@ import {
   chainIdToChain,
   chainIdToChainName,
   truncateAddress,
-  twoDecimalsSlicingString,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
 import { EMPTY_ADDRESS } from "@/lib/constants";
@@ -10,7 +9,6 @@ import { ChainImages, PageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { PoweredByCapsule } from "../powered-by-capsule";
 
 interface PaymentRecapProps {
@@ -19,11 +17,9 @@ interface PaymentRecapProps {
 
 export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
   const { paymentParams } = usePaymentParams();
-  const { totalProtocolFee } = useTransactionSteps();
   const { recipient, desiredNetworkId, amountDue } = paymentParams;
 
   const networkName = chainIdToChainName(desiredNetworkId!);
-  const humanReadableProtocolFee = (totalProtocolFee ?? 0) / 10 ** 6;
 
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
@@ -83,26 +79,8 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
 
       <div className="flex flex-col w-full gap-2">
         <div className="flex justify-between items-center w-full">
-          <p className="text-[16px] text-secondary">Amount</p>
-          <p className="text-[16px] font-semibold">
-            ${twoDecimalsSlicingString(amountDue!)}
-          </p>
-        </div>
-        <div className="flex justify-between items-center w-full">
-          <p className="text-[16px] text-secondary">Fees</p>
-          <p className="text-[16px] font-semibold">
-            {humanReadableProtocolFee === 0
-              ? "$0.00"
-              : humanReadableProtocolFee < 0.01
-              ? "< $0.01"
-              : `$${twoDecimalsSlicingString(humanReadableProtocolFee)}`}
-          </p>
-        </div>
-        <div className="flex justify-between items-center w-full">
           <p className="text-lg font-semibold">Total</p>
-          <p className="text-[16px] font-semibold">
-            ${twoDecimalsSlicingString(amountDue! + humanReadableProtocolFee)}
-          </p>
+          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
         </div>
       </div>
     </div>

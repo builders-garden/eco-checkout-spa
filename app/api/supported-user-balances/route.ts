@@ -4,7 +4,7 @@ import ky from "ky";
 import { RelayoorChain, RelayoorResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals, TokenSymbols } from "@/lib/enums";
-import { chainStringToChainId, getEstimatedFees } from "@/lib/utils";
+import { chainStringToChainId } from "@/lib/utils";
 import {
   RoutesService,
   RoutesSupportedStable,
@@ -13,6 +13,7 @@ import {
   RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
 import { Hex } from "viem";
+import { MIN_L2_PROTOCOL_FEE, MIN_MAINNET_PROTOCOL_FEE } from "@/lib/constants";
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -46,9 +47,8 @@ export const GET = async (req: NextRequest) => {
   }
 
   // Check if the desired network is a valid chain
-  let desiredChainId: RoutesSupportedChainId | null = null;
   try {
-    desiredChainId = chainStringToChainId(desiredNetwork);
+    chainStringToChainId(desiredNetwork);
   } catch (error) {
     return NextResponse.json(
       { error: "Desired network is invalid" },
@@ -98,21 +98,12 @@ export const GET = async (req: NextRequest) => {
               // Get the token decimals
               const decimals = TokenDecimals[balance.token];
 
-              // Get the token amount rounded to 5 decimal places
+              // Get the token amount rounded to 2 decimal places
               const amount =
-                Math.floor(Number(balance.amount) / 10 ** (decimals - 5)) /
-                100000;
+                Math.floor(Number(balance.amount) / 10 ** (decimals - 2)) / 100;
 
-              // Get the estimated fee for the chain
-              const estimatedFee = getEstimatedFees(
-                amountDue,
-                amount,
-                chainId,
-                desiredChainId
-              );
-
-              // If the token amount is less than the estimated fee plus 0.01, return undefined
-              if (amount <= estimatedFee + 0.01) return undefined;
+              // If the token amount is less than 0.01, return undefined
+              if (amount <= 0.01) return undefined;
 
               // If one the same chain, check if the token is the desired token
               // if not, return undefined
@@ -120,13 +111,15 @@ export const GET = async (req: NextRequest) => {
                 return undefined;
               }
 
-              // If on the same chain, check if the token is the desired token and
-              // if the amount is greater than the amount due + estimated fee
-              if (
-                chain === desiredNetwork &&
-                balance.token === desiredToken &&
-                amount < amountDue + estimatedFee
-              ) {
+              // If the chainId is 1 and the amount due is less than the base protocol fee on mainnet, return undefined
+              // This prevents the merchant from receiving 0 tokens
+              if (chainId === 1 && amountDue < MIN_MAINNET_PROTOCOL_FEE) {
+                return undefined;
+              }
+
+              // If the chainId is not 1 and the amount due is less than the base protocol fee on L2s, return undefined
+              // This prevents the merchant from receiving 0 tokens
+              if (chainId !== 1 && amountDue < MIN_L2_PROTOCOL_FEE) {
                 return undefined;
               }
 
@@ -147,9 +140,6 @@ export const GET = async (req: NextRequest) => {
               return {
                 asset: balance.token,
                 amount,
-                spendableAmount:
-                  Math.round((amount - estimatedFee) * 100000) / 100000,
-                estimatedFee,
                 chain: chain as RelayoorChain,
                 tokenContractAddress,
                 decimals,
