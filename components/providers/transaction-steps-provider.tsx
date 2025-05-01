@@ -319,6 +319,14 @@ export const TransactionStepsProvider = ({
         }
       }
 
+      // Change the network to the one required for the first step
+      if (transactionSteps.length > 0) {
+        const chainId = chainStringToChainId(
+          transactionSteps[0].assets[0].chain
+        );
+        switchChain({ chainId });
+      }
+
       setTransactionSteps(transactionSteps);
       setTransactionStepsLoading(false);
     };
@@ -334,14 +342,6 @@ export const TransactionStepsProvider = ({
       return newSteps;
     });
   };
-
-  // Change the network to the one required for the first step
-  useEffect(() => {
-    if (transactionSteps.length > 0) {
-      const chainId = chainStringToChainId(transactionSteps[0].assets[0].chain);
-      switchChain({ chainId });
-    }
-  }, [transactionSteps]);
 
   // The current step
   // (the step that is not yet successful)
