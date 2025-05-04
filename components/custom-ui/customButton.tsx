@@ -20,7 +20,7 @@ export const CustomButton = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed bottom-0 left-0 right-0 px-4 pb-4 pt-2 sm:relative sm:p-0 sm:bg-transparent bg-background"
+      className="sticky bottom-0 left-0 right-0 pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background"
     >
       <motion.button
         initial={{ opacity: 0 }}

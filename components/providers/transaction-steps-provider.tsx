@@ -168,11 +168,6 @@ export const TransactionStepsProvider = ({
             )
           );
 
-          console.log(
-            "totalAmountToSendOnCurrentChain",
-            totalAmountToSendOnCurrentChain
-          );
-
           // Get the estimated fees
           const protocolFees = getFees(
             totalAmountToSendOnCurrentChain,
@@ -183,8 +178,6 @@ export const TransactionStepsProvider = ({
             ]
           );
 
-          console.log("protocolFees", protocolFees);
-
           // Get the desired token address of the receiving chain
           const desiredTokenAddress = RoutesService.getStableAddress(
             paymentParams.desiredNetworkId!,
@@ -193,8 +186,6 @@ export const TransactionStepsProvider = ({
 
           // Calculate the amount received
           const amountReceived = totalAmountToSendOnCurrentChain - protocolFees;
-
-          console.log("amountReceived", amountReceived);
 
           // create calls by encoding transfer function data
           const calls = [
@@ -334,10 +325,6 @@ export const TransactionStepsProvider = ({
 
     getTransactionSteps();
   }, [selectedTokens, areAllPaymentParamsValid, address]);
-
-  useEffect(() => {
-    console.log("transactionSteps", transactionSteps);
-  }, [transactionSteps]);
 
   // Handle the change of status of a transaction step
   const handleChangeStatus = (index: number, status: TransactionStatus) => {
