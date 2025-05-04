@@ -121,20 +121,50 @@ export const getAmountDeducted = (
   selectedTokens: UserAsset[],
   token: UserAsset
 ) => {
-  const orderedSelectedTokens = [...selectedTokens].sort(
-    (a, b) => a.amount - b.amount
-  );
-  let total = amountDue;
-  for (const t of orderedSelectedTokens) {
-    if (t === token) {
-      if (t.amount > total) {
-        return total;
-      }
-      return t.amount;
+  // Safety check to avoid useless computations
+  if (selectedTokens.length === 1) {
+    if (token.amount > amountDue) {
+      return amountDue;
+    } else {
+      return token.amount;
     }
-    total -= t.amount;
   }
-  return total;
+
+  let selectedArraySum = 0;
+  for (let i = 0; i < selectedTokens.length; i++) {
+    const currentToken = selectedTokens[i];
+
+    // Calculate the current iteration remaining amount
+    const currentRemainingAmount = amountDue - selectedArraySum;
+
+    // Calculate the next iteration remaining amount
+    const nextRemainingAmount =
+      amountDue - (selectedArraySum + currentToken.amount);
+
+    // If the next token is a risky one, we need to be sure that the remaining amount is enough to cover the fees
+    if (
+      nextRemainingAmount > 0 &&
+      nextRemainingAmount < MIN_MAINNET_PROTOCOL_FEE &&
+      i + 1 < selectedTokens.length &&
+      selectedTokens[i + 1].isTokenAtRisk
+    ) {
+      const reducedAmount =
+        currentToken.amount -
+        Math.ceil((MIN_MAINNET_PROTOCOL_FEE - nextRemainingAmount) * 100) / 100;
+      if (currentToken === token) {
+        return reducedAmount;
+      } else {
+        selectedArraySum += reducedAmount;
+      }
+    } else if (currentToken === token) {
+      return currentToken.amount > currentRemainingAmount
+        ? currentRemainingAmount
+        : currentToken.amount;
+    } else {
+      selectedArraySum += currentToken.amount;
+    }
+  }
+  return 0;
 };
 
 /**
@@ -261,15 +291,20 @@ export const isDeviceMobile = () => {
  * Gets the fees, given the amount to send and the chain id
  * @param amountToSend - The amount to send
  * @param tokenChainId - The chain id where the amount will be sent
+ * @param desiredNetworkId - The chain id of the desired network
  * @param tokenDecimals - The decimals of the token
  * @returns The fees
  */
 export const getFees = (
   amountToSend: number,
   tokenChainId: RoutesSupportedChainId,
+  desiredNetworkId: RoutesSupportedChainId,
   tokenDecimals: number
 ) => {
-  if (tokenChainId === 1) {
+  if (
+    tokenChainId !== desiredNetworkId &&
+    (tokenChainId === 1 || desiredNetworkId === 1)
+  ) {
     return (
       (Math.floor(amountToSend / 10 ** (tokenDecimals + 2)) *
         INCREASE_MAINNET_PROTOCOL_FEE +

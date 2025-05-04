@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../../../shadcn-ui/button";
 import {
   DialogContent,
@@ -52,6 +52,7 @@ export const AdvancedPaymentModal = ({
     setModalSelectedTokens(selectedTokens);
   };
 
+  // Calculate the height of the scroll area based on the number of tokens
   const scrollAreaHeight = useMemo(() => {
     const tokenCount = userBalances?.length;
     if (isMobile) {

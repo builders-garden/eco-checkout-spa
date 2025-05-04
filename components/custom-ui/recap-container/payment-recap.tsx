@@ -24,7 +24,7 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
       {/* Header */}
-      <div className="flex justify-start items-center w-full gap-2 mb-1">
+      <div className="flex justify-start items-center w-full gap-1 sm:gap-2 mb-2 mt-1">
         <motion.button
           whileTap={{
             scale: 0.95,
@@ -39,8 +39,8 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
         >
           <ArrowLeft className="size-5.5" />
         </motion.button>
-        <div className="flex justify-between items-center w-full">
-          <h1 className="text-[22px] font-bold">Payment Recap</h1>
+        <div className="flex justify-between items-center w-full gap-2">
+          <h1 className="text-[22px] font-bold leading-6">Payment Recap</h1>
           <PoweredByCapsule />
         </div>
       </div>

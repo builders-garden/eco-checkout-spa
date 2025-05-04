@@ -168,20 +168,33 @@ export const TransactionStepsProvider = ({
             )
           );
 
+          console.log(
+            "totalAmountToSendOnCurrentChain",
+            totalAmountToSendOnCurrentChain
+          );
+
           // Get the estimated fees
           const protocolFees = getFees(
             totalAmountToSendOnCurrentChain,
             chainId,
+            paymentParams.desiredNetworkId!,
             TokenDecimals[
               paymentParams.desiredToken!.toLowerCase() as keyof typeof TokenDecimals
             ]
           );
+
+          console.log("protocolFees", protocolFees);
 
           // Get the desired token address of the receiving chain
           const desiredTokenAddress = RoutesService.getStableAddress(
             paymentParams.desiredNetworkId!,
             paymentParams.desiredToken!
           );
+
+          // Calculate the amount received
+          const amountReceived = totalAmountToSendOnCurrentChain - protocolFees;
+
+          console.log("amountReceived", amountReceived);
 
           // create calls by encoding transfer function data
           const calls = [
@@ -190,10 +203,7 @@ export const TransactionStepsProvider = ({
               data: encodeFunctionData({
                 abi: erc20Abi,
                 functionName: "transfer",
-                args: [
-                  paymentParams.recipient!,
-                  BigInt(totalAmountToSendOnCurrentChain - protocolFees),
-                ],
+                args: [paymentParams.recipient!, BigInt(amountReceived)],
               }),
               value: BigInt(0),
             },
@@ -203,27 +213,37 @@ export const TransactionStepsProvider = ({
           const callTokens = [
             {
               token: desiredTokenAddress,
-              amount: BigInt(totalAmountToSendOnCurrentChain - protocolFees),
+              amount: BigInt(amountReceived),
             },
           ];
+
+          // Create the transaction assets
+          const transactionAssets: TransactionAsset[] = tokens.map((token) => {
+            return {
+              asset: token.asset,
+              amountToSend: Math.round(
+                getAmountDeducted(
+                  paymentParams.amountDue!,
+                  selectedTokens,
+                  token
+                ) *
+                  10 ** token.decimals
+              ),
+              chain: token.chain,
+              tokenContractAddress: token.tokenContractAddress,
+              decimals: token.decimals,
+            };
+          });
 
           // Create the source tokens array
           const sourceTokens: {
             token: Hex;
             amount: bigint;
           }[] = [];
-          tokens.forEach((sourceToken) => {
-            const amountDeducted = Math.round(
-              getAmountDeducted(
-                paymentParams.amountDue!,
-                selectedTokens,
-                sourceToken
-              ) *
-                10 ** sourceToken.decimals
-            );
-
+          transactionAssets.forEach((transactionAsset) => {
+            const amountDeducted = transactionAsset.amountToSend;
             sourceTokens.push({
-              token: sourceToken.tokenContractAddress,
+              token: transactionAsset.tokenContractAddress,
               amount: BigInt(amountDeducted),
             });
           });
@@ -259,26 +279,7 @@ export const TransactionStepsProvider = ({
               quote: selectedQuote,
             });
 
-            const transactionAssets: TransactionAsset[] = tokens.map(
-              (token) => {
-                // Get the amount to send from the intent
-                const amountToSend = intentWithQuote.reward.tokens.find(
-                  (intentToken) =>
-                    intentToken.token.toLowerCase() ===
-                    token.tokenContractAddress.toLowerCase()
-                )?.amount;
-
-                return {
-                  asset: token.asset,
-                  amountToSend: Number(amountToSend),
-                  chain: token.chain,
-                  tokenContractAddress: token.tokenContractAddress,
-                  decimals: token.decimals,
-                };
-              }
-            );
-
-            // // For each transaction asset, check the allowance of the token
+            // For each transaction asset, check the allowance of the token
             for (const transactionAsset of transactionAssets) {
               const allowance = await readContract(config, {
                 abi: erc20Abi,
@@ -333,6 +334,10 @@ export const TransactionStepsProvider = ({
 
     getTransactionSteps();
   }, [selectedTokens, areAllPaymentParamsValid, address]);
+
+  useEffect(() => {
+    console.log("transactionSteps", transactionSteps);
+  }, [transactionSteps]);
 
   // Handle the change of status of a transaction step
   const handleChangeStatus = (index: number, status: TransactionStatus) => {

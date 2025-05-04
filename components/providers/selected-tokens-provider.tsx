@@ -9,6 +9,7 @@ import {
 } from "react";
 import { usePaymentParams } from "./payment-params-provider";
 import { useUserBalances } from "./user-balances-provider";
+import { MIN_MAINNET_PROTOCOL_FEE } from "@/lib/constants";
 
 export const SelectedTokensContext = createContext<
   SelectedTokensContextType | undefined
@@ -46,17 +47,31 @@ export const SelectedTokensProvider = ({
   useEffect(() => {
     if (!amountDue) return;
     let selectedArray: UserAsset[] = [];
-    for (const asset of userBalances) {
-      const selectedArraySum = selectedArray.reduce(
-        (acc, curr) => acc + curr.amount,
-        0
-      );
+    let selectedArraySum = 0;
+    for (let i = 0; i < userBalances.length; i++) {
       if (selectedArraySum < amountDue) {
-        selectedArray.push(asset);
+        selectedArray.push(userBalances[i]);
+
+        // If the next token is a risky one, we need to be sure that the remaining amount is enough to cover the fees
+        const remainingAmount =
+          amountDue - (selectedArraySum + userBalances[i].amount);
+        if (
+          remainingAmount > 0 &&
+          i + 1 < userBalances.length &&
+          userBalances[i + 1].isTokenAtRisk &&
+          remainingAmount < MIN_MAINNET_PROTOCOL_FEE
+        ) {
+          selectedArraySum +=
+            userBalances[i].amount -
+            Math.ceil((MIN_MAINNET_PROTOCOL_FEE - remainingAmount) * 100) / 100;
+        } else {
+          selectedArraySum += userBalances[i].amount;
+        }
       } else {
         break;
       }
     }
+
     setSelectedTokens(selectedArray);
     setOptimizedSelection(selectedArray);
   }, [userBalances, amountDue]);
@@ -72,7 +87,7 @@ export const SelectedTokensProvider = ({
       setSelectedTokens,
       optimizedSelection,
     }),
-    [selectedTokens, selectedTotal, setSelectedTokens, optimizedSelection]
+    [selectedTokens, selectedTotal, optimizedSelection, setSelectedTokens]
   );
 
   return (

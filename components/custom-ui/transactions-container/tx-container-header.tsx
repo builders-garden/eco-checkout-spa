@@ -8,8 +8,8 @@ interface TxContainerHeaderProps {
 export const TxContainerHeader = ({ amountDue }: TxContainerHeaderProps) => {
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
-      <div className="flex justify-between items-center w-full mb-1">
-        <h1 className="text-[22px] font-bold">Process Payment</h1>
+      <div className="flex justify-between items-center w-full mb-2 mt-1 gap-2">
+        <h1 className="text-[22px] font-bold leading-6">Process Payment</h1>
         <PoweredByCapsule />
       </div>
 

@@ -18,8 +18,8 @@ export const PaymentSummary = () => {
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
       {/* Header */}
-      <div className="flex justify-between items-center w-full mb-1">
-        <h1 className="text-[22px] font-bold">Payment Summary</h1>
+      <div className="flex justify-between items-center w-full mb-2 mt-1 gap-2">
+        <h1 className="text-[22px] font-bold leading-6">Payment Summary</h1>
         <PoweredByCapsule />
       </div>
 

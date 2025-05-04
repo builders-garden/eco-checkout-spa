@@ -86,14 +86,6 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
           .filter((balance) => balance.chain === desiredNetworkString)
           .sort((a, b) => b.amount - a.amount);
 
-        // Get all ethereum balances if the destination network is not ethereum
-        let ethereumBalances: UserAsset[] = [];
-        if (desiredNetworkString !== "ethereum") {
-          ethereumBalances = response
-            .filter((balance) => balance.chain === "ethereum")
-            .sort((a, b) => b.amount - a.amount);
-        }
-
         // Get all other balances (not destination network or ethereum)
         const otherBalances = response
           .filter(
@@ -107,6 +99,14 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
         if (desiredNetworkString === "ethereum") {
           setUserBalances([...destinationNetworkBalances, ...otherBalances]);
         } else {
+          // Get all ethereum balances if the destination network is not ethereum
+          let ethereumBalances: UserAsset[] = [];
+          if (desiredNetworkString !== "ethereum") {
+            ethereumBalances = response
+              .filter((balance) => balance.chain === "ethereum")
+              .sort((a, b) => b.amount - a.amount);
+          }
+
           setUserBalances([
             ...destinationNetworkBalances,
             ...otherBalances,

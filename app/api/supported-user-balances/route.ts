@@ -47,8 +47,9 @@ export const GET = async (req: NextRequest) => {
   }
 
   // Check if the desired network is a valid chain
+  let desiredNetworkId: RoutesSupportedChainId | null = null;
   try {
-    chainStringToChainId(desiredNetwork);
+    desiredNetworkId = chainStringToChainId(desiredNetwork);
   } catch (error) {
     return NextResponse.json(
       { error: "Desired network is invalid" },
@@ -102,25 +103,25 @@ export const GET = async (req: NextRequest) => {
               const amount =
                 Math.floor(Number(balance.amount) / 10 ** (decimals - 2)) / 100;
 
-              // If the token amount is less than 0.01, return undefined
-              if (amount <= 0.01) return undefined;
+              // If the token amount is less than the base protocol fee on L1 by 2x, return undefined
+              if (amount < MIN_MAINNET_PROTOCOL_FEE * 2) return undefined;
 
               // If one the same chain, check if the token is the desired token
-              // if not, return undefined
+              // if not, return undefined (prevents swaps)
               if (chain === desiredNetwork && balance.token !== desiredToken) {
                 return undefined;
               }
 
-              // If the chainId is 1 and the amount due is less than the base protocol fee on mainnet, return undefined
-              // This prevents the merchant from receiving 0 tokens
-              if (chainId === 1 && amountDue < MIN_MAINNET_PROTOCOL_FEE) {
-                return undefined;
-              }
-
-              // If the chainId is not 1 and the amount due is less than the base protocol fee on L2s, return undefined
-              // This prevents the merchant from receiving 0 tokens
-              if (chainId !== 1 && amountDue < MIN_L2_PROTOCOL_FEE) {
-                return undefined;
+              // If the chain is not the desired network, check if one of the two is mainnet
+              // and if so, check if the amount due is less than the base protocol fee
+              // This prevents the merchant from receiving 0 tokens and intent creation to fail
+              if (chainId !== desiredNetworkId) {
+                if (
+                  (chainId === 1 || desiredNetworkId === 1) &&
+                  amountDue < MIN_MAINNET_PROTOCOL_FEE
+                ) {
+                  return undefined;
+                }
               }
 
               // Get the token address
@@ -140,6 +141,9 @@ export const GET = async (req: NextRequest) => {
               return {
                 asset: balance.token,
                 amount,
+                isTokenAtRisk:
+                  chainId !== desiredNetworkId &&
+                  (chainId === 1 || desiredNetworkId === 1),
                 chain: chain as RelayoorChain,
                 tokenContractAddress,
                 decimals,

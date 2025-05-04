@@ -27,7 +27,7 @@ export class PaymentParamsValidator {
     if (isNaN(Number(amount)) || Number(amount) <= 0) {
       return null;
     }
-    const amountWithoutDecimals = Math.floor(Number(amount) * 100) / 100;
+    const amountWithoutDecimals = Math.round(Number(amount) * 100) / 100;
     return amountWithoutDecimals;
   }
 

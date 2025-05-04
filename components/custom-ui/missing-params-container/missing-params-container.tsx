@@ -178,7 +178,7 @@ export const MissingParamsContainer = ({
         <BlueInfoBox isFormComplete={isFormComplete} />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 sm:relative sm:p-0">
+      <div className="sticky bottom-0 left-0 right-0 sm:relative sm:p-0 mt-auto">
         <motion.button
           whileHover={{ scale: !isFormComplete ? 1 : 1.02 }}
           whileTap={{ scale: !isFormComplete ? 1 : 0.98 }}

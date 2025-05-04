@@ -13,6 +13,7 @@ export type UserAsset = {
   chain: RelayoorChain;
   tokenContractAddress: Hex;
   decimals: number;
+  isTokenAtRisk: boolean;
 };
 
 export type TransactionAsset = {
