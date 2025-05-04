@@ -13,7 +13,7 @@ import {
   RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
 import { Hex } from "viem";
-import { MIN_L2_PROTOCOL_FEE, MIN_MAINNET_PROTOCOL_FEE } from "@/lib/constants";
+import { MIN_MAINNET_PROTOCOL_FEE } from "@/lib/constants";
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
