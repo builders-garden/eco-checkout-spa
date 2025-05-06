@@ -1,4 +1,4 @@
-# Eco Checkout SPA
+# Eco Checkout SPA 
 
 A single-page application for handling stablecoin payments across multiple blockchain networks.
 
