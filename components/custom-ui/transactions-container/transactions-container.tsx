@@ -54,13 +54,10 @@ export default function TransactionsContainer({
     isError: isWalletError,
     writeContract,
   } = useWriteContract();
-  const {
-    isError: isTxError,
-    isSuccess: isTxSuccess,
-    isPending: isTxPending,
-  } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const { isError: isTxError, isSuccess: isTxSuccess } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
   const { switchChain } = useSwitchChain();
 
   const chainId = useMemo(() => {
