@@ -3,6 +3,7 @@ import { useTransactionSteps } from "@/components/providers/transaction-steps-pr
 import {
   ChainExplorerUrls,
   ChainImages,
+  PageState,
   TokenImages,
   TransactionStatus,
 } from "@/lib/enums";
@@ -14,15 +15,20 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { CheckCircle, SquareArrowOutUpRight } from "lucide-react";
+import { SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { chainStringToChainId, extractStepParams } from "@/lib/utils";
-import { Hex } from "viem";
 import { TxContainerHeader } from "./tx-container-header";
 import { CustomButton } from "../customButton";
 import { cn } from "@/lib/shadcn/utils";
 
-export default function TransactionsContainer() {
+interface TransactionsContainerProps {
+  setPageState: (pageState: PageState) => void;
+}
+
+export default function TransactionsContainer({
+  setPageState,
+}: TransactionsContainerProps) {
   const {
     transactionSteps,
     handleChangeStatus,
@@ -30,9 +36,8 @@ export default function TransactionsContainer() {
     currentStepIndex,
   } = useTransactionSteps();
   const { paymentParams } = usePaymentParams();
-  const { amountDue, redirect } = paymentParams;
+  const { amountDue } = paymentParams;
   const [isMounted, setIsMounted] = useState(false);
-  const [txHashes, setTxHashes] = useState<{ hash: Hex; link: string }[]>([]);
   const [isFinished, setIsFinished] = useState(false);
 
   // Set the process as started when the component mounts
@@ -49,10 +54,13 @@ export default function TransactionsContainer() {
     isError: isWalletError,
     writeContract,
   } = useWriteContract();
-  const { isError: isTxError, isSuccess: isTxSuccess } =
-    useWaitForTransactionReceipt({
-      hash,
-    });
+  const {
+    isError: isTxError,
+    isSuccess: isTxSuccess,
+    isPending: isTxPending,
+  } = useWaitForTransactionReceipt({
+    hash,
+  });
   const { switchChain } = useSwitchChain();
 
   const chainId = useMemo(() => {
@@ -61,9 +69,8 @@ export default function TransactionsContainer() {
   }, [currentStep]);
 
   const handleAction = () => {
-    // If the process is finished, go to the redirect url
+    // If the process is finished, return
     if (isFinished) {
-      window.location.href = redirect!;
       return;
     }
 
@@ -73,42 +80,44 @@ export default function TransactionsContainer() {
     // Write the contract
     const writeContractParams = extractStepParams(currentStep, chainId);
     writeContract(writeContractParams);
+
+    // Update the status of the current step to awaiting confirmation
     handleChangeStatus(
       currentStepIndex,
-      TransactionStatus.AWAITING_CONFIRMATION
+      TransactionStatus.AWAITING_CONFIRMATION,
+      null
     );
   };
 
   // Update the status of the current step to success
   useEffect(() => {
     if (isTxSuccess) {
-      setTxHashes((prev) => [
-        ...prev,
-        {
-          hash: hash!,
-          link: `${
-            ChainExplorerUrls[
-              currentStep?.assets[0].chain as keyof typeof ChainExplorerUrls
-            ]
-          }/tx/${hash}`,
-        },
-      ]);
-      handleChangeStatus(currentStepIndex, TransactionStatus.SUCCESS);
+      handleChangeStatus(currentStepIndex, TransactionStatus.SUCCESS, {
+        hash: hash!,
+        link: `${
+          ChainExplorerUrls[
+            currentStep?.assets[0].chain as keyof typeof ChainExplorerUrls
+          ]
+        }/tx/${hash}`,
+      });
     }
   }, [isTxSuccess]);
 
   // Update the status of the current step to error
   useEffect(() => {
     if (isTxError || isWalletError) {
-      handleChangeStatus(currentStepIndex, TransactionStatus.ERROR);
+      handleChangeStatus(currentStepIndex, TransactionStatus.ERROR, null);
     }
   }, [isTxError, isWalletError]);
 
   // Automatically start the transaction if the current step is to send
   useEffect(() => {
-    // If there is no current step, set the process as finished
+    // If there is no current step, set the process as finished and change the page state to payment completed
     if (!currentStep) {
       setIsFinished(true);
+      setTimeout(() => {
+        setPageState(PageState.PAYMENT_COMPLETED);
+      }, 1000);
       return;
     }
 
@@ -128,7 +137,7 @@ export default function TransactionsContainer() {
     <motion.div
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 100 }}
+      exit={{ opacity: 0, x: -100 }}
       transition={{ duration: 0.3 }}
       className="flex flex-col justify-start size-full min-h-screen sm:min-h-0 sm:max-w-[496px] p-4.5 sm:p-5 gap-4 sm:border sm:border-secondary-foreground sm:rounded-[8px] overflow-hidden"
     >
@@ -194,9 +203,9 @@ export default function TransactionsContainer() {
 
             {/* Tx hash */}
             <AnimatePresence>
-              {txHashes[index] && (
+              {step.transaction && (
                 <motion.div
-                  key={txHashes[index].hash}
+                  key={step.transaction.hash}
                   initial={{ opacity: 0 }}
                   animate={{
                     opacity: 1,
@@ -205,7 +214,7 @@ export default function TransactionsContainer() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                   className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
-                  onClick={() => window.open(txHashes[index].link, "_blank")}
+                  onClick={() => window.open(step.transaction!.link, "_blank")}
                 >
                   View tx
                   <SquareArrowOutUpRight className="size-3" />
@@ -222,42 +231,24 @@ export default function TransactionsContainer() {
       </p>
 
       {/* Actions Button & Payment Completed */}
-      <AnimatePresence mode="wait">
-        {isFinished && !redirect ? (
-          <motion.div
-            key="payment-completed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex justify-center items-center gap-2 fixed bottom-0 left-0 right-0 px-4 pb-4 pt-2 sm:relative sm:p-0 sm:bg-transparent bg-background h-[60px]"
-          >
-            <CheckCircle className="size-6 text-success" />
-            <p className="text-success">Payment Completed</p>
-          </motion.div>
-        ) : (
-          <CustomButton
-            key="custom-action-button"
-            isLoading={!isMounted}
-            text={
-              isTxError || isWalletError
-                ? "Retry"
-                : currentStep?.status ===
-                  TransactionStatus.AWAITING_CONFIRMATION
-                ? "Confirm in wallet"
-                : isFinished && redirect
-                ? "Return to website"
-                : ""
-            }
-            onClick={handleAction}
-            isDisabled={
-              (!isFinished || (isFinished && !redirect)) &&
-              currentStep?.status !== TransactionStatus.TO_SEND &&
-              currentStep?.status !== TransactionStatus.ERROR
-            }
-          />
-        )}
-      </AnimatePresence>
+      <CustomButton
+        isLoading={!isMounted}
+        text={
+          isTxError || isWalletError
+            ? "Retry"
+            : currentStep?.status === TransactionStatus.AWAITING_CONFIRMATION
+            ? "Confirm in wallet"
+            : isFinished
+            ? "Payment completed"
+            : ""
+        }
+        onClick={handleAction}
+        isDisabled={
+          isFinished ||
+          (currentStep?.status !== TransactionStatus.TO_SEND &&
+            currentStep?.status !== TransactionStatus.ERROR)
+        }
+      />
     </motion.div>
   );
 }

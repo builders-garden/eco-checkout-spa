@@ -38,7 +38,11 @@ export type TransactionStepsContextType = {
   transactionSteps: TransactionStep[];
   transactionStepsLoading: boolean;
   transactionStepsError: string | null;
-  handleChangeStatus: (index: number, status: TransactionStatus) => void;
+  handleChangeStatus: (
+    index: number,
+    status: TransactionStatus,
+    transaction: { hash: Hex; link: string } | null
+  ) => void;
   currentStep: TransactionStep | undefined;
   currentStepIndex: number;
 };
@@ -149,6 +153,7 @@ export const TransactionStepsProvider = ({
             status: TransactionStatus.TO_SEND,
             assets: [transactionAsset],
             to: paymentParams.recipient!,
+            transaction: null,
           });
 
           // Else, create an intent step using all tokens on the chain
@@ -288,6 +293,7 @@ export const TransactionStepsProvider = ({
                   assets: [transactionAsset],
                   allowanceAmount: maxUint256,
                   intentSourceContract,
+                  transaction: null,
                 };
 
                 // Add the approve step to the transaction steps
@@ -302,6 +308,7 @@ export const TransactionStepsProvider = ({
               assets: transactionAssets,
               intent: intentWithQuote,
               intentSourceContract,
+              transaction: null,
             });
           } catch (error) {
             setTransactionStepsError("Quotes not available, please try again");
@@ -327,10 +334,14 @@ export const TransactionStepsProvider = ({
   }, [selectedTokens, areAllPaymentParamsValid, address]);
 
   // Handle the change of status of a transaction step
-  const handleChangeStatus = (index: number, status: TransactionStatus) => {
+  const handleChangeStatus = (
+    index: number,
+    status: TransactionStatus,
+    transaction: { hash: Hex; link: string } | null
+  ) => {
     setTransactionSteps((prevSteps) => {
       const newSteps = [...prevSteps];
-      newSteps[index] = { ...newSteps[index], status };
+      newSteps[index] = { ...newSteps[index], status, transaction };
       return newSteps;
     });
   };

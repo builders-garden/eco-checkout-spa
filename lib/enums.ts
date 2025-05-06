@@ -58,6 +58,7 @@ export enum PageState {
   CHECKOUT = "checkout",
   PAYMENT_RECAP = "payment-recap",
   TRANSACTIONS = "transactions",
+  PAYMENT_COMPLETED = "payment-completed",
 }
 
 // Transaction States

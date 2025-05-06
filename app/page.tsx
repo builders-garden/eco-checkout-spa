@@ -8,6 +8,7 @@ import TransactionsContainer from "@/components/custom-ui/transactions-container
 import { usePageState } from "@/hooks/use-page-state";
 import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container/missing-params-container";
 import { useCardTransitions } from "@/hooks/use-card-transitions";
+import PaymentCompletedContainer from "@/components/custom-ui/payment-completed-container/payment-completed-container";
 
 export default function Home() {
   // Page State
@@ -33,7 +34,12 @@ export default function Home() {
             setPageState={setPageState}
           />
         ) : pageState.current === PageState.TRANSACTIONS ? (
-          <TransactionsContainer key="transactions-container" />
+          <TransactionsContainer
+            key="transactions-container"
+            setPageState={setPageState}
+          />
+        ) : pageState.current === PageState.PAYMENT_COMPLETED ? (
+          <PaymentCompletedContainer key="payment-completed-container" />
         ) : (
           <CheckoutContainer
             key="checkout-container"

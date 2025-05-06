@@ -53,6 +53,7 @@ export type ValidatedPaymentParams = {
 export type ApproveStep = {
   type: "approve";
   status: TransactionStatus;
+  transaction: { hash: Hex; link: string } | null;
   assets: TransactionAsset[];
   allowanceAmount: bigint;
   intentSourceContract: Hex;
@@ -61,6 +62,7 @@ export type ApproveStep = {
 export type TransferStep = {
   type: "transfer";
   status: TransactionStatus;
+  transaction: { hash: Hex; link: string } | null;
   assets: TransactionAsset[];
   to: Hex;
 };
@@ -68,6 +70,7 @@ export type TransferStep = {
 export type IntentStep = {
   type: "intent";
   status: TransactionStatus;
+  transaction: { hash: Hex; link: string } | null;
   assets: TransactionAsset[];
   intent: IntentType | null;
   intentSourceContract: Hex;
