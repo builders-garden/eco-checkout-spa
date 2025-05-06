@@ -163,7 +163,7 @@ export default function TransactionsContainer({
               {/* Status */}
               <StatusIndicator status={step.status} />
 
-              <div className="flex justify-center items-center gap-5">
+              <div className="flex justify-center items-center gap-4 sm:gap-5">
                 {/* Tokens */}
                 <div className="flex justify-start items-center -space-x-4">
                   {step.assets.map((token, index) => (

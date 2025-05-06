@@ -22,5 +22,7 @@ export const OperationLabel = ({ step }: OperationLabelProps) => {
     }
   }, [step]);
 
-  return <p className="text-[16px] font-semibold">{description}</p>;
+  return (
+    <p className="text-[15px] sm:text-[16px] font-semibold">{description}</p>
+  );
 };

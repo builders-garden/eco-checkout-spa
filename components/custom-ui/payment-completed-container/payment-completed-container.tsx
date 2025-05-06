@@ -17,7 +17,7 @@ export default function PaymentCompletedContainer() {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col justify-start items-center size-full min-h-screen sm:min-h-0 sm:max-w-[496px] p-4.5 sm:p-8 gap-9 sm:border sm:border-secondary-foreground sm:rounded-[8px] overflow-hidden"
+      className="flex flex-col justify-start items-center size-full min-h-screen sm:min-h-0 sm:max-w-[496px] p-4.5 sm:p-8 gap-6 sm:gap-9 sm:border sm:border-secondary-foreground sm:rounded-[8px] overflow-hidden"
     >
       {/* Check Circle */}
       <div className="flex justify-center items-center rounded-full size-[70px] bg-success/30">
@@ -42,7 +42,7 @@ export default function PaymentCompletedContainer() {
             className="flex justify-between items-center w-full z"
           >
             <div className="flex justify-start items-center w-full gap-3">
-              <div className="flex justify-center items-center gap-5">
+              <div className="flex justify-center items-center gap-4 sm:gap-5">
                 {/* Tokens */}
                 <div className="flex justify-start items-center -space-x-4">
                   {step.assets.map((token, index) => (
@@ -79,21 +79,13 @@ export default function PaymentCompletedContainer() {
 
             {/* Tx hash */}
             {step.transaction && (
-              <motion.div
-                key={step.transaction.hash}
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: 1,
-                  scale: [1, 1.025, 1.075, 1.15, 1.075, 1.025, 1],
-                }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+              <div
                 className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
                 onClick={() => window.open(step.transaction!.link, "_blank")}
               >
                 View tx
                 <SquareArrowOutUpRight className="size-3" />
-              </motion.div>
+              </div>
             )}
           </div>
         ))}
