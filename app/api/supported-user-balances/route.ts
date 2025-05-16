@@ -71,7 +71,7 @@ export const GET = async (req: NextRequest) => {
   try {
     const response = await ky
       .get(
-        `${env.NEXT_PUBLIC_REOWN_BASE_URL}/intents/balances?address=${userAddress}&includeNativeBalance=false`
+        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/intents/balances?address=${userAddress}&includeNativeBalance=false`
       )
       .json<RelayoorResponse>();
 

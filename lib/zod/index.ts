@@ -8,7 +8,7 @@ export const env = createEnv({
     NEXT_PUBLIC_REOWN_APP_ID: z.string().min(1),
 
     // RELAYOOR BASE URL
-    NEXT_PUBLIC_REOWN_BASE_URL: z.string().min(1),
+    NEXT_PUBLIC_RELAYOOR_BASE_URL: z.string().min(1),
 
     // APP BASE URL
     NEXT_PUBLIC_APP_BASE_URL: z.string().min(1),
@@ -16,7 +16,7 @@ export const env = createEnv({
   // For Next.js >= 13.4.4, you only need to destructure client variables:
   experimental__runtimeEnv: {
     NEXT_PUBLIC_REOWN_APP_ID: process.env.NEXT_PUBLIC_REOWN_APP_ID,
-    NEXT_PUBLIC_REOWN_BASE_URL: process.env.NEXT_PUBLIC_REOWN_BASE_URL,
+    NEXT_PUBLIC_RELAYOOR_BASE_URL: process.env.NEXT_PUBLIC_RELAYOOR_BASE_URL,
     NEXT_PUBLIC_APP_BASE_URL: process.env.NEXT_PUBLIC_APP_BASE_URL,
   },
 });
