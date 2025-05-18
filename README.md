@@ -1,10 +1,10 @@
-# Eco Checkout 
+# Eco Checkout
 
 A single-page application for handling stablecoin payments across multiple blockchain networks.
 
 ## Overview
 
-The Eco Checkout is a web application that allows merchants to redirect their users to a simple and intuitive interface for receiving stablecoin payments via [Eco Routes](https://eco.com/docs/routes/overview).
+Eco Checkout is a web application that allows merchants to redirect their users to a simple and intuitive interface for receiving stablecoin payments via [Eco Routes](https://eco.com/docs/routes/overview).
 
 This app leverages the [Eco Routes SDK](https://github.com/eco-toolkit/sdk/blob/main/README.md) to create and send intents easily.
 
