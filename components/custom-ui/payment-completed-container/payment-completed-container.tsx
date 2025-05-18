@@ -47,7 +47,7 @@ export default function PaymentCompletedContainer() {
         {transactionSteps.map((step, index) => (
           <div
             key={index}
-            className="flex justify-between items-center w-full z"
+            className="flex justify-between items-center w-full min-h-[44px] sm:min-h-0"
           >
             <div className="flex justify-start items-center w-full gap-3">
               <div className="flex justify-center items-center gap-4 sm:gap-5">
@@ -86,7 +86,7 @@ export default function PaymentCompletedContainer() {
             </div>
 
             {/* Tx hashes */}
-            <div className="flex sm:flex-row flex-col justify-center items-end sm:items-center gap-[3px] sm:gap-1.5 text-xs underline shrink-0 cursor-pointer">
+            <div className="flex sm:flex-row flex-col justify-center items-end sm:items-center sm:gap-1.5 text-xs underline shrink-0 cursor-pointer">
               {step.originTransaction && (
                 <div
                   className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"

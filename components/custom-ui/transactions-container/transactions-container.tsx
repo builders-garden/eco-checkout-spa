@@ -270,7 +270,7 @@ export default function TransactionsContainer({
         {transactionSteps.map((step, index) => (
           <div
             key={index}
-            className="flex justify-between items-center w-full overflow-hidden"
+            className="flex justify-between items-center w-full overflow-hidden min-h-[44px] sm:min-h-0"
           >
             <div className="flex justify-start items-center w-full gap-3">
               {/* Status */}
@@ -324,7 +324,7 @@ export default function TransactionsContainer({
               }}
               exit={{ opacity: 0 }}
               layout
-              className="flex sm:flex-row flex-col justify-center items-end sm:items-center gap-[3px] sm:gap-1.5 text-xs underline shrink-0 cursor-pointer"
+              className="flex sm:flex-row flex-col justify-center items-end sm:items-center sm:gap-1.5 text-xs underline shrink-0 cursor-pointer"
             >
               {step.originTransaction && (
                 <motion.div
