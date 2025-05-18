@@ -1,4 +1,4 @@
-# Eco Checkout
+# Eco Checkout 
 
 A single-page application for handling stablecoin payments across multiple blockchain networks.
 
