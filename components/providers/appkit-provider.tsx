@@ -19,7 +19,7 @@ const queryClient = new QueryClient();
 
 // Set up metadata
 const metadata = {
-  name: "Eco Checkout SPA",
+  name: "Eco Checkout",
   description: "Eco Checkout Single Page Application",
   url: env.NEXT_PUBLIC_APP_BASE_URL,
   icons: [],

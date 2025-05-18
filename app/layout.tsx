@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Eco Checkout SPA",
+  title: "Eco Checkout",
   description: "Eco Checkout Single Page Application",
 };
 
