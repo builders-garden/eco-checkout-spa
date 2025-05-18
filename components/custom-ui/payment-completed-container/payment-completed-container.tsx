@@ -1,15 +1,23 @@
-import { CheckCircle, SquareArrowOutUpRight } from "lucide-react";
+import { CheckCircle, ChevronDown, SquareArrowOutUpRight } from "lucide-react";
 import { CustomButton } from "../customButton";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { OperationLabel } from "../transactions-container/operation-label";
-import { ChainImages, TokenImages } from "@/lib/enums";
+import { ChainExplorerStringUrls, ChainImages, TokenImages } from "@/lib/enums";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
+import { capitalizeFirstLetter, chainIdToChain } from "@/lib/utils";
 
 export default function PaymentCompletedContainer() {
   const { paymentParams } = usePaymentParams();
-  const { amountDue, redirect } = paymentParams;
+  const { amountDue, desiredNetworkId, redirect } = paymentParams;
   const { transactionSteps } = useTransactionSteps();
+
+  const destinationChain = capitalizeFirstLetter(
+    chainIdToChain(
+      desiredNetworkId!,
+      true
+    ) as keyof typeof ChainExplorerStringUrls
+  );
 
   return (
     <motion.div
@@ -77,16 +85,37 @@ export default function PaymentCompletedContainer() {
               </div>
             </div>
 
-            {/* Tx hash */}
-            {step.transaction && (
-              <div
-                className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
-                onClick={() => window.open(step.transaction!.link, "_blank")}
-              >
-                View tx
-                <SquareArrowOutUpRight className="size-3" />
-              </div>
-            )}
+            {/* Tx hashes */}
+            <div className="flex sm:flex-row flex-col justify-center items-end sm:items-center gap-[3px] sm:gap-1.5 text-xs underline shrink-0 cursor-pointer">
+              {step.originTransaction && (
+                <div
+                  className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
+                  onClick={() =>
+                    window.open(step.originTransaction!.link, "_blank")
+                  }
+                >
+                  {capitalizeFirstLetter(step.assets[0].chain)}
+                  <SquareArrowOutUpRight className="size-3" />
+                </div>
+              )}
+
+              {step.type === "intent" && step.destinationTransaction && (
+                <>
+                  <div className="flex w-full justify-center items-center">
+                    <ChevronDown className="size-3 sm:rotate-270" />
+                  </div>
+                  <div
+                    className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
+                    onClick={() =>
+                      window.open(step.destinationTransaction!.link, "_blank")
+                    }
+                  >
+                    {destinationChain}
+                    <SquareArrowOutUpRight className="size-3" />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         ))}
       </div>

@@ -14,7 +14,7 @@ export enum ChainImages {
   "Arbitrum" = "/images/chains/arbitrum-logo.png",
 }
 
-export enum ChainExplorerUrls {
+export enum ChainExplorerStringUrls {
   "ethereum" = "https://etherscan.io",
   "optimism" = "https://optimistic.etherscan.io",
   "polygon" = "https://polygonscan.com",

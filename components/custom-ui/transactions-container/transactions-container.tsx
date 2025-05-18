@@ -1,7 +1,7 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import {
-  ChainExplorerUrls,
+  ChainExplorerStringUrls,
   ChainImages,
   PageState,
   TokenImages,
@@ -15,12 +15,25 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { ChevronDown, SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { chainStringToChainId, extractStepParams } from "@/lib/utils";
+import {
+  capitalizeFirstLetter,
+  chainIdToChain,
+  chainStringToChainId,
+  extractStepParams,
+} from "@/lib/utils";
 import { TxContainerHeader } from "./tx-container-header";
 import { CustomButton } from "../customButton";
 import { cn } from "@/lib/shadcn/utils";
+import {
+  getBlockNumber,
+  waitForTransactionReceipt,
+  watchContractEvent,
+} from "@wagmi/core";
+import { config } from "@/lib/appkit";
+import { InboxAbi, IntentSourceAbi } from "@eco-foundation/routes-ts";
+import { parseEventLogs } from "viem";
 
 interface TransactionsContainerProps {
   setPageState: (pageState: PageState) => void;
@@ -36,9 +49,10 @@ export default function TransactionsContainer({
     currentStepIndex,
   } = useTransactionSteps();
   const { paymentParams } = usePaymentParams();
-  const { amountDue } = paymentParams;
+  const { amountDue, desiredNetworkId } = paymentParams;
   const [isMounted, setIsMounted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [genericError, setGenericError] = useState(false);
 
   // Set the process as started when the component mounts
   // To prevent the button from being enabled before the component is mounted
@@ -65,6 +79,7 @@ export default function TransactionsContainer({
     return chainStringToChainId(currentStep.assets[0].chain);
   }, [currentStep]);
 
+  // Handles the action of the current step
   const handleAction = () => {
     // If the process is finished, return
     if (isFinished) {
@@ -74,6 +89,9 @@ export default function TransactionsContainer({
     // If there is no current step or chainId, return
     if (!currentStep || !chainId) return;
 
+    // Reset the generic error
+    setGenericError(false);
+
     // Write the contract
     const writeContractParams = extractStepParams(currentStep, chainId);
     writeContract(writeContractParams);
@@ -82,6 +100,7 @@ export default function TransactionsContainer({
     handleChangeStatus(
       currentStepIndex,
       TransactionStatus.AWAITING_CONFIRMATION,
+      null,
       null
     );
   };
@@ -89,21 +108,115 @@ export default function TransactionsContainer({
   // Update the status of the current step to success
   useEffect(() => {
     if (isTxSuccess) {
-      handleChangeStatus(currentStepIndex, TransactionStatus.SUCCESS, {
+      const originTransaction = {
         hash: hash!,
         link: `${
-          ChainExplorerUrls[
-            currentStep?.assets[0].chain as keyof typeof ChainExplorerUrls
+          ChainExplorerStringUrls[
+            currentStep?.assets[0].chain as keyof typeof ChainExplorerStringUrls
           ]
         }/tx/${hash}`,
-      });
+      };
+
+      // Update the status of the current step but still await for the transaction to be confirmed
+      // On the destination chain, the transaction will be confirmed when the intent is fulfilled
+      handleChangeStatus(
+        currentStepIndex,
+        currentStep?.type === "intent"
+          ? TransactionStatus.AWAITING_CONFIRMATION
+          : TransactionStatus.SUCCESS,
+        originTransaction,
+        null
+      );
+
+      // If this is an intent step, watch for fulfillment on destination chain
+      if (currentStep?.type === "intent" && currentStep.intent) {
+        const watchFulfillment = async () => {
+          try {
+            // Get the transaction receipt and parse the IntentCreated event
+            const receipt = await waitForTransactionReceipt(config, {
+              hash: hash!,
+              chainId: chainId!,
+            });
+            const logs = parseEventLogs({
+              abi: IntentSourceAbi,
+              logs: receipt.logs,
+            });
+            const intentCreatedEvent = logs.find(
+              (log) => log.eventName === "IntentCreated"
+            );
+
+            if (!intentCreatedEvent) {
+              throw new Error("IntentCreated event not found in logs");
+            }
+
+            const blockNumber = await getBlockNumber(config, {
+              chainId: Number(currentStep.intent!.route.destination),
+            });
+
+            const unwatch = watchContractEvent(config, {
+              fromBlock: blockNumber - BigInt(10),
+              chainId: Number(currentStep.intent!.route.destination),
+              abi: InboxAbi,
+              eventName: "Fulfillment",
+              address: currentStep.intent!.route.inbox,
+              args: {
+                _hash: intentCreatedEvent.args.hash,
+              },
+              onLogs(logs) {
+                if (logs && logs.length > 0) {
+                  const fulfillmentTxHash = logs[0]!.transactionHash;
+                  handleChangeStatus(
+                    currentStepIndex,
+                    TransactionStatus.SUCCESS,
+                    originTransaction,
+                    {
+                      hash: fulfillmentTxHash,
+                      link: `${
+                        ChainExplorerStringUrls[
+                          chainIdToChain(
+                            desiredNetworkId!,
+                            true
+                          ) as keyof typeof ChainExplorerStringUrls
+                        ]
+                      }/tx/${fulfillmentTxHash}`,
+                    }
+                  );
+                  unwatch();
+                }
+              },
+              onError(error) {
+                console.error("Error watching fulfillment:", error);
+                handleChangeStatus(
+                  currentStepIndex,
+                  TransactionStatus.ERROR,
+                  originTransaction,
+                  null
+                );
+                setGenericError(true);
+                unwatch();
+              },
+            });
+          } catch (error) {
+            handleChangeStatus(
+              currentStepIndex,
+              TransactionStatus.ERROR,
+              originTransaction,
+              null
+            );
+            console.error("Error setting up fulfillment watch:", error);
+            setGenericError(true);
+          }
+        };
+
+        watchFulfillment();
+      }
     }
   }, [isTxSuccess]);
 
   // Update the status of the current step to error
   useEffect(() => {
     if (isTxError || isWalletError) {
-      handleChangeStatus(currentStepIndex, TransactionStatus.ERROR, null);
+      handleChangeStatus(currentStepIndex, TransactionStatus.ERROR, null, null);
     }
   }, [isTxError, isWalletError]);
 
@@ -114,7 +227,7 @@ export default function TransactionsContainer({
       setIsFinished(true);
       setTimeout(() => {
         setPageState(PageState.PAYMENT_COMPLETED);
-      }, 1000);
+      }, 1250);
       return;
     }
 
@@ -157,13 +270,13 @@ export default function TransactionsContainer({
         {transactionSteps.map((step, index) => (
           <div
             key={index}
-            className="flex justify-between items-center w-full z"
+            className="flex justify-between items-center w-full overflow-hidden"
           >
             <div className="flex justify-start items-center w-full gap-3">
               {/* Status */}
               <StatusIndicator status={step.status} />
 
-              <div className="flex justify-center items-center gap-4 sm:gap-5">
+              <div className="flex justify-center items-center gap-3 sm:gap-5">
                 {/* Tokens */}
                 <div className="flex justify-start items-center -space-x-4">
                   {step.assets.map((token, index) => (
@@ -198,11 +311,24 @@ export default function TransactionsContainer({
               </div>
             </div>
 
-            {/* Tx hash */}
-            <AnimatePresence>
-              {step.transaction && (
+            {/* Tx hashes */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{
+                opacity: 1,
+                width: "fit-content",
+                transition: {
+                  duration: 0.5,
+                  ease: "easeInOut",
+                },
+              }}
+              exit={{ opacity: 0 }}
+              layout
+              className="flex sm:flex-row flex-col justify-center items-end sm:items-center gap-[3px] sm:gap-1.5 text-xs underline shrink-0 cursor-pointer"
+            >
+              {step.originTransaction && (
                 <motion.div
-                  key={step.transaction.hash}
+                  key={`link-${step.originTransaction.hash}`}
                   initial={{ opacity: 0 }}
                   animate={{
                     opacity: 1,
@@ -210,14 +336,59 @@ export default function TransactionsContainer({
                   }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
+                  layout
                   className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
-                  onClick={() => window.open(step.transaction!.link, "_blank")}
+                  onClick={() =>
+                    window.open(step.originTransaction!.link, "_blank")
+                  }
                 >
-                  View tx
+                  {capitalizeFirstLetter(step.assets[0].chain)}
                   <SquareArrowOutUpRight className="size-3" />
                 </motion.div>
               )}
-            </AnimatePresence>
+
+              {step.type === "intent" && step.destinationTransaction && (
+                <AnimatePresence>
+                  <motion.div
+                    key={`arrow-down-${step.destinationTransaction.hash}`}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{
+                      opacity: 1,
+                      height: "auto",
+                    }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    layout // Add layout prop here too
+                    className="flex w-full justify-center items-center"
+                  >
+                    <ChevronDown className="size-3 sm:rotate-270" />
+                  </motion.div>
+                  <motion.div
+                    key={`link-${step.destinationTransaction.hash}`}
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      scale: [1, 1.025, 1.075, 1.15, 1.075, 1.025, 1],
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 }}
+                    layout
+                    className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
+                    onClick={() =>
+                      window.open(step.destinationTransaction!.link, "_blank")
+                    }
+                  >
+                    {capitalizeFirstLetter(
+                      chainIdToChain(
+                        desiredNetworkId!,
+                        true
+                      ) as keyof typeof ChainExplorerStringUrls
+                    )}
+                    <SquareArrowOutUpRight className="size-3" />
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </motion.div>
           </div>
         ))}
       </div>
@@ -231,7 +402,7 @@ export default function TransactionsContainer({
       <CustomButton
         isLoading={!isMounted}
         text={
-          isTxError || isWalletError
+          isTxError || isWalletError || genericError
             ? "Retry"
             : currentStep?.status === TransactionStatus.AWAITING_CONFIRMATION
             ? "Confirm in wallet"

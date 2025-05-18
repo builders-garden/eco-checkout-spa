@@ -41,7 +41,8 @@ export type TransactionStepsContextType = {
   handleChangeStatus: (
     index: number,
     status: TransactionStatus,
-    transaction: { hash: Hex; link: string } | null
+    originTransaction: { hash: Hex; link: string } | null,
+    destinationTransaction: { hash: Hex; link: string } | null
   ) => void;
   currentStep: TransactionStep | undefined;
   currentStepIndex: number;
@@ -153,7 +154,7 @@ export const TransactionStepsProvider = ({
             status: TransactionStatus.TO_SEND,
             assets: [transactionAsset],
             to: paymentParams.recipient!,
-            transaction: null,
+            originTransaction: null,
           });
 
           // Else, create an intent step using all tokens on the chain
@@ -293,7 +294,7 @@ export const TransactionStepsProvider = ({
                   assets: [transactionAsset],
                   allowanceAmount: maxUint256,
                   intentSourceContract,
-                  transaction: null,
+                  originTransaction: null,
                 };
 
                 // Add the approve step to the transaction steps
@@ -308,7 +309,8 @@ export const TransactionStepsProvider = ({
               assets: transactionAssets,
               intent: intentWithQuote,
               intentSourceContract,
-              transaction: null,
+              originTransaction: null,
+              destinationTransaction: null,
             });
           } catch (error) {
             setTransactionStepsError("Quotes not available, please try again");
@@ -337,11 +339,19 @@ export const TransactionStepsProvider = ({
   const handleChangeStatus = (
     index: number,
     status: TransactionStatus,
-    transaction: { hash: Hex; link: string } | null
+    originTransaction: { hash: Hex; link: string } | null,
+    destinationTransaction: { hash: Hex; link: string } | null
   ) => {
     setTransactionSteps((prevSteps) => {
       const newSteps = [...prevSteps];
-      newSteps[index] = { ...newSteps[index], status, transaction };
+      newSteps[index] = {
+        ...newSteps[index],
+        status,
+        originTransaction,
+        ...(prevSteps[index].type === "intent" && {
+          destinationTransaction,
+        }),
+      };
       return newSteps;
     });
   };
