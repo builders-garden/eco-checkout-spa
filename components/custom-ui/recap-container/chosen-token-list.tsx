@@ -9,7 +9,7 @@ export const ChosenTokenList = () => {
   const { transactionSteps } = useTransactionSteps();
 
   return (
-    <div className="flex flex-col gap-2 sm:mb-0 mb-6">
+    <div className="flex flex-col gap-2 sm:mb-0 mb-8">
       <div className="flex justify-start items-center gap-1.5">
         <CreditCard className="size-4 text-secondary" />
         <p className="text-sm text-secondary">Payment method</p>

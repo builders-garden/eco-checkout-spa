@@ -57,7 +57,7 @@ export const ActionsButton = ({ setPageState }: ActionsButtonProps) => {
   }, [connected, open, setPageState]);
 
   return (
-    <div className="sticky sm:bottom-0 bottom-6 left-0 right-0 sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background">
+    <div className="sticky sm:bottom-0 bottom-8 left-0 right-0 sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background">
       <motion.button
         initial={{ opacity: 0.7 }}
         animate={{ opacity: 1 }}

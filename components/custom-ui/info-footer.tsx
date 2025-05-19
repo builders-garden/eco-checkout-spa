@@ -18,7 +18,7 @@ export const InfoFooter = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute sm:fixed bottom-0 sm:flex w-full text-sm text-secondary font-semibold tracking-tight sm:py-4 sm:px-8 p-2.5"
+      className="absolute sm:fixed bottom-0 sm:flex w-full text-sm text-secondary font-semibold tracking-tight sm:py-4 sm:px-8 px-4.5 py-4"
     >
       <div className="flex items-center justify-between w-full">
         <Link
@@ -90,7 +90,7 @@ export const InfoFooter = () => {
               </Link>
             </div>
 
-            <DialogFooter className="absolute bottom-0 left-0 right-0 flex flex-row items-center justify-between sm:justify-between tracking-tight font-semibold text-sm text-secondary p-3 sm:p-4">
+            <DialogFooter className="absolute bottom-0 left-0 right-0 flex flex-row items-center justify-between sm:justify-between tracking-tight font-semibold text-sm text-secondary py-3 px-4 sm:px-6 sm:py-4">
               <Link href="https://www.builders.garden/" target="_blank">
                 Built by Builders Garden
               </Link>
