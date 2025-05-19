@@ -5,7 +5,7 @@ import { UserAsset } from "@/lib/types";
 import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 interface SelectableTokenProps {
   token: UserAsset;
@@ -24,6 +24,15 @@ export const SelectableToken = ({
 }: SelectableTokenProps) => {
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
+  const [isMounted, setIsMounted] = useState(false);
+
+  // This is to prevent delayed animations when the tokens
+  // change in opacity (e.g. when amountDue is reached)
+  useEffect(() => {
+    setTimeout(() => {
+      setIsMounted(true);
+    }, 100);
+  }, []);
 
   const isSelected = selectedTokens.some((t) => t === token);
 
@@ -32,6 +41,9 @@ export const SelectableToken = ({
       setSelectedTokens(selectedTokens.filter((t) => t !== token));
     } else if (!isAmountReached) {
       setSelectedTokens([...selectedTokens, token]);
+    } else {
+      // Reset all the selected token and add this token as the first one
+      setSelectedTokens([token]);
     }
   };
 
@@ -51,7 +63,7 @@ export const SelectableToken = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: isAmountReached && !isSelected ? 0.5 : 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15, delay: index * 0.1 }}
+      transition={{ duration: 0.15, delay: !isMounted ? index * 0.1 : 0 }}
     >
       <div className="flex justify-start items-center gap-2">
         <div
