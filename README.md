@@ -8,9 +8,9 @@ For example, a merchant from their website can redirect users to:
 https://ecocheckout.xyz/?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
 ```
 
-The merchant can include a redirect parameter to return the user to their site after the payment is completed.
+The merchant can include a `redirect` parameter to return the user to their site after the payment is completed.
 
-Eco Checkout makes it easy for users to aggregate and pay using stablecoins across multiple blockchain networks.
+Eco Checkout, powered by [Eco Routes](https://eco.com/docs/routes/overview), makes it easy for users to aggregate and pay using stablecoins across multiple blockchain networks.
 
 ## Table of Contents
 
