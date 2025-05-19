@@ -86,7 +86,7 @@ export default function PaymentCompletedContainer() {
                     window.open(step.originTransaction!.link, "_blank")
                   }
                 >
-                  Initial Transfer
+                  {step.type === "intent" ? "Initial Transfer" : "Transfer"}
                   <SquareArrowOutUpRight className="size-3" />
                 </div>
               )}
