@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { PageState } from "@/lib/enums";
 import { RecapContainer } from "@/components/custom-ui/recap-container/recap-container";
 import { CheckoutContainer } from "@/components/custom-ui/checkout-container.tsx/checkout-container";
@@ -9,7 +9,6 @@ import { usePageState } from "@/hooks/use-page-state";
 import { MissingParamsContainer } from "@/components/custom-ui/missing-params-container/missing-params-container";
 import { useCardTransitions } from "@/hooks/use-card-transitions";
 import PaymentCompletedContainer from "@/components/custom-ui/payment-completed-container/payment-completed-container";
-import { InfoIcon } from "lucide-react";
 import { InfoFooter } from "@/components/custom-ui/info-footer";
 
 export default function Home() {
