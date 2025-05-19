@@ -1,12 +1,44 @@
-# Eco Checkout 
+# Eco Checkout
 
-A single-page application for handling stablecoin payments across multiple blockchain networks.
+Eco Checkout is a single-page web application that enables merchants to seamlessly receive stablecoin payments. Merchants should redirect their users to the Eco Checkout web app via a specially crafted URL that includes the necessary payment parameters.
+
+For example, a merchant from their website can redirect users to:
+
+```url
+https://eco-checkout-spa.vercel.app/?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
+```
+
+The merchant can include a redirect parameter to return the user to their site after the payment is completed.
+
+Eco Checkout makes it easy for users to aggregate and pay using stablecoins across multiple blockchain networks.
+
+## Table of Contents
+
+- [Eco Checkout](#eco-checkout)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Environment Variables](#environment-variables)
+    - [Installation Steps](#installation-steps)
+  - [Use the SPA](#use-the-spa)
+    - [Tokens and Chains supported](#tokens-and-chains-supported)
+    - [Required Query Parameters](#required-query-parameters)
+    - [Optional Query Parameters](#optional-query-parameters)
+    - [Validation Behavior](#validation-behavior)
+    - [The "Missing Parameters" View](#the-missing-parameters-view)
+  - [Application Flow](#application-flow)
+  - [Development](#development)
+    - [Contributing](#contributing)
+    - [Local Development](#local-development)
 
 ## Overview
 
-Eco Checkout is a web application that allows merchants to redirect their users to a simple and intuitive interface for receiving stablecoin payments via [Eco Routes](https://eco.com/docs/routes/overview).
+Eco Checkout is a single-page application (SPA) designed to facilitate stablecoin payments across multiple blockchain networks using [Eco Routes](https://eco.com/docs/routes/overview)
 
-This app leverages the [Eco Routes SDK](https://github.com/eco-toolkit/sdk/blob/main/README.md) to create and send intents easily.
+The app integrates with the [Eco Routes SDK](https://eco.com/docs/routes/quickstart), allowing it to create and execute payment intents efficiently.
+
+The application is fully open-source and can be customized to suit your needs. While the core logic is generalized, you can tailor the user interface to match your branding or workflow.
 
 ## Installation
 
@@ -19,38 +51,36 @@ This app leverages the [Eco Routes SDK](https://github.com/eco-toolkit/sdk/blob/
 
 Create a `.env.local` file with the following variables:
 
-```env
-NEXT_PUBLIC_REOWN_APP_ID=your_reown_app_id
-NEXT_PUBLIC_RELAYOOR_BASE_URL=the_Relayoor_base_url
-NEXT_PUBLIC_APP_BASE_URL=your_app_base_url
-```
+| Variable                        | Description           | Example                            |
+| ------------------------------- | --------------------- | ---------------------------------- |
+| `NEXT_PUBLIC_REOWN_APP_ID`      | Your Reown App ID     | `your_reown_app_id`                |
+| `NEXT_PUBLIC_RELAYOOR_BASE_URL` | Relayoor API base URL | `https://relayoor.beam.eco/api/v1` |
+| `NEXT_PUBLIC_APP_BASE_URL`      | Your app's base URL   | `http://localhost:3000`            |
+
+You can get a Reown App ID from [https://cloud.reown.com/sign-in](https://cloud.reown.com/sign-in).
 
 ### Installation Steps
 
-Using npm:
+Choose your preferred package manager:
 
 ```bash
-npm install
-npm run dev
+# Using npm
+npm install && npm run dev
+
+# Using yarn
+yarn install && yarn dev
+
+# Using pnpm
+pnpm install && pnpm dev
 ```
 
-Using yarn:
+## Use the SPA
 
-```bash
-yarn install
-yarn dev
-```
+### Tokens and Chains supported
 
-Using pnpm:
+The tokens and chains supported by the SPA are the ones supported by ECO. You can find it here in the [Eco docs](https://eco.com/docs/routes/chain-support)
 
-```bash
-pnpm install
-pnpm dev
-```
-
-## Testing
-
-The application accepts several query parameters that control the payment flow:
+The application accepts several query parameters in the URL that control the payment flow:
 
 ### Required Query Parameters
 
@@ -81,6 +111,12 @@ The application accepts several query parameters that control the payment flow:
    - Optional parameter
    - If not provided, defaults to an empty string
 
+A URL requesting 5 USDC on Base and then redirecting to `www.google.com` (imagine it's the merchant website) looks like this:
+
+```url
+https://eco-checkout-spa.vercel.app/?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
+```
+
 ### Validation Behavior
 
 The `PaymentParamsValidator` class handles parameter validation:
@@ -95,11 +131,27 @@ If any required query parameters are missing, users can fill them in using a sim
 
 ## Application Flow
 
-1. Parameters are validated on page load
-2. If valid, the user can proceed to payment; if not valid, the user must manually fill in the required missing parameters
-3. The user connects their wallet
-4. If the connected wallet contains enough tokens to cover the due amount, the user is presented with an optimized selection of tokens; if the wallet's total value is insufficient, the user is prompted to connect another wallet
-5. If the user is not satisfied with the optimized token selection, they can change it by opening the advanced token selection modal
-6. The user reviews the checkout through the payment recap step before proceeding with the actual payment
-7. The user lands in the transactions view, where the first transaction is automatically started
-8. Once the user completes all transactions, if a redirect link is provided as a query parameter, the user is shown a button that redirects to the merchant's website; otherwise, the payment process finishes with a success message and the window can be closed.
+1. The merchant constructs the Eco Checkout URL with the required parameters and redirects the user to it
+2. Parameters are validated on page load
+3. If valid, the user can proceed to payment; if not valid, the user must manually fill in the required missing parameters
+4. The user connects their wallet
+5. If the connected wallet contains enough tokens to cover the due amount, the user is presented with an optimized selection of tokens; if the wallet's total value is insufficient, the user is prompted to connect another wallet
+6. If the user is not satisfied with the optimized token selection, they can change it by opening the advanced token selection modal
+7. The user reviews the checkout through the payment recap step before proceeding with the actual payment
+8. The user lands in the transactions view, where the first transaction is automatically started
+9. Once the user completes all transactions, if a redirect link is provided as a query parameter, the user is shown a button that redirects to the merchant's website; otherwise, the payment process finishes with a success message and the window can be closed.
+
+## Development
+
+### Contributing
+
+We welcome contributions! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+### Local Development
+
+1. Fork the repository
+2. Install dependencies using your preferred package manager
+3. Create a `.env.local` file with the required environment variables
+4. Run the development server
+5. Make your changes
+6. Submit a pull request
