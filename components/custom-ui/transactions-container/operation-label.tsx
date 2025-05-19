@@ -16,9 +16,9 @@ export const OperationLabel = ({ step }: OperationLabelProps) => {
     if (step.type === "approve") {
       return `Approve ${firstToken}`;
     } else if (step.assets.length === 1) {
-      return `Transfer ${firstToken}`;
+      return `Send ${firstToken}`;
     } else {
-      return "Transfer Tokens";
+      return "Send Tokens";
     }
   }, [step]);
 

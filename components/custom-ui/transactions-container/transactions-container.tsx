@@ -18,7 +18,6 @@ import {
 import { ChevronDown, SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  capitalizeFirstLetter,
   chainIdToChain,
   chainStringToChainId,
   extractStepParams,
@@ -270,7 +269,7 @@ export default function TransactionsContainer({
         {transactionSteps.map((step, index) => (
           <div
             key={index}
-            className="flex justify-between items-center w-full overflow-hidden min-h-[44px] sm:min-h-0"
+            className="flex justify-between items-center w-full min-h-[44px] sm:min-h-0"
           >
             <div className="flex justify-start items-center w-full gap-3">
               {/* Status */}
@@ -342,7 +341,7 @@ export default function TransactionsContainer({
                     window.open(step.originTransaction!.link, "_blank")
                   }
                 >
-                  {capitalizeFirstLetter(step.assets[0].chain)}
+                  {step.type === "intent" ? "Initial Transfer" : "Transfer"}
                   <SquareArrowOutUpRight className="size-3" />
                 </motion.div>
               )}
@@ -378,12 +377,7 @@ export default function TransactionsContainer({
                       window.open(step.destinationTransaction!.link, "_blank")
                     }
                   >
-                    {capitalizeFirstLetter(
-                      chainIdToChain(
-                        desiredNetworkId!,
-                        true
-                      ) as keyof typeof ChainExplorerStringUrls
-                    )}
+                    Fulfillment
                     <SquareArrowOutUpRight className="size-3" />
                   </motion.div>
                 </AnimatePresence>

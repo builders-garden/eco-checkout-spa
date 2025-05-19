@@ -3,21 +3,13 @@ import { CustomButton } from "../customButton";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { OperationLabel } from "../transactions-container/operation-label";
-import { ChainExplorerStringUrls, ChainImages, TokenImages } from "@/lib/enums";
+import { ChainImages, TokenImages } from "@/lib/enums";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
-import { capitalizeFirstLetter, chainIdToChain } from "@/lib/utils";
 
 export default function PaymentCompletedContainer() {
   const { paymentParams } = usePaymentParams();
-  const { amountDue, desiredNetworkId, redirect } = paymentParams;
+  const { amountDue, redirect } = paymentParams;
   const { transactionSteps } = useTransactionSteps();
-
-  const destinationChain = capitalizeFirstLetter(
-    chainIdToChain(
-      desiredNetworkId!,
-      true
-    ) as keyof typeof ChainExplorerStringUrls
-  );
 
   return (
     <motion.div
@@ -94,7 +86,7 @@ export default function PaymentCompletedContainer() {
                     window.open(step.originTransaction!.link, "_blank")
                   }
                 >
-                  {capitalizeFirstLetter(step.assets[0].chain)}
+                  Initial Transfer
                   <SquareArrowOutUpRight className="size-3" />
                 </div>
               )}
@@ -110,7 +102,7 @@ export default function PaymentCompletedContainer() {
                       window.open(step.destinationTransaction!.link, "_blank")
                     }
                   >
-                    {destinationChain}
+                    Fulfillment
                     <SquareArrowOutUpRight className="size-3" />
                   </div>
                 </>
