@@ -5,7 +5,7 @@ Eco Checkout is a single-page web application that enables merchants to seamless
 For example, a merchant from their website can redirect users to:
 
 ```url
-https://eco-checkout-spa.vercel.app/?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
+https://ecocheckout.xyz/?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
 ```
 
 The merchant can include a redirect parameter to return the user to their site after the payment is completed.
@@ -114,7 +114,7 @@ The application accepts several query parameters in the URL that control the pay
 A URL requesting 5 USDC on Base and then redirecting to `www.google.com` (imagine it's the merchant website) looks like this:
 
 ```url
-https://eco-checkout-spa.vercel.app/?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
+https://ecocheckout.xyz?amount=5.00&token=usdc&recipient=0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97&network=8453&redirect=www.google.com
 ```
 
 ### Validation Behavior
