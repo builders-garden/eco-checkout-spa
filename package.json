@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@eco-foundation/routes-sdk": "^0.12.2",
-    "@eco-foundation/routes-ts": "^1.17.0",
+    "@eco-foundation/routes-sdk": "latest",
+    "@eco-foundation/routes-ts": "latest",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-progress": "^1.1.3",

@@ -1,4 +1,13 @@
-import { mainnet, polygon, optimism, arbitrum, base } from "viem/chains";
+import {
+  mainnet,
+  polygon,
+  optimism,
+  arbitrum,
+  base,
+  unichain,
+  celo,
+  ink,
+} from "viem/chains";
 import {
   ContractParams,
   PageStateType,
@@ -39,12 +48,18 @@ export const chainIdToChain = (chainId: number, asString: boolean = false) => {
       return asString ? "ethereum" : mainnet;
     case 10:
       return asString ? "optimism" : optimism;
+    case 130:
+      return asString ? "unichain" : unichain;
     case 137:
       return asString ? "polygon" : polygon;
     case 8453:
       return asString ? "base" : base;
     case 42161:
       return asString ? "arbitrum" : arbitrum;
+    case 42220:
+      return asString ? "celo" : celo;
+    case 57073:
+      return asString ? "ink" : ink;
     default:
       throw new Error(`Unknown chain ID: ${chainId}`);
   }
@@ -75,12 +90,20 @@ export const chainStringToChainId = (chain: string): RoutesSupportedChainId => {
       return 1;
     case "optimism":
       return 10;
+    case "unichain":
+      return 130;
+    case "uni": // This is the name that is used by the Relayoor
+      return 130;
     case "polygon":
       return 137;
     case "base":
       return 8453;
     case "arbitrum":
       return 42161;
+    case "celo":
+      return 42220;
+    case "ink":
+      return 57073;
     default:
       throw new Error(`Unknown chain: ${chain}`);
   }
