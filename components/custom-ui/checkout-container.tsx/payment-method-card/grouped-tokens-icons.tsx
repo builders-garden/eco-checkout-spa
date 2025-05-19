@@ -27,7 +27,7 @@ export const GroupedTokensIcons = ({
               transition={{ duration: 0.3 }}
               className="relative flex justify-center items-center"
               style={{
-                zIndex: 100 - index,
+                zIndex: 30 - index,
               }}
             >
               <img
@@ -35,7 +35,7 @@ export const GroupedTokensIcons = ({
                 alt={`${tokens[0].chain} logo`}
                 className="sm:size-[48px] size-[42px] object-cover rounded-full"
               />
-              <div className="absolute bottom-0 right-0 flex justify-center items-center -space-x-2">
+              <div className="absolute bottom-0 -right-1 flex justify-center items-center sm:-space-x-2.5 -space-x-2">
                 {tokens
                   .slice(0, tokens.length > 3 ? 2 : tokens.length)
                   .map((token) => (
@@ -52,7 +52,7 @@ export const GroupedTokensIcons = ({
                     />
                   ))}
                 {tokens.length > 3 && (
-                  <div className="size-[14px] bg-secondary-foreground rounded-full flex justify-center items-center">
+                  <div className="size-[16px] sm:size-[18px] bg-secondary-foreground rounded-full flex justify-center items-center">
                     <p className="text-[8px] font-semibold text-primary">
                       +{tokens.length - 2}
                     </p>
@@ -62,7 +62,7 @@ export const GroupedTokensIcons = ({
             </motion.div>
           </TooltipTrigger>
           <TooltipContent>
-            <div className="flex justify-center items-center gap-[7px] z-50">
+            <div className="flex justify-center items-center gap-[7px] z-40">
               <p className="text-[10px] text-white font-semibold leading-0">
                 {tokens[0].assetName.toUpperCase()}
               </p>

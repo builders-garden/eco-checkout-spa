@@ -51,7 +51,6 @@ export default function TransactionsContainer({
   const { amountDue, desiredNetworkId } = paymentParams;
   const [isMounted, setIsMounted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const [genericError, setGenericError] = useState(false);
 
   // Set the process as started when the component mounts
   // To prevent the button from being enabled before the component is mounted
@@ -87,10 +86,6 @@ export default function TransactionsContainer({
 
     // If there is no current step or chainId, return
     if (!currentStep || !chainId) return;
-
-    // Reset the generic error
-    setGenericError(false);
-
     // Write the contract
     const writeContractParams = extractStepParams(currentStep, chainId);
     writeContract(writeContractParams);
@@ -184,26 +179,30 @@ export default function TransactionsContainer({
                 }
               },
               onError(error) {
-                console.error("Error watching fulfillment:", error);
+                console.log(
+                  "Error watching fulfillment, but going on anyway:",
+                  error
+                );
                 handleChangeStatus(
                   currentStepIndex,
-                  TransactionStatus.ERROR,
+                  TransactionStatus.SUCCESS,
                   originTransaction,
                   null
                 );
-                setGenericError(true);
                 unwatch();
               },
             });
           } catch (error) {
             handleChangeStatus(
               currentStepIndex,
-              TransactionStatus.ERROR,
+              TransactionStatus.SUCCESS,
               originTransaction,
               null
             );
-            console.error("Error setting up fulfillment watch:", error);
-            setGenericError(true);
+            console.log(
+              "Error setting up fulfillment watch, but going on anyway:",
+              error
+            );
           }
         };
 
@@ -388,7 +387,7 @@ export default function TransactionsContainer({
       </div>
 
       {/* Message */}
-      <p className="text-sm text-secondary text-center px-10">
+      <p className="text-sm text-secondary text-center px-10 sm:mb-0 mb-6">
         Please confirm all the transactions in your wallet.
       </p>
 
@@ -396,7 +395,7 @@ export default function TransactionsContainer({
       <CustomButton
         isLoading={!isMounted}
         text={
-          isTxError || isWalletError || genericError
+          isTxError || isWalletError
             ? "Retry"
             : currentStep?.status === TransactionStatus.AWAITING_CONFIRMATION
             ? "Confirm in wallet"
