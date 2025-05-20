@@ -35,7 +35,7 @@ export default function PaymentCompletedContainer() {
       </div>
 
       {/* Transactions */}
-      <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 sm:mb-0 mb-8 w-full gap-[22px]">
+      <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 sm:mb-0 mb-10 w-full gap-[22px]">
         {transactionSteps.map((step, index) => (
           <div
             key={index}

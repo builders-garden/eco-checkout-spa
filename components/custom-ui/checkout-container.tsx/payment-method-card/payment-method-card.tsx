@@ -68,7 +68,7 @@ export const PaymentMethodCard = () => {
       animate={{ opacity: 1, height: isMobile ? "auto" : "fit-content" }}
       exit={{ opacity: 0, height: isMobile ? "auto" : 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col w-full gap-2 sm:mb-0 mb-8"
+      className="flex flex-col w-full gap-2 sm:mb-0 mb-10"
     >
       {/* Header */}
       <div className="flex justify-between items-center">
