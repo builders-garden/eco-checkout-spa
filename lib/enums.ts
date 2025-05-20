@@ -68,3 +68,12 @@ export enum TransactionStatus {
   SUCCESS = "success",
   ERROR = "error",
 }
+
+// Alchemy RPC Base URLs
+export enum AlchemyRpcBaseUrls {
+  "ethereum" = "https://eth-mainnet.g.alchemy.com/v2",
+  "op mainnet" = "https://opt-mainnet.g.alchemy.com/v2",
+  "polygon" = "https://polygon-mainnet.g.alchemy.com/v2",
+  "base" = "https://base-mainnet.g.alchemy.com/v2",
+  "arbitrum one" = "https://arb-mainnet.g.alchemy.com/v2",
+}
