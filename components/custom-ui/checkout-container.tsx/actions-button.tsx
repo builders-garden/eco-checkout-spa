@@ -48,9 +48,9 @@ export const ActionsButton = ({ setPageState }: ActionsButtonProps) => {
       };
     }
     return {
-      text: "Confirm",
+      text: "Confirm & Pay",
       onClick: () => {
-        setPageState(PageState.PAYMENT_RECAP);
+        setPageState(PageState.TRANSACTIONS);
       },
       key: "confirm",
     };
