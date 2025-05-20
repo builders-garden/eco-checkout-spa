@@ -387,7 +387,7 @@ export default function TransactionsContainer({
       </div>
 
       {/* Message */}
-      <p className="text-sm text-secondary text-center px-10 sm:mb-0 mb-8">
+      <p className="text-sm text-secondary text-center px-10 sm:mb-0 mb-10">
         Please confirm all the transactions in your wallet.
       </p>
 

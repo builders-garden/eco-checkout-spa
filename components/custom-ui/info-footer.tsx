@@ -90,7 +90,7 @@ export const InfoFooter = () => {
               </Link>
             </div>
 
-            <DialogFooter className="absolute bottom-0 left-0 right-0 flex flex-row items-center justify-between sm:justify-between tracking-tight font-semibold text-sm text-secondary py-3 px-4 sm:px-6 sm:py-4">
+            <DialogFooter className="absolute bottom-0 left-0 right-0 flex flex-row items-center justify-between sm:justify-between tracking-tight font-semibold text-sm text-secondary py-3 px-6 sm:px-6 sm:py-4">
               <Link href="https://www.builders.garden/" target="_blank">
                 Built by Builders Garden
               </Link>
