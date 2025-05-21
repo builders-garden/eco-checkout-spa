@@ -1,4 +1,4 @@
-# Eco Checkout 
+# Eco Checkout
 
 Eco Checkout is a single-page web application that enables merchants to seamlessly receive stablecoin payments. Merchants should redirect their users to the Eco Checkout web app via a specially crafted URL that includes the necessary payment parameters.
 
@@ -51,13 +51,16 @@ The application is fully open-source and can be customized to suit your needs. W
 
 Create a `.env.local` file with the following variables:
 
-| Variable                        | Description           | Example                            |
-| ------------------------------- | --------------------- | ---------------------------------- |
-| `NEXT_PUBLIC_REOWN_APP_ID`      | Your Reown App ID     | `your_reown_app_id`                |
-| `NEXT_PUBLIC_RELAYOOR_BASE_URL` | Relayoor API base URL | `https://relayoor.beam.eco/api/v1` |
-| `NEXT_PUBLIC_APP_BASE_URL`      | Your app's base URL   | `http://localhost:3000`            |
+| Variable                        | Description                                 | Example                            |
+| ------------------------------- | ------------------------------------------- | ---------------------------------- |
+| `NEXT_PUBLIC_REOWN_APP_ID`      | Your Reown App ID                           | `your_reown_app_id`                |
+| `NEXT_PUBLIC_RELAYOOR_BASE_URL` | Relayoor API base URL                       | `https://relayoor.beam.eco/api/v1` |
+| `NEXT_PUBLIC_APP_BASE_URL`      | Your app's base URL                         | `http://localhost:3000`            |
+| `NEXT_PUBLIC_ALCHEMY_API_KEY`   | Optional: Alchemy API key for RPC endpoints | `your_alchemy_api_key`             |
 
 You can get a Reown App ID from [https://cloud.reown.com/sign-in](https://cloud.reown.com/sign-in).
+
+> Note: The `NEXT_PUBLIC_ALCHEMY_API_KEY` is optional. If not set, the application will use public RPC endpoints by default. Setting this variable will enable the use of Alchemy's RPC endpoints for better performance and reliability.
 
 ### Installation Steps
 
