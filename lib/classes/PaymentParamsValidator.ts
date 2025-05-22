@@ -79,7 +79,7 @@ export class PaymentParamsValidator {
   }
 
   static validateShowFees(showFees: string | null): boolean {
-    return !!showFees;
+    return showFees === "true" ? true : false;
   }
 
   static async validatePaymentParams(
