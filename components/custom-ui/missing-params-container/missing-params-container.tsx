@@ -53,7 +53,6 @@ export const MissingParamsContainer = ({
 
   // Check if all required fields are filled and valid
   const validateForm = useCallback(async () => {
-    console.log("Validating form");
     const isValid = Boolean(
       (await PaymentParamsValidator.validateRecipient(userInputRecipient)) &&
         PaymentParamsValidator.validateAmount(userInputAmount) &&
