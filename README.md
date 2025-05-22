@@ -1,4 +1,4 @@
-# Eco Checkout
+# Eco Checkout 
 
 Eco Checkout is a single-page web application that enables merchants to seamlessly receive stablecoin payments. Merchants should redirect their users to the Eco Checkout web app via a specially crafted URL that includes the necessary payment parameters.
 
