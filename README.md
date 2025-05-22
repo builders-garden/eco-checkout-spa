@@ -111,8 +111,14 @@ The application accepts several query parameters in the URL that control the pay
    - If invalid or empty, defaults to "USDC"
 
 2. `redirect`: URL to redirect after payment completion
+
    - Optional parameter
    - If not provided, defaults to an empty string
+     
+3. `show-fees`: If set to "true", shows the fees to the user
+
+   - Optional parameter
+   - If not provided, the network fees aren't shown
 
 A URL requesting 5 USDC on Base and then redirecting to `www.google.com` (imagine it's the merchant website) looks like this:
 
