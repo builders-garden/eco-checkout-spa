@@ -32,10 +32,8 @@ export default function AnimatedName({
       return;
     }
 
-    if (!isFetchingName) {
-      setHasName(Boolean(name));
-    }
-  }, [name, isFetchingName, isInitialMount]);
+    setHasName(Boolean(name));
+  }, [name, isInitialMount]);
 
   return (
     <div

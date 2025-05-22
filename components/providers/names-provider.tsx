@@ -101,11 +101,13 @@ export const NamesProvider = ({ children }: { children: ReactNode }) => {
   }, [recipient]);
 
   const recipientPreferredName = useMemo(() => {
-    return recipientEns
+    const preferredName = recipientEns
       ? recipientEns
       : recipientBaseName
       ? recipientBaseName
       : undefined;
+    console.log("preferredName", preferredName);
+    return preferredName;
   }, [recipientEns, recipientBaseName]);
 
   const value = useMemo(
