@@ -46,6 +46,7 @@ export type TransactionStepsContextType = {
   ) => void;
   currentStep: TransactionStep | undefined;
   currentStepIndex: number;
+  totalNetworkFee: number;
 };
 
 export const useTransactionSteps = () => {
@@ -77,6 +78,7 @@ export const TransactionStepsProvider = ({
   const [transactionStepsError, setTransactionStepsError] = useState<
     string | null
   >(null);
+  const [totalNetworkFee, setTotalNetworkFee] = useState<number>(0);
   const { switchChain } = useSwitchChain();
 
   // Group tokens by chain
@@ -109,6 +111,9 @@ export const TransactionStepsProvider = ({
 
       // Create the transaction steps
       const transactionSteps: TransactionStep[] = [];
+
+      // Create a sum variable for the network fees
+      let totalNetworkFee = 0;
 
       // For each chain, create the transaction steps using all tokens on that chain
       for (const [sourceChain, tokens] of Object.entries(tokensByChain)) {
@@ -174,15 +179,22 @@ export const TransactionStepsProvider = ({
             )
           );
 
+          // Get the decimals of the desired token
+          const desiredTokenDecimals =
+            TokenDecimals[
+              paymentParams.desiredToken!.toLowerCase() as keyof typeof TokenDecimals
+            ];
+
           // Get the estimated fees
           const protocolFees = getFees(
             totalAmountToSendOnCurrentChain,
             chainId,
             paymentParams.desiredNetworkId!,
-            TokenDecimals[
-              paymentParams.desiredToken!.toLowerCase() as keyof typeof TokenDecimals
-            ]
+            desiredTokenDecimals
           );
+
+          // Add the protocol fees to the total network fee
+          totalNetworkFee += protocolFees / 10 ** desiredTokenDecimals;
 
           // Get the desired token address of the receiving chain
           const desiredTokenAddress = RoutesService.getStableAddress(
@@ -329,6 +341,7 @@ export const TransactionStepsProvider = ({
       }
 
       setTransactionSteps(transactionSteps);
+      setTotalNetworkFee(totalNetworkFee);
       setTransactionStepsLoading(false);
     };
 
@@ -376,6 +389,7 @@ export const TransactionStepsProvider = ({
       handleChangeStatus,
       currentStep,
       currentStepIndex,
+      totalNetworkFee,
     }),
     [
       transactionSteps,
@@ -384,6 +398,7 @@ export const TransactionStepsProvider = ({
       handleChangeStatus,
       currentStep,
       currentStepIndex,
+      totalNetworkFee,
     ]
   );
 

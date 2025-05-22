@@ -4,20 +4,24 @@ import {
   truncateAddress,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
-import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages, PageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { PoweredByCapsule } from "../powered-by-capsule";
+import AnimatedName from "../animated-name";
+import { useNames } from "@/components/providers/names-provider";
+import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 
 interface PaymentRecapProps {
   setPageState: (pageState: PageState) => void;
 }
 
 export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
+  const { recipientNames } = useNames();
   const { paymentParams } = usePaymentParams();
   const { recipient, desiredNetworkId, amountDue } = paymentParams;
+  const { totalNetworkFee } = useTransactionSteps();
 
   const networkName = chainIdToChainName(desiredNetworkId!);
 
@@ -50,9 +54,12 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
         {/* Recipient */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Recipient</p>
-          <p className="text-[16px] font-semibold">
-            {truncateAddress(recipient ?? EMPTY_ADDRESS)}
-          </p>
+          {recipient && (
+            <AnimatedName
+              name={recipientNames.preferredName}
+              address={truncateAddress(recipient)}
+            />
+          )}
         </div>
         {/* To Chain */}
         <div className="flex justify-between items-center w-full gap-2">
@@ -78,9 +85,24 @@ export const PaymentRecap = ({ setPageState }: PaymentRecapProps) => {
       <Separator className="w-full" />
 
       <div className="flex flex-col w-full gap-2">
-        <div className="flex justify-between items-center w-full">
+        {/* Amount */}
+        <div className="flex justify-between items-center w-full gap-2">
+          <p className="text-[16px] text-secondary">Amount</p>
+          <p className="text-[16px] font-semibold">
+            ${(amountDue! - totalNetworkFee).toFixed(2)}
+          </p>
+        </div>
+        {/* Network Fee */}
+        <div className="flex justify-between items-center w-full gap-2">
+          <p className="text-[16px] text-secondary">Network Fee</p>
+          <p className="ttext-[16px] font-semibold">
+            ${totalNetworkFee.toFixed(2)}
+          </p>
+        </div>
+        {/* Total */}
+        <div className="flex justify-between items-center w-full gap-2">
           <p className="text-lg font-semibold">Total</p>
-          <p className="text-[16px] font-semibold">${amountDue!.toFixed(2)}</p>
+          <p className="text-lg font-semibold">${amountDue!.toFixed(2)}</p>
         </div>
       </div>
     </div>

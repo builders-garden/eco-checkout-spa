@@ -30,7 +30,7 @@ export type GroupedTokens = Record<
 >;
 
 export type PageStateType = {
-  current: PageState;
+  current: PageState | null;
   previous: PageState | null;
 };
 
@@ -40,6 +40,7 @@ export type PaymentParams = {
   desiredNetworkId: string | null;
   desiredToken: string | null;
   redirect: string | null;
+  showFees: string | null;
 };
 
 export type ValidatedPaymentParams = {
@@ -48,6 +49,7 @@ export type ValidatedPaymentParams = {
   desiredNetworkId: RoutesSupportedChainId | null;
   desiredToken: RoutesSupportedStable | null;
   redirect: string | null;
+  showFees: boolean;
 };
 
 export type ApproveStep = {

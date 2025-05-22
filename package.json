@@ -11,6 +11,7 @@
   "dependencies": {
     "@eco-foundation/routes-sdk": "^0.12.2",
     "@eco-foundation/routes-ts": "^1.17.0",
+    "@ensdomains/ensjs": "^4.0.2",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-progress": "^1.1.3",

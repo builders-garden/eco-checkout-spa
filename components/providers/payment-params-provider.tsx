@@ -17,6 +17,7 @@ export const PaymentParamsContext = createContext<
 export type PaymentParamsContextType = {
   paymentParams: ValidatedPaymentParams;
   areAllPaymentParamsValid: boolean;
+  isDoingFirstValidation: boolean;
 };
 
 export const usePaymentParams = () => {
@@ -39,45 +40,57 @@ export const PaymentParamsProvider = ({
   const [network] = useQueryState("network");
   const [token] = useQueryState("token");
   const [redirect] = useQueryState("redirect");
+  const [showFees] = useQueryState("show-fees");
 
   // Query Params Information State
-  const [paymentParams, setPaymentParams] = useState<ValidatedPaymentParams>(
+  const [paymentParams, setPaymentParams] = useState<ValidatedPaymentParams>({
+    recipient: null,
+    amountDue: null,
+    desiredNetworkId: null,
+    desiredToken: null,
+    redirect: null,
+    showFees: false,
+  });
+  const [isDoingFirstValidation, setIsDoingFirstValidation] = useState(true);
+
+  // Query Params Information Update Effect
+  useEffect(() => {
     PaymentParamsValidator.validatePaymentParams({
       recipient,
       amountDue: amount,
       desiredNetworkId: network,
       desiredToken: token,
       redirect,
+      showFees,
     })
-  );
-
-  // Query Params Information Update Effect
-  useEffect(() => {
-    setPaymentParams(
-      PaymentParamsValidator.validatePaymentParams({
-        recipient,
-        amountDue: amount,
-        desiredNetworkId: network,
-        desiredToken: token,
-        redirect,
+      .then((validatedPaymentParams) => {
+        setPaymentParams(validatedPaymentParams);
+        setTimeout(() => {
+          setIsDoingFirstValidation(false);
+        }, 500);
       })
-    );
-  }, [recipient, amount, network, token, redirect]);
+      .catch(() => {
+        setIsDoingFirstValidation(false);
+      });
+  }, [recipient, amount, network, token, redirect, showFees]);
 
   // Check if all payment info is valid (every value is not null)
   const areAllPaymentParamsValid = useMemo(() => {
+    if (!paymentParams) return false;
     return Object.entries(paymentParams).every(([key, value]) => {
-      if (key === "redirect") return true; // Skip validation for redirect
+      // Skip validation for redirect and showFees because they are optional
+      if (key === "redirect" || key === "showFees") return true;
       return Boolean(value);
     });
   }, [paymentParams]);
 
   const value = useMemo(
     () => ({
-      paymentParams,
+      paymentParams: paymentParams,
       areAllPaymentParamsValid,
+      isDoingFirstValidation,
     }),
-    [paymentParams, areAllPaymentParamsValid]
+    [paymentParams, areAllPaymentParamsValid, isDoingFirstValidation]
   );
 
   return (

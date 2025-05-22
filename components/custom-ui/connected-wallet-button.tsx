@@ -6,6 +6,8 @@ import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 import { useIsMobile } from "@/components/providers/is-mobile-provider";
+import { useNames } from "../providers/names-provider";
+import AnimatedName from "./animated-name";
 
 interface ConnectedWalletButtonProps {
   disabled?: boolean;
@@ -14,6 +16,7 @@ interface ConnectedWalletButtonProps {
 export const ConnectedWalletButton = ({
   disabled,
 }: ConnectedWalletButtonProps) => {
+  const { userNames } = useNames();
   const { open } = useAppKit();
   const { address } = useAppKitAccount();
   const { isMobile } = useIsMobile();
@@ -37,13 +40,22 @@ export const ConnectedWalletButton = ({
         )}
         onClick={() => !disabled && open({ view: "Account" })}
       >
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex justify-start items-center w-full gap-2">
           <div className="flex justify-center items-center gap-2 bg-secondary-foreground rounded-full p-2">
             <Wallet className="size-3.5 text-primary" />
           </div>
-          <p className="text-sm font-medium">
-            {truncateAddress(address ?? "")}
-          </p>
+          {address && (
+            <AnimatedName
+              name={userNames.preferredName}
+              address={truncateAddress(address)}
+              className={cn(
+                "items-start h-[20px] cursor-pointer",
+                disabled && "cursor-default"
+              )}
+              height={20}
+              textClassName="text-sm font-medium"
+            />
+          )}
         </div>
         <AnimatePresence mode="wait">
           {!disabled && (

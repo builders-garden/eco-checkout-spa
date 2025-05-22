@@ -7,11 +7,22 @@ import {
   RoutesService,
 } from "@eco-foundation/routes-sdk";
 import { PaymentParams, ValidatedPaymentParams } from "../types";
+import { getAddressFromEns } from "../names/ens";
 
 export class PaymentParamsValidator {
   // Recipient must be a valid Ethereum address
-  static validateRecipient(recipient: string | null): Hex | null {
+  static async validateRecipient(
+    recipient: string | null
+  ): Promise<Hex | null> {
     if (!recipient) return null;
+
+    // check if the recipient is an ENS domain
+    const recipientAddress = await getAddressFromEns(recipient);
+    if (recipientAddress) {
+      console.log("recipientAddress", recipientAddress);
+      return recipientAddress as Hex;
+    }
+
     if (
       typeof recipient !== "string" ||
       !/^0x[a-fA-F0-9]{40}$/.test(recipient)
@@ -67,11 +78,15 @@ export class PaymentParamsValidator {
     return redirect ? redirect : "";
   }
 
-  static validatePaymentParams(
+  static validateShowFees(showFees: string | null): boolean {
+    return !!showFees;
+  }
+
+  static async validatePaymentParams(
     paymentParams: PaymentParams
-  ): ValidatedPaymentParams {
+  ): Promise<ValidatedPaymentParams> {
     return {
-      recipient: this.validateRecipient(paymentParams.recipient),
+      recipient: await this.validateRecipient(paymentParams.recipient),
       amountDue: this.validateAmount(paymentParams.amountDue),
       desiredNetworkId: this.validateNetwork(paymentParams.desiredNetworkId),
       desiredToken: this.validateToken(
@@ -79,6 +94,7 @@ export class PaymentParamsValidator {
         paymentParams.desiredNetworkId
       ),
       redirect: this.validateRedirect(paymentParams.redirect),
+      showFees: this.validateShowFees(paymentParams.showFees),
     };
   }
 }

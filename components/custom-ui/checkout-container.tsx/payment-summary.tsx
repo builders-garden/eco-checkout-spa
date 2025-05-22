@@ -4,14 +4,19 @@ import {
   truncateAddress,
 } from "@/lib/utils";
 import { Separator } from "../../shadcn-ui/separator";
-import { EMPTY_ADDRESS } from "@/lib/constants";
 import { ChainImages } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { PoweredByCapsule } from "../powered-by-capsule";
+import { useNames } from "@/components/providers/names-provider";
+import AnimatedName from "../animated-name";
+import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
+import { motion } from "framer-motion";
 
 export const PaymentSummary = () => {
+  const { recipientNames } = useNames();
   const { paymentParams } = usePaymentParams();
-  const { recipient, desiredNetworkId, amountDue } = paymentParams;
+  const { recipient, desiredNetworkId, amountDue, showFees } = paymentParams;
+  const { totalNetworkFee } = useTransactionSteps();
 
   const networkName = chainIdToChainName(desiredNetworkId!);
 
@@ -28,9 +33,13 @@ export const PaymentSummary = () => {
         {/* Recipient */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-[16px] text-secondary">Recipient</p>
-          <p className="text-[16px] font-semibold">
-            {truncateAddress(recipient ?? EMPTY_ADDRESS)}
-          </p>
+          {recipient && (
+            <AnimatedName
+              name={recipientNames.preferredName}
+              address={truncateAddress(recipient)}
+              isFetchingName={recipientNames.isFetching}
+            />
+          )}
         </div>
         {/* To Chain */}
         <div className="flex justify-between items-center w-full gap-2">
@@ -56,10 +65,49 @@ export const PaymentSummary = () => {
       <Separator className="w-full" />
 
       <div className="flex flex-col w-full gap-2">
+        {showFees && (
+          <>
+            {/* Amount */}
+            <div className="flex justify-between items-center w-full gap-2">
+              <p className="text-[16px] text-secondary">Amount</p>
+              <motion.p
+                key={amountDue! - totalNetworkFee}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-[16px] font-semibold"
+              >
+                ${(amountDue! - totalNetworkFee).toFixed(2)}
+              </motion.p>
+            </div>
+            {/* Network Fee */}
+            <div className="flex justify-between items-center w-full gap-2">
+              <p className="text-[16px] text-secondary">Network Fee</p>
+              <motion.p
+                key={totalNetworkFee}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-[16px] font-semibold"
+              >
+                {totalNetworkFee < 0.01
+                  ? "< $0.01"
+                  : `$${totalNetworkFee.toFixed(2)}`}
+              </motion.p>
+            </div>
+          </>
+        )}
         {/* Total */}
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-lg font-semibold">Total</p>
-          <p className="text-lg font-semibold">${amountDue!.toFixed(2)}</p>
+          <motion.p
+            key={amountDue! - totalNetworkFee - 100}
+            initial={{ opacity: showFees ? 0 : 1, x: showFees ? 10 : 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg font-semibold"
+          >
+            ${amountDue!.toFixed(2)}
+          </motion.p>
         </div>
       </div>
     </div>

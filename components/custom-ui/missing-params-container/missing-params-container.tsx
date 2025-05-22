@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { Input } from "../../shadcn-ui/input";
 import { Separator } from "../../shadcn-ui/separator";
 import { useQueryState } from "nuqs";
@@ -11,10 +11,12 @@ import { ChainImages } from "@/lib/enums";
 import { PageState } from "@/lib/enums";
 import { usePaymentParams } from "../../providers/payment-params-provider";
 import { ChainSelection } from "./chain-selection";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDebouncedCallback } from "@/hooks/use-debounce";
 import { PoweredByCapsule } from "../powered-by-capsule";
 import { ScrollArea, ScrollBar } from "@/components/shadcn-ui/scroll-area";
 import { BlueInfoBox } from "./blue-info-box";
+import { getAddressFromEns } from "@/lib/names/ens";
+import { isAddress } from "viem";
 
 interface MissingParamsContainerProps {
   setPageState: (pageState: PageState) => void;
@@ -24,6 +26,7 @@ export const MissingParamsContainer = ({
   setPageState,
 }: MissingParamsContainerProps) => {
   const { paymentParams } = usePaymentParams();
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // Payment Query Params
   const setRecipient = useQueryState("recipient")[1];
@@ -44,23 +47,32 @@ export const MissingParamsContainer = ({
   );
 
   // Check if all required fields are filled and valid
-  const validateForm = useCallback(() => {
-    return Boolean(
-      PaymentParamsValidator.validateRecipient(userInputRecipient) &&
+  const validateForm = useCallback(async () => {
+    console.log("Validating form");
+    const isValid = Boolean(
+      (await PaymentParamsValidator.validateRecipient(userInputRecipient)) &&
         PaymentParamsValidator.validateAmount(userInputAmount) &&
         PaymentParamsValidator.validateNetwork(userInputNetwork)
     );
+    setIsFormValid(isValid);
   }, [userInputRecipient, userInputAmount, userInputNetwork]);
 
-  const isFormComplete = useDebounce(validateForm(), 200);
+  const debouncedValidateForm = useDebouncedCallback(validateForm, 500);
+
+  useEffect(() => {
+    debouncedValidateForm();
+  }, [debouncedValidateForm]);
 
   // Handle form submission
-  const handleContinue = () => {
-    if (isFormComplete) {
+  const handleContinue = async () => {
+    if (isFormValid) {
       setPageState(PageState.CHECKOUT);
+      const recipientAddress = isAddress(userInputRecipient)
+        ? userInputRecipient
+        : await getAddressFromEns(userInputRecipient);
       // This will prevent the input fields from changing before the page state is updated
       setTimeout(() => {
-        setRecipient(userInputRecipient);
+        setRecipient(recipientAddress);
         setNetwork(userInputNetwork);
         setAmount(userInputAmount);
       }, 300);
@@ -175,24 +187,24 @@ export const MissingParamsContainer = ({
             </p>
           )}
         </div>
-        <BlueInfoBox isFormComplete={isFormComplete} />
+        <BlueInfoBox isFormComplete={isFormValid} />
       </div>
 
       <div className="sticky sm:bottom-0 bottom-6 left-0 right-0 sm:relative sm:p-0 mt-auto">
         <motion.button
-          whileHover={{ scale: !isFormComplete ? 1 : 1.02 }}
-          whileTap={{ scale: !isFormComplete ? 1 : 0.98 }}
+          whileHover={{ scale: !isFormValid ? 1 : 1.02 }}
+          whileTap={{ scale: !isFormValid ? 1 : 0.98 }}
           onClick={handleContinue}
           className={`flex justify-center items-center w-full bg-primary text-white font-semibold rounded-[8px] p-4 h-[60px] transition-all duration-300 ${
-            !isFormComplete ? "opacity-70 cursor-default" : "cursor-pointer"
+            !isFormValid ? "opacity-70 cursor-default" : "cursor-pointer"
           }`}
           type="button"
-          disabled={!isFormComplete}
+          disabled={!isFormValid}
           style={{
             zIndex: 50,
           }}
         >
-          {isFormComplete ? "Continue" : "Complete required fields"}
+          {isFormValid ? "Continue" : "Complete required fields"}
         </motion.button>
       </div>
     </motion.div>

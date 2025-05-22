@@ -10,10 +10,15 @@ import { MissingParamsContainer } from "@/components/custom-ui/missing-params-co
 import { useCardTransitions } from "@/hooks/use-card-transitions";
 import PaymentCompletedContainer from "@/components/custom-ui/payment-completed-container/payment-completed-container";
 import { InfoFooter } from "@/components/custom-ui/info-footer";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { Loader } from "@/components/custom-ui/loader";
 
 export default function Home() {
   // Page State
   const { pageState, setPageState } = usePageState();
+
+  // Payment Params
+  const { isDoingFirstValidation } = usePaymentParams();
 
   // Card Transitions State
   // Must be handled in the parent component to avoid
@@ -23,7 +28,9 @@ export default function Home() {
   return (
     <main className="flex relative flex-col items-center justify-start sm:justify-center min-h-screen h-auto sm:pt-6 sm:pb-14 overflow-y-auto">
       <AnimatePresence mode="wait" custom={pageState}>
-        {pageState.current === PageState.MISSING_PARAMS ? (
+        {isDoingFirstValidation ? (
+          <Loader key="loader" />
+        ) : pageState.current === PageState.MISSING_PARAMS ? (
           <MissingParamsContainer
             key="missing-params-container"
             setPageState={setPageState}
