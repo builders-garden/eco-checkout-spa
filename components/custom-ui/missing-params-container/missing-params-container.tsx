@@ -46,6 +46,11 @@ export const MissingParamsContainer = ({
     paymentParams.amountDue ? paymentParams.amountDue.toString() : ""
   );
 
+  // Memoized values to avoid unnecessary re-renders during pageState change
+  const hasNetwork = useMemo(() => Boolean(paymentParams.desiredNetworkId), []);
+  const hasRecipient = useMemo(() => Boolean(paymentParams.recipient), []);
+  const hasAmount = useMemo(() => Boolean(paymentParams.amountDue), []);
+
   // Check if all required fields are filled and valid
   const validateForm = useCallback(async () => {
     console.log("Validating form");
@@ -57,7 +62,7 @@ export const MissingParamsContainer = ({
     setIsFormValid(isValid);
   }, [userInputRecipient, userInputAmount, userInputNetwork]);
 
-  const debouncedValidateForm = useDebouncedCallback(validateForm, 500);
+  const debouncedValidateForm = useDebouncedCallback(validateForm, 400);
 
   useEffect(() => {
     debouncedValidateForm();
@@ -66,15 +71,14 @@ export const MissingParamsContainer = ({
   // Handle form submission
   const handleContinue = async () => {
     if (isFormValid) {
-      setPageState(PageState.CHECKOUT);
       const recipientAddress = isAddress(userInputRecipient)
         ? userInputRecipient
         : await getAddressFromEns(userInputRecipient);
-      // This will prevent the input fields from changing before the page state is updated
+      setRecipient(recipientAddress);
+      setNetwork(userInputNetwork);
+      setAmount(userInputAmount);
       setTimeout(() => {
-        setRecipient(recipientAddress);
-        setNetwork(userInputNetwork);
-        setAmount(userInputAmount);
+        setPageState(PageState.CHECKOUT);
       }, 300);
     }
   };
@@ -109,7 +113,7 @@ export const MissingParamsContainer = ({
       </div>
       <div className="space-y-2">
         <p className="text-secondary">Recipient</p>
-        {!paymentParams.recipient ? (
+        {!hasRecipient ? (
           <Input
             id="recipient"
             placeholder="0x..."
@@ -129,7 +133,7 @@ export const MissingParamsContainer = ({
 
       <div className="space-y-2">
         <p className="text-secondary">Chain</p>
-        {!paymentParams.desiredNetworkId ? (
+        {!hasNetwork ? (
           <ChainSelection
             userInputNetwork={userInputNetwork}
             setUserInputNetwork={setUserInputNetwork}
@@ -151,7 +155,7 @@ export const MissingParamsContainer = ({
       <div className="flex flex-col">
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold">Amount</p>
-          {!paymentParams.amountDue ? (
+          {!hasAmount ? (
             <div className="relative w-[35%]">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <span className="text-primary font-semibold">$</span>
