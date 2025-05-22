@@ -91,4 +91,7 @@ export enum AlchemyRpcBaseUrls {
   "polygon" = "https://polygon-mainnet.g.alchemy.com/v2",
   "base" = "https://base-mainnet.g.alchemy.com/v2",
   "arbitrum one" = "https://arb-mainnet.g.alchemy.com/v2",
+  "unichain" = "https://unichain-mainnet.g.alchemy.com/v2",
+  "celo" = "https://celo-mainnet.g.alchemy.com/v2",
+  "ink" = "https://ink-mainnet.g.alchemy.com/v2",
 }

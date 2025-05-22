@@ -19,7 +19,6 @@ export class PaymentParamsValidator {
     // check if the recipient is an ENS domain
     const recipientAddress = await getAddressFromEns(recipient);
     if (recipientAddress) {
-      console.log("recipientAddress", recipientAddress);
       return recipientAddress as Hex;
     }
 
