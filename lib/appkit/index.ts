@@ -4,14 +4,27 @@ import { CustomRpcUrlMap } from "@reown/appkit-common";
 import {
   mainnet,
   optimism,
+  unichain,
   polygon,
   base,
   arbitrum,
+  celo,
+  ink,
 } from "@reown/appkit/networks";
 import { env } from "../zod";
 import { AlchemyRpcBaseUrls } from "../enums";
 
-export const networks = [mainnet, optimism, polygon, base, arbitrum];
+export const networks = [
+  mainnet,
+  optimism,
+  polygon,
+  base,
+  unichain,
+  arbitrum,
+  celo,
+  ink,
+];
+
 export const projectId = env.NEXT_PUBLIC_REOWN_APP_ID;
 
 const alchemyApiKey = env.NEXT_PUBLIC_ALCHEMY_API_KEY;
