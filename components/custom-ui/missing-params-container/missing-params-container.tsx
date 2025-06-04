@@ -17,6 +17,8 @@ import { ScrollArea, ScrollBar } from "@/components/shadcn-ui/scroll-area";
 import { BlueInfoBox } from "./blue-info-box";
 import { getAddressFromEns } from "@/lib/names/ens";
 import { isAddress } from "viem";
+import { ContinueButton } from "./continue-button";
+import { CopyLinkButton } from "./copy-link-button";
 
 interface MissingParamsContainerProps {
   setPageState: (pageState: PageState) => void;
@@ -193,22 +195,20 @@ export const MissingParamsContainer = ({
         <BlueInfoBox isFormComplete={isFormValid} />
       </div>
 
-      <div className="sticky sm:bottom-0 bottom-6 left-0 right-0 sm:relative sm:p-0 mt-auto">
-        <motion.button
-          whileHover={{ scale: !isFormValid ? 1 : 1.02 }}
-          whileTap={{ scale: !isFormValid ? 1 : 0.98 }}
-          onClick={handleContinue}
-          className={`flex justify-center items-center w-full bg-primary text-white font-semibold rounded-[8px] p-4 h-[60px] transition-all duration-300 ${
-            !isFormValid ? "opacity-70 cursor-default" : "cursor-pointer"
-          }`}
-          type="button"
-          disabled={!isFormValid}
-          style={{
-            zIndex: 50,
-          }}
-        >
-          {isFormValid ? "Continue" : "Complete required fields"}
-        </motion.button>
+      <div className="sticky sm:bottom-0 bottom-10 left-0 right-0 sm:relative sm:p-0 mt-auto flex gap-2">
+        {/* Continue Button */}
+        <ContinueButton
+          isFormValid={isFormValid}
+          handleContinue={handleContinue}
+        />
+
+        {/* Copy URL Button */}
+        <CopyLinkButton
+          isFormValid={isFormValid}
+          userInputRecipient={userInputRecipient}
+          userInputAmount={userInputAmount}
+          userInputNetwork={userInputNetwork}
+        />
       </div>
     </motion.div>
   );

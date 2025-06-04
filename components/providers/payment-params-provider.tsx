@@ -40,7 +40,7 @@ export const PaymentParamsProvider = ({
   const [network] = useQueryState("network");
   const [token] = useQueryState("token");
   const [redirect] = useQueryState("redirect");
-  const [showFees] = useQueryState("show-fees");
+  const [showFees] = useQueryState("showFees");
 
   // Query Params Information State
   const [paymentParams, setPaymentParams] = useState<ValidatedPaymentParams>({

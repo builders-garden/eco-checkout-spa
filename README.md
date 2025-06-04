@@ -114,8 +114,8 @@ The application accepts several query parameters in the URL that control the pay
 
    - Optional parameter
    - If not provided, defaults to an empty string
-     
-3. `show-fees`: If set to "true", shows the fees to the user
+
+3. `showFees`: If set to "true", shows the fees to the user
 
    - Optional parameter
    - If not provided, the network fees aren't shown

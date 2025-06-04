@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 export const Loader = () => {
   return (
     <motion.div
-      className="flex items-center justify-center h-full"
+      className="flex items-center justify-center h-full min-h-screen sm:min-h-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
