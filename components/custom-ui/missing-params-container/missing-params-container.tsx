@@ -8,7 +8,7 @@ import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
 import { chainIdToChainName } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
-import { PageState } from "@/lib/enums";
+import { CheckoutPageState } from "@/lib/enums";
 import { usePaymentParams } from "../../providers/payment-params-provider";
 import { ChainSelection } from "./chain-selection";
 import { useDebouncedCallback } from "@/hooks/use-debounce";
@@ -21,11 +21,11 @@ import { ContinueButton } from "./continue-button";
 import { CopyLinkButton } from "./copy-link-button";
 
 interface MissingParamsContainerProps {
-  setPageState: (pageState: PageState) => void;
+  setCheckoutPageState: (checkoutPageState: CheckoutPageState) => void;
 }
 
 export const MissingParamsContainer = ({
-  setPageState,
+  setCheckoutPageState,
 }: MissingParamsContainerProps) => {
   const { paymentParams } = usePaymentParams();
   const [isFormValid, setIsFormValid] = useState(false);
@@ -79,7 +79,7 @@ export const MissingParamsContainer = ({
       setNetwork(userInputNetwork);
       setAmount(userInputAmount);
       setTimeout(() => {
-        setPageState(PageState.CHECKOUT);
+        setCheckoutPageState(CheckoutPageState.CHECKOUT);
       }, 300);
     }
   };

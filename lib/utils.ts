@@ -10,11 +10,11 @@ import {
 } from "viem/chains";
 import {
   ContractParams,
-  PageStateType,
+  CheckoutPageStateType,
   TransactionStep,
   UserAsset,
 } from "./types";
-import { PageState } from "./enums";
+import { CheckoutPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 import { erc20Abi } from "viem";
 import { IntentSourceAbi } from "@eco-foundation/routes-ts";
@@ -229,11 +229,11 @@ export const groupSelectedTokensByAssetName = (
  * @returns The variants
  */
 export const getPageStateVariants = (
-  leftState: PageState,
-  rightState: PageState
+  leftState: CheckoutPageState,
+  rightState: CheckoutPageState
 ) => {
   return {
-    initial: (custom: PageStateType) => ({
+    initial: (custom: CheckoutPageStateType) => ({
       opacity: 0,
       x:
         custom.previous === rightState
@@ -243,7 +243,7 @@ export const getPageStateVariants = (
           : 0,
     }),
     animate: { opacity: 1, x: 0 },
-    exit: (custom: PageStateType) => ({
+    exit: (custom: CheckoutPageStateType) => ({
       opacity: 0,
       x:
         custom.current === leftState

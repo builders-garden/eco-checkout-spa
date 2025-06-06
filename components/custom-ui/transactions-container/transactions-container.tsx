@@ -3,7 +3,7 @@ import { useTransactionSteps } from "@/components/providers/transaction-steps-pr
 import {
   ChainExplorerStringUrls,
   ChainImages,
-  PageState,
+  CheckoutPageState,
   TokenImages,
   TransactionStatus,
 } from "@/lib/enums";
@@ -35,11 +35,11 @@ import { InboxAbi, IntentSourceAbi } from "@eco-foundation/routes-ts";
 import { parseEventLogs } from "viem";
 
 interface TransactionsContainerProps {
-  setPageState: (pageState: PageState) => void;
+  setCheckoutPageState: (checkoutPageState: CheckoutPageState) => void;
 }
 
 export default function TransactionsContainer({
-  setPageState,
+  setCheckoutPageState,
 }: TransactionsContainerProps) {
   const {
     transactionSteps,
@@ -224,7 +224,7 @@ export default function TransactionsContainer({
     if (!currentStep) {
       setIsFinished(true);
       setTimeout(() => {
-        setPageState(PageState.PAYMENT_COMPLETED);
+        setCheckoutPageState(CheckoutPageState.PAYMENT_COMPLETED);
       }, 1250);
       return;
     }

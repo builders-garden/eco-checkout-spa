@@ -68,7 +68,7 @@ export enum CardState {
 }
 
 // Page States
-export enum PageState {
+export enum CheckoutPageState {
   MISSING_PARAMS = "missing-params",
   CHECKOUT = "checkout",
   PAYMENT_RECAP = "payment-recap",
