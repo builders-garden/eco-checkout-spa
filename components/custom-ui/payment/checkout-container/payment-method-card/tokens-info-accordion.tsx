@@ -6,9 +6,9 @@ import {
   AccordionTrigger,
   AccordionItem,
   AccordionContent,
-} from "../../../shadcn-ui/accordion";
+} from "@/components/shadcn-ui/accordion";
 import { SquarePen } from "lucide-react";
-import { Separator } from "../../../shadcn-ui/separator";
+import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages, TokenImages, TokenSymbols } from "@/lib/enums";
 import {
   capitalizeFirstLetter,

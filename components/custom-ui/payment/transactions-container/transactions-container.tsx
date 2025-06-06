@@ -23,7 +23,7 @@ import {
   extractStepParams,
 } from "@/lib/utils";
 import { TxContainerHeader } from "./tx-container-header";
-import { CustomButton } from "../customButton";
+import { CustomButton } from "@/components/custom-ui/customButton";
 import { cn } from "@/lib/shadcn/utils";
 import {
   getBlockNumber,

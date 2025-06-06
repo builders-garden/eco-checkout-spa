@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckoutPageStateType } from "@/lib/types";
 import { PaymentRecap } from "./payment-recap";
-import { ConnectedWalletButton } from "../connected-wallet-button";
+import { ConnectedWalletButton } from "@/components/custom-ui/connected-wallet-button";
 import { ChosenTokenList } from "./chosen-token-list";
 import { CheckoutPageState } from "@/lib/enums";
 import { getCheckoutPageStateVariants } from "@/lib/utils";
-import { CustomButton } from "../customButton";
+import { CustomButton } from "@/components/custom-ui/customButton";
 
 interface RecapContainerProps {
   checkoutPageState: CheckoutPageStateType;

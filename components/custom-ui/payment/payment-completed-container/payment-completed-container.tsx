@@ -1,5 +1,5 @@
 import { CheckCircle, ChevronDown, SquareArrowOutUpRight } from "lucide-react";
-import { CustomButton } from "../customButton";
+import { CustomButton } from "@/components/custom-ui/customButton";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { OperationLabel } from "../transactions-container/operation-label";

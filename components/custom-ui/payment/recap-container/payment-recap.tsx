@@ -3,13 +3,13 @@ import {
   chainIdToChainName,
   truncateAddress,
 } from "@/lib/utils";
-import { Separator } from "../../shadcn-ui/separator";
+import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages, CheckoutPageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { PoweredByCapsule } from "../powered-by-capsule";
-import AnimatedName from "../animated-name";
+import { PoweredByCapsule } from "@/components/custom-ui/powered-by-capsule";
+import AnimatedName from "@/components/custom-ui/animated-name";
 import { useNames } from "@/components/providers/names-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 

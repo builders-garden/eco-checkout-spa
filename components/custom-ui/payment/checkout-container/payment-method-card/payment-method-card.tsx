@@ -12,7 +12,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "../../../shadcn-ui/tooltip";
+} from "@/components/shadcn-ui/tooltip";
 import { TokensInfoAccordion } from "./tokens-info-accordion";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";

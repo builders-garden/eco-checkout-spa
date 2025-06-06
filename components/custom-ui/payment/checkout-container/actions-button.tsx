@@ -3,10 +3,10 @@ import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
 import { CheckoutPageState } from "@/lib/enums";
-import { usePaymentParams } from "../../providers/payment-params-provider";
-import { useSelectedTokens } from "../../providers/selected-tokens-provider";
-import { useUserBalances } from "../../providers/user-balances-provider";
-import { useTransactionSteps } from "../../providers/transaction-steps-provider";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
+import { useUserBalances } from "@/components/providers/user-balances-provider";
+import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { cn } from "@/lib/shadcn/utils";
 
 interface ActionsButtonProps {

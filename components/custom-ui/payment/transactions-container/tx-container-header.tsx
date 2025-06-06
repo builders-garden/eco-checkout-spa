@@ -1,5 +1,5 @@
 import { Separator } from "@/components/shadcn-ui/separator";
-import { PoweredByCapsule } from "../powered-by-capsule";
+import { PoweredByCapsule } from "@/components/custom-ui/powered-by-capsule";
 
 interface TxContainerHeaderProps {
   amountDue: number;

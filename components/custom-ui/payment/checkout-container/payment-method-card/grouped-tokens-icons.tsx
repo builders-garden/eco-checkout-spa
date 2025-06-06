@@ -5,7 +5,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "../../../shadcn-ui/tooltip";
+} from "@/components/shadcn-ui/tooltip";
 import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface GroupedTokensIconsProps {

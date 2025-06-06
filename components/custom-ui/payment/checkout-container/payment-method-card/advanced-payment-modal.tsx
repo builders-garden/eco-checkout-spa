@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button } from "../../../shadcn-ui/button";
+import { Button } from "@/components/shadcn-ui/button";
 import {
   DialogContent,
   DialogDescription,
@@ -7,9 +7,9 @@ import {
   DialogHeader,
   DialogTrigger,
   DialogFooter,
-} from "../../../shadcn-ui/dialog";
-import { Dialog } from "../../../shadcn-ui/dialog";
-import { ScrollArea } from "../../../shadcn-ui/scroll-area";
+} from "@/components/shadcn-ui/dialog";
+import { Dialog } from "@/components/shadcn-ui/dialog";
+import { ScrollArea } from "@/components/shadcn-ui/scroll-area";
 import { UserAsset } from "@/lib/types";
 import { cn } from "@/lib/shadcn/utils";
 import { AnimatePresence, motion } from "framer-motion";

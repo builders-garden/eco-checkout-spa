@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { PaymentSummary } from "./payment-summary";
 import { CardState } from "@/lib/enums";
 import { ConnectWalletInfo } from "./connect-wallet-info";
-import { ConnectedWalletButton } from "../connected-wallet-button";
+import { ConnectedWalletButton } from "@/components/custom-ui/connected-wallet-button";
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "./actions-button";
 import { CheckoutPageStateType } from "@/lib/types";

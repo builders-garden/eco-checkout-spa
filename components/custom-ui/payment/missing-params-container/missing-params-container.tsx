@@ -2,17 +2,17 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Input } from "../../shadcn-ui/input";
-import { Separator } from "../../shadcn-ui/separator";
+import { Input } from "@/components/shadcn-ui/input";
+import { Separator } from "@/components/shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
 import { chainIdToChainName } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
 import { CheckoutPageState } from "@/lib/enums";
-import { usePaymentParams } from "../../providers/payment-params-provider";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { ChainSelection } from "./chain-selection";
 import { useDebouncedCallback } from "@/hooks/use-debounce";
-import { PoweredByCapsule } from "../powered-by-capsule";
+import { PoweredByCapsule } from "@/components/custom-ui/powered-by-capsule";
 import { ScrollArea, ScrollBar } from "@/components/shadcn-ui/scroll-area";
 import { BlueInfoBox } from "./blue-info-box";
 import { getAddressFromEns } from "@/lib/names/ens";
