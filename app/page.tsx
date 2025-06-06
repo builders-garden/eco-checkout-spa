@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
-import { CheckoutPageState } from "@/lib/enums";
+import { PaymentPageState } from "@/lib/enums";
 import { RecapContainer } from "@/components/custom-ui/payment/recap-container/recap-container";
 import { CheckoutContainer } from "@/components/custom-ui/payment/checkout-container/checkout-container";
 import TransactionsContainer from "@/components/custom-ui/payment/transactions-container/transactions-container";
-import { useCheckoutPageState } from "@/hooks/use-checkout-page-state";
+import { usePaymentPageState } from "@/hooks/use-payment-page-state";
 import { MissingParamsContainer } from "@/components/custom-ui/payment/missing-params-container/missing-params-container";
 import { useCardTransitions } from "@/hooks/use-card-transitions";
 import PaymentCompletedContainer from "@/components/custom-ui/payment/payment-completed-container/payment-completed-container";
@@ -15,7 +15,7 @@ import { Loader } from "@/components/custom-ui/loader";
 
 export default function Home() {
   // Page State
-  const { checkoutPageState, setCheckoutPageState } = useCheckoutPageState();
+  const { paymentPageState, setPaymentPageState } = usePaymentPageState();
 
   // Payment Params
   const { isDoingFirstValidation } = usePaymentParams();
@@ -27,33 +27,32 @@ export default function Home() {
 
   return (
     <main className="flex relative flex-col items-center justify-start sm:justify-center min-h-screen h-auto sm:pt-6 sm:pb-14 overflow-y-auto [background-image:radial-gradient(#00000009_1px,transparent_1px)] [background-size:16px_16px]">
-      <AnimatePresence mode="wait" custom={checkoutPageState}>
+      <AnimatePresence mode="wait" custom={paymentPageState}>
         {isDoingFirstValidation ? (
           <Loader key="loader" />
-        ) : checkoutPageState.current === CheckoutPageState.MISSING_PARAMS ? (
+        ) : paymentPageState.current === PaymentPageState.MISSING_PARAMS ? (
           <MissingParamsContainer
             key="missing-params-container"
-            setCheckoutPageState={setCheckoutPageState}
+            setPaymentPageState={setPaymentPageState}
           />
-        ) : checkoutPageState.current === CheckoutPageState.PAYMENT_RECAP ? (
+        ) : paymentPageState.current === PaymentPageState.PAYMENT_RECAP ? (
           <RecapContainer
             key="recap-container"
-            checkoutPageState={checkoutPageState}
-            setCheckoutPageState={setCheckoutPageState}
+            paymentPageState={paymentPageState}
+            setPaymentPageState={setPaymentPageState}
           />
-        ) : checkoutPageState.current === CheckoutPageState.TRANSACTIONS ? (
+        ) : paymentPageState.current === PaymentPageState.TRANSACTIONS ? (
           <TransactionsContainer
             key="transactions-container"
-            setCheckoutPageState={setCheckoutPageState}
+            setPaymentPageState={setPaymentPageState}
           />
-        ) : checkoutPageState.current ===
-          CheckoutPageState.PAYMENT_COMPLETED ? (
+        ) : paymentPageState.current === PaymentPageState.PAYMENT_COMPLETED ? (
           <PaymentCompletedContainer key="payment-completed-container" />
         ) : (
           <CheckoutContainer
             key="checkout-container"
-            checkoutPageState={checkoutPageState}
-            setCheckoutPageState={setCheckoutPageState}
+            paymentPageState={paymentPageState}
+            setPaymentPageState={setPaymentPageState}
             animationState={animationState}
           />
         )}

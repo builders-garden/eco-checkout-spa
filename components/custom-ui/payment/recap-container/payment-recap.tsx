@@ -4,7 +4,7 @@ import {
   truncateAddress,
 } from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
-import { ChainImages, CheckoutPageState } from "@/lib/enums";
+import { ChainImages, PaymentPageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
@@ -14,10 +14,10 @@ import { useNames } from "@/components/providers/names-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 
 interface PaymentRecapProps {
-  setCheckoutPageState: (checkoutPageState: CheckoutPageState) => void;
+  setPaymentPageState: (paymentPageState: PaymentPageState) => void;
 }
 
-export const PaymentRecap = ({ setCheckoutPageState }: PaymentRecapProps) => {
+export const PaymentRecap = ({ setPaymentPageState }: PaymentRecapProps) => {
   const { recipientNames } = useNames();
   const { paymentParams } = usePaymentParams();
   const { recipient, desiredNetworkId, amountDue } = paymentParams;
@@ -38,7 +38,7 @@ export const PaymentRecap = ({ setCheckoutPageState }: PaymentRecapProps) => {
           }}
           className="flex justify-center items-center cursor-pointer pr-1"
           onClick={() => {
-            setCheckoutPageState(CheckoutPageState.CHECKOUT);
+            setPaymentPageState(PaymentPageState.CHECKOUT);
           }}
         >
           <ArrowLeft className="size-5.5" />

@@ -1,4 +1,4 @@
-import { CheckoutPageState } from "@/lib/enums";
+import { PaymentPageState } from "@/lib/enums";
 import { AnimatePresence, motion } from "framer-motion";
 import { PaymentSummary } from "./payment-summary";
 import { CardState } from "@/lib/enums";
@@ -7,22 +7,22 @@ import { ConnectedWalletButton } from "@/components/custom-ui/connected-wallet-b
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "./actions-button";
 import { CheckoutPageStateType } from "@/lib/types";
-import { getCheckoutPageStateVariants } from "@/lib/utils";
+import { getPaymentPageStateVariants } from "@/lib/utils";
 
 interface CheckoutContainerProps {
-  checkoutPageState: CheckoutPageStateType;
-  setCheckoutPageState: (checkoutPageState: CheckoutPageState) => void;
+  paymentPageState: CheckoutPageStateType;
+  setPaymentPageState: (paymentPageState: PaymentPageState) => void;
   animationState: CardState | null;
 }
 
 export const CheckoutContainer = ({
-  checkoutPageState,
-  setCheckoutPageState,
+  paymentPageState,
+  setPaymentPageState,
   animationState,
 }: CheckoutContainerProps) => {
-  const variants = getCheckoutPageStateVariants(
-    CheckoutPageState.MISSING_PARAMS,
-    CheckoutPageState.PAYMENT_RECAP
+  const variants = getPaymentPageStateVariants(
+    PaymentPageState.MISSING_PARAMS,
+    PaymentPageState.PAYMENT_RECAP
   );
 
   return (
@@ -31,7 +31,7 @@ export const CheckoutContainer = ({
       initial="initial"
       animate="animate"
       exit="exit"
-      custom={checkoutPageState}
+      custom={paymentPageState}
       transition={{ duration: 0.3 }}
       className="flex flex-col justify-start size-full min-h-screen sm:min-h-0 sm:max-w-[496px] p-4.5 sm:p-5 gap-4 sm:border sm:border-secondary-foreground sm:rounded-[8px] overflow-hidden  bg-background"
     >
@@ -55,7 +55,7 @@ export const CheckoutContainer = ({
       <AnimatePresence mode="wait" initial={false}>
         <ActionsButton
           key="actions-button"
-          setCheckoutPageState={setCheckoutPageState}
+          setPaymentPageState={setPaymentPageState}
         />
       </AnimatePresence>
     </motion.div>

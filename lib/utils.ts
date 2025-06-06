@@ -15,7 +15,7 @@ import {
   UserAsset,
   PaginationState,
 } from "./types";
-import { CheckoutPageState } from "./enums";
+import { PaymentPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 import { erc20Abi } from "viem";
 import { IntentSourceAbi } from "@eco-foundation/routes-ts";
@@ -229,10 +229,12 @@ export const groupSelectedTokensByAssetName = (
  * @param rightState - The next state, relative to the component's perspective (e.g. for the recap container, the right state is the transactions one)
  * @returns The variants
  */
-export const getCheckoutPageStateVariants = (
-  leftState: CheckoutPageState,
-  rightState: CheckoutPageState
+export const getPaymentPageStateVariants = (
+  leftState: PaymentPageState,
+  rightState: PaymentPageState
 ) => {
+  console.log("leftState", leftState);
+  console.log("rightState", rightState);
   return {
     initial: (custom: CheckoutPageStateType) => ({
       opacity: 0,

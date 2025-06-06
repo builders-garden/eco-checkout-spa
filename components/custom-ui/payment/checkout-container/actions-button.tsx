@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { useEffect, useMemo, useState } from "react";
-import { CheckoutPageState } from "@/lib/enums";
+import { PaymentPageState } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { useUserBalances } from "@/components/providers/user-balances-provider";
@@ -10,10 +10,10 @@ import { useTransactionSteps } from "@/components/providers/transaction-steps-pr
 import { cn } from "@/lib/shadcn/utils";
 
 interface ActionsButtonProps {
-  setCheckoutPageState: (checkoutPageState: CheckoutPageState) => void;
+  setPaymentPageState: (paymentPageState: PaymentPageState) => void;
 }
 
-export const ActionsButton = ({ setCheckoutPageState }: ActionsButtonProps) => {
+export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
   const { selectedTotal } = useSelectedTokens();
@@ -50,11 +50,11 @@ export const ActionsButton = ({ setCheckoutPageState }: ActionsButtonProps) => {
     return {
       text: "Confirm & Pay",
       onClick: () => {
-        setCheckoutPageState(CheckoutPageState.TRANSACTIONS);
+        setPaymentPageState(PaymentPageState.TRANSACTIONS);
       },
       key: "confirm",
     };
-  }, [connected, open, setCheckoutPageState]);
+  }, [connected, open, setPaymentPageState]);
 
   return (
     <div className="sticky sm:bottom-0 bottom-10 left-0 right-0 sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background">

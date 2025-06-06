@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChainImages, HistoryPageState } from "@/lib/enums";
+import { ChainImages } from "@/lib/enums";
 import { InfoFooter } from "@/components/custom-ui/info-footer";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
@@ -47,12 +47,12 @@ const mockedTransactions: PaymentTransaction[] = Array.from(
 
 export default function Home() {
   // History Page State
-  const [historyPageState, setHistoryPageState] = useState<HistoryPageState>(
-    HistoryPageState.HISTORY
-  );
+  //   const [historyPageState, setHistoryPageState] = useState<HistoryPageState>(
+  //     HistoryPageState.HISTORY
+  //   );
 
   // Selected Payment
-  const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+  //const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [paginationState, setPaginationState] = useState<PaginationState>({
     currentPage: 1,
     previousPage: 1,

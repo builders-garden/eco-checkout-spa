@@ -1,13 +1,13 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { CheckoutPageState } from "@/lib/enums";
+import { PaymentPageState } from "@/lib/enums";
 import { CheckoutPageStateType } from "@/lib/types";
 import { useEffect, useState } from "react";
 
-export const useCheckoutPageState = () => {
+export const usePaymentPageState = () => {
   const { areAllPaymentParamsValid, isDoingFirstValidation } =
     usePaymentParams();
 
-  const [checkoutPageState, setCheckoutPageState] =
+  const [paymentPageState, setPaymentPageState] =
     useState<CheckoutPageStateType>({
       current: null,
       previous: null,
@@ -15,29 +15,29 @@ export const useCheckoutPageState = () => {
 
   useEffect(() => {
     if (isDoingFirstValidation) {
-      setCheckoutPageState({
+      setPaymentPageState({
         current: null,
         previous: null,
       });
     }
-    setCheckoutPageState({
+    setPaymentPageState({
       current: areAllPaymentParamsValid
-        ? CheckoutPageState.CHECKOUT
-        : CheckoutPageState.MISSING_PARAMS,
+        ? PaymentPageState.CHECKOUT
+        : PaymentPageState.MISSING_PARAMS,
       previous: null,
     });
   }, [areAllPaymentParamsValid]);
 
   // A function to handle Page State Change
-  const handleCheckoutPageStateChange = (newPageState: CheckoutPageState) => {
-    setCheckoutPageState((prev) => ({
+  const handlePaymentPageStateChange = (newPageState: PaymentPageState) => {
+    setPaymentPageState((prev) => ({
       current: newPageState,
       previous: prev.current,
     }));
   };
 
   return {
-    checkoutPageState,
-    setCheckoutPageState: handleCheckoutPageStateChange,
+    paymentPageState,
+    setPaymentPageState: handlePaymentPageStateChange,
   };
 };

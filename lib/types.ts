@@ -1,5 +1,5 @@
 import { Abi, Hex } from "viem";
-import { CheckoutPageState, TransactionStatus } from "./enums";
+import { PaymentPageState, TransactionStatus } from "./enums";
 import { RelayoorChain, RelayoorToken } from "./relayoor/types";
 import {
   RoutesSupportedChainId,
@@ -30,8 +30,8 @@ export type GroupedTokens = Record<
 >;
 
 export type CheckoutPageStateType = {
-  current: CheckoutPageState | null;
-  previous: CheckoutPageState | null;
+  current: PaymentPageState | null;
+  previous: PaymentPageState | null;
 };
 
 export type PaginationState = {
