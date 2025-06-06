@@ -14,19 +14,15 @@ export const usePaymentPageState = () => {
     });
 
   useEffect(() => {
-    if (isDoingFirstValidation) {
+    if (!isDoingFirstValidation) {
       setPaymentPageState({
-        current: null,
+        current: areAllPaymentParamsValid
+          ? PaymentPageState.CHECKOUT
+          : PaymentPageState.MISSING_PARAMS,
         previous: null,
       });
     }
-    setPaymentPageState({
-      current: areAllPaymentParamsValid
-        ? PaymentPageState.CHECKOUT
-        : PaymentPageState.MISSING_PARAMS,
-      previous: null,
-    });
-  }, [areAllPaymentParamsValid]);
+  }, [isDoingFirstValidation]);
 
   // A function to handle Page State Change
   const handlePaymentPageStateChange = (newPageState: PaymentPageState) => {

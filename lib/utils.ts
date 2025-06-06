@@ -233,8 +233,6 @@ export const getPaymentPageStateVariants = (
   leftState: PaymentPageState,
   rightState: PaymentPageState
 ) => {
-  console.log("leftState", leftState);
-  console.log("rightState", rightState);
   return {
     initial: (custom: CheckoutPageStateType) => ({
       opacity: 0,

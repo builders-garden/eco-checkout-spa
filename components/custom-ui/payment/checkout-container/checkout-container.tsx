@@ -22,7 +22,7 @@ export const CheckoutContainer = ({
 }: CheckoutContainerProps) => {
   const variants = getPaymentPageStateVariants(
     PaymentPageState.MISSING_PARAMS,
-    PaymentPageState.PAYMENT_RECAP
+    PaymentPageState.TRANSACTIONS
   );
 
   return (
