@@ -76,6 +76,11 @@ export enum CheckoutPageState {
   PAYMENT_COMPLETED = "payment-completed",
 }
 
+export enum HistoryPageState {
+  HISTORY = "history",
+  PAYMENT = "payment",
+}
+
 // Transaction States
 export enum TransactionStatus {
   TO_SEND = "to-send",

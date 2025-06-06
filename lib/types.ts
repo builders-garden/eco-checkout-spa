@@ -34,6 +34,11 @@ export type CheckoutPageStateType = {
   previous: CheckoutPageState | null;
 };
 
+export type PaginationState = {
+  currentPage: number;
+  previousPage: number;
+};
+
 export type PaymentParams = {
   recipient: string | null;
   amountDue: string | null;

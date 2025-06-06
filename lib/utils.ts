@@ -13,6 +13,7 @@ import {
   CheckoutPageStateType,
   TransactionStep,
   UserAsset,
+  PaginationState,
 } from "./types";
 import { CheckoutPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
@@ -250,6 +251,35 @@ export const getPageStateVariants = (
           ? 100
           : custom.current === rightState
           ? -100
+          : 0,
+    }),
+  };
+};
+
+/**
+ * Gets the variants for the pagination animation
+ * @param direction - The direction of the pagination
+ * @returns The variants
+ */
+export const getPaginationVariants = () => {
+  return {
+    initial: (custom: PaginationState) => ({
+      opacity: 0,
+      x:
+        custom.currentPage > custom.previousPage
+          ? 30
+          : custom.currentPage < custom.previousPage
+          ? -30
+          : 0,
+    }),
+    animate: { opacity: 1, x: 0 },
+    exit: (custom: PaginationState) => ({
+      opacity: 0,
+      x:
+        custom.currentPage < custom.previousPage
+          ? 30
+          : custom.currentPage > custom.previousPage
+          ? -30
           : 0,
     }),
   };
