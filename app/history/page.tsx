@@ -5,7 +5,6 @@ import { ChainImages, HistoryPageState } from "@/lib/enums";
 import { InfoFooter } from "@/components/custom-ui/info-footer";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { Button } from "@/components/shadcn-ui/button";
 import {
   Pagination,
   PaginationContent,
