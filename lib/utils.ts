@@ -224,12 +224,12 @@ export const groupSelectedTokensByAssetName = (
 };
 
 /**
- * Gets the variants for the page state animation
+ * Gets the variants for the checkout page state animation
  * @param leftState - The previous state, relative to the component's perspective (e.g. for the recap container, the left state is the checkout one)
  * @param rightState - The next state, relative to the component's perspective (e.g. for the recap container, the right state is the transactions one)
  * @returns The variants
  */
-export const getPageStateVariants = (
+export const getCheckoutPageStateVariants = (
   leftState: CheckoutPageState,
   rightState: CheckoutPageState
 ) => {

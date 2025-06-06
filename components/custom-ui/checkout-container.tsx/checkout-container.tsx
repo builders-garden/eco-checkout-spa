@@ -7,7 +7,7 @@ import { ConnectedWalletButton } from "../connected-wallet-button";
 import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "./actions-button";
 import { CheckoutPageStateType } from "@/lib/types";
-import { getPageStateVariants } from "@/lib/utils";
+import { getCheckoutPageStateVariants } from "@/lib/utils";
 
 interface CheckoutContainerProps {
   checkoutPageState: CheckoutPageStateType;
@@ -20,7 +20,7 @@ export const CheckoutContainer = ({
   setCheckoutPageState,
   animationState,
 }: CheckoutContainerProps) => {
-  const variants = getPageStateVariants(
+  const variants = getCheckoutPageStateVariants(
     CheckoutPageState.MISSING_PARAMS,
     CheckoutPageState.PAYMENT_RECAP
   );

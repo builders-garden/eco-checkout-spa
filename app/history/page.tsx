@@ -67,7 +67,7 @@ export default function Home() {
   );
 
   // Pagination Variants
-  const paginationVariants = getPaginationVariants();
+  const variants = getPaginationVariants();
 
   return (
     <main className="flex relative flex-col items-center justify-start sm:justify-center min-h-screen h-auto sm:pt-6 sm:pb-14 overflow-y-auto [background-image:radial-gradient(#00000009_1px,transparent_1px)] [background-size:16px_16px]">
@@ -89,7 +89,7 @@ export default function Home() {
               {paginatedTransactions.map((transaction, index) => (
                 <motion.div
                   key={`${paginationState.currentPage}-${index}`}
-                  variants={paginationVariants}
+                  variants={variants}
                   initial="initial"
                   animate="animate"
                   exit="exit"

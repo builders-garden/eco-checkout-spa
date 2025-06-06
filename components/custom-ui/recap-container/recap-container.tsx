@@ -4,7 +4,7 @@ import { PaymentRecap } from "./payment-recap";
 import { ConnectedWalletButton } from "../connected-wallet-button";
 import { ChosenTokenList } from "./chosen-token-list";
 import { CheckoutPageState } from "@/lib/enums";
-import { getPageStateVariants } from "@/lib/utils";
+import { getCheckoutPageStateVariants } from "@/lib/utils";
 import { CustomButton } from "../customButton";
 
 interface RecapContainerProps {
@@ -16,7 +16,7 @@ export const RecapContainer = ({
   checkoutPageState,
   setCheckoutPageState,
 }: RecapContainerProps) => {
-  const variants = getPageStateVariants(
+  const variants = getCheckoutPageStateVariants(
     CheckoutPageState.CHECKOUT,
     CheckoutPageState.TRANSACTIONS
   );
