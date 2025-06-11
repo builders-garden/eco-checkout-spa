@@ -19,7 +19,7 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
   const { selectedTotal } = useSelectedTokens();
   const { isLoadingUserBalances } = useUserBalances();
   const [mounted, setMounted] = useState(false);
-  const { isConnected, status, address } = useAppKitAccount();
+  const { isConnected, status } = useAppKitAccount();
   const { transactionStepsLoading, transactionStepsError } =
     useTransactionSteps();
   const { open } = useAppKit();
@@ -30,17 +30,16 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
 
   // States
   const ready = status !== "connecting" && status !== "reconnecting";
-  const connected = isConnected && !!address;
   const showLoader =
     !ready ||
     !mounted ||
-    (connected && (isLoadingUserBalances || transactionStepsLoading));
+    (isConnected && (isLoadingUserBalances || transactionStepsLoading));
   const isDisabled =
-    (connected && selectedTotal < amountDue!) || !!transactionStepsError;
+    isConnected && (selectedTotal < amountDue! || !!transactionStepsError);
 
   // Button Props
   const { text, onClick, key } = useMemo(() => {
-    if (!connected) {
+    if (!isConnected) {
       return {
         text: "Connect Wallet",
         onClick: () => open({ view: "Connect" }),
@@ -54,7 +53,7 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
       },
       key: "confirm",
     };
-  }, [connected, open, setPaymentPageState]);
+  }, [isConnected, open, setPaymentPageState]);
 
   return (
     <div className="sticky sm:bottom-0 bottom-10 left-0 right-0 sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background">

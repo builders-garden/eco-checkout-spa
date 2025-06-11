@@ -8,6 +8,10 @@ import { PaymentMethodCard } from "./payment-method-card/payment-method-card";
 import { ActionsButton } from "./actions-button";
 import { CheckoutPageStateType } from "@/lib/types";
 import { getPaymentPageStateVariants } from "@/lib/utils";
+import { usePermitModal } from "@/components/providers/permit-modal/permit-modal-provider";
+import { useEffect } from "react";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { useUserBalances } from "@/components/providers/user-balances-provider";
 
 interface CheckoutContainerProps {
   paymentPageState: CheckoutPageStateType;
@@ -20,10 +24,22 @@ export const CheckoutContainer = ({
   setPaymentPageState,
   animationState,
 }: CheckoutContainerProps) => {
+  const { isConnected } = useAppKitAccount();
+  const { hasFetchedUserBalances, userBalances } = useUserBalances();
+  const { openPermitModal } = usePermitModal();
   const variants = getPaymentPageStateVariants(
     PaymentPageState.MISSING_PARAMS,
     PaymentPageState.TRANSACTIONS
   );
+
+  // Open Permit Modal as soon as the user is connected and his stables are fetched
+  useEffect(() => {
+    if (isConnected && hasFetchedUserBalances && userBalances.length > 0) {
+      setTimeout(() => {
+        openPermitModal();
+      }, 1300);
+    }
+  }, [isConnected, hasFetchedUserBalances, userBalances]);
 
   return (
     <motion.div

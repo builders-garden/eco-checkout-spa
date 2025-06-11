@@ -4,6 +4,7 @@ import AppKitProvider from "@/components/providers/appkit-provider";
 import { IsMobileProvider } from "@/components/providers/is-mobile-provider";
 import { NamesProvider } from "@/components/providers/names-provider";
 import { PaymentParamsProvider } from "@/components/providers/payment-params-provider";
+import { PermitModalProvider } from "@/components/providers/permit-modal/permit-modal-provider";
 import { SelectedTokensProvider } from "@/components/providers/selected-tokens-provider";
 import { TransactionStepsProvider } from "@/components/providers/transaction-steps-provider";
 import { UserBalancesProvider } from "@/components/providers/user-balances-provider";
@@ -26,7 +27,9 @@ export const Providers = ({ children, cookies }: ProvidersProps) => {
               <UserBalancesProvider>
                 <SelectedTokensProvider>
                   <TransactionStepsProvider>
-                    <TooltipProvider>{children}</TooltipProvider>
+                    <TooltipProvider>
+                      <PermitModalProvider>{children}</PermitModalProvider>
+                    </TooltipProvider>
                   </TransactionStepsProvider>
                 </SelectedTokensProvider>
               </UserBalancesProvider>

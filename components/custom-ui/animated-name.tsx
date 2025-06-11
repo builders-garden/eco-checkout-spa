@@ -38,7 +38,7 @@ export default function AnimatedName({
   return (
     <div
       className={cn(
-        "relative flex flex-col justify-center items-end gap-0 h-6 w-[33%] overflow-hidden cursor-default",
+        "relative flex flex-col justify-center items-end gap-0 h-6 w-full overflow-hidden cursor-default",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}

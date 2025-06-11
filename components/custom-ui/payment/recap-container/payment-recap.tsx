@@ -58,6 +58,7 @@ export const PaymentRecap = ({ setPaymentPageState }: PaymentRecapProps) => {
             <AnimatedName
               name={recipientNames.preferredName}
               address={truncateAddress(recipient)}
+              className="w-[33%]"
             />
           )}
         </div>

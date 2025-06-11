@@ -38,6 +38,7 @@ export const PaymentSummary = () => {
               name={recipientNames.preferredName}
               address={truncateAddress(recipient)}
               isFetchingName={recipientNames.isFetching}
+              className="w-[33%]"
             />
           )}
         </div>

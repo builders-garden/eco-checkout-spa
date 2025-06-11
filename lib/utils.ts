@@ -224,6 +224,21 @@ export const groupSelectedTokensByAssetName = (
 };
 
 /**
+ * Groups user balances by chain
+ * @param userBalances - The user balances
+ * @returns The grouped user balances
+ */
+export const groupUserBalancesByChain = (
+  userBalances: UserAsset[]
+): Record<string, UserAsset[]> => {
+  return userBalances.reduce((acc, balance) => {
+    acc[balance.chain] = acc[balance.chain] || [];
+    acc[balance.chain].push(balance);
+    return acc;
+  }, {} as Record<string, UserAsset[]>);
+};
+
+/**
  * Gets the variants for the checkout page state animation
  * @param leftState - The previous state, relative to the component's perspective (e.g. for the recap container, the left state is the checkout one)
  * @param rightState - The next state, relative to the component's perspective (e.g. for the recap container, the right state is the transactions one)
