@@ -67,17 +67,6 @@ export const chainIdToChain = (chainId: number, asString: boolean = false) => {
 };
 
 /**
- * Converts a chain ID to a chain name with the first letter capitalized
- * @param chainId - The chain ID
- * @throws {Error} If the chain ID is not supported
- * @returns The chain name
- */
-export const chainIdToChainName = (chainId: number): string => {
-  const chainName = chainIdToChain(chainId, true) as string;
-  return chainName.charAt(0).toUpperCase() + chainName.slice(1);
-};
-
-/**
  * Converts a chain string to a chain ID
  * @param chain - The chain string
  * @throws {Error} If the chain is not supported

@@ -1,5 +1,4 @@
 import { UserAsset } from "@/lib/types";
-import { chainIdToChain } from "@/lib/utils";
 import { useAppKitAccount } from "@reown/appkit/react";
 import {
   createContext,
@@ -42,18 +41,11 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingUserBalances, setIsLoadingUserBalances] = useState(false);
   const [isErrorUserBalances, setIsErrorUserBalances] = useState(false);
 
-  const { paymentParams, areAllPaymentParamsValid } = usePaymentParams();
-  const { desiredNetworkId, amountDue, desiredToken } = paymentParams;
+  const { paymentParams, areAllPaymentParamsValid, desiredNetworkString } =
+    usePaymentParams();
+  const { amountDue, desiredToken } = paymentParams;
 
-  const desiredNetworkString: string | null = useMemo(() => {
-    if (!desiredNetworkId) return null;
-    try {
-      return chainIdToChain(desiredNetworkId, true) as string;
-    } catch (error) {
-      return null;
-    }
-  }, [desiredNetworkId]);
-
+  // Reset the user balances when the wallet is disconnected
   useEffect(() => {
     if (!isConnected && !address) {
       setUserBalances([]);

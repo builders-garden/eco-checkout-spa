@@ -1,8 +1,4 @@
-import {
-  chainIdToChain,
-  chainIdToChainName,
-  truncateAddress,
-} from "@/lib/utils";
+import { capitalizeFirstLetter, truncateAddress } from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
@@ -14,11 +10,11 @@ import { motion } from "framer-motion";
 
 export const PaymentSummary = () => {
   const { recipientNames } = useNames();
-  const { paymentParams } = usePaymentParams();
+  const { paymentParams, desiredNetworkString } = usePaymentParams();
   const { recipient, desiredNetworkId, amountDue, showFees } = paymentParams;
   const { totalNetworkFee } = useTransactionSteps();
 
-  const networkName = chainIdToChainName(desiredNetworkId!);
+  const networkName = capitalizeFirstLetter(desiredNetworkString ?? "");
 
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
@@ -49,14 +45,9 @@ export const PaymentSummary = () => {
             <p className="text-[16px] font-semibold">{networkName}</p>
             <img
               src={
-                ChainImages[
-                  chainIdToChain(
-                    desiredNetworkId!,
-                    true
-                  ) as keyof typeof ChainImages
-                ]
+                ChainImages[desiredNetworkString as keyof typeof ChainImages]
               }
-              alt={desiredNetworkId!.toString()}
+              alt={desiredNetworkString}
               className="size-5 rounded-full object-cover"
             />
           </div>

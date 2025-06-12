@@ -17,11 +17,7 @@ import {
 } from "wagmi";
 import { ChevronDown, SquareArrowOutUpRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  chainIdToChain,
-  chainStringToChainId,
-  extractStepParams,
-} from "@/lib/utils";
+import { chainStringToChainId, extractStepParams } from "@/lib/utils";
 import { TxContainerHeader } from "./tx-container-header";
 import { CustomButton } from "@/components/custom-ui/customButton";
 import { cn } from "@/lib/shadcn/utils";
@@ -47,8 +43,8 @@ export default function TransactionsContainer({
     currentStep,
     currentStepIndex,
   } = useTransactionSteps();
-  const { paymentParams } = usePaymentParams();
-  const { amountDue, desiredNetworkId } = paymentParams;
+  const { paymentParams, desiredNetworkString } = usePaymentParams();
+  const { amountDue } = paymentParams;
   const [isMounted, setIsMounted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
@@ -167,10 +163,7 @@ export default function TransactionsContainer({
                       hash: fulfillmentTxHash,
                       link: `${
                         ChainExplorerStringUrls[
-                          chainIdToChain(
-                            desiredNetworkId!,
-                            true
-                          ) as keyof typeof ChainExplorerStringUrls
+                          desiredNetworkString as keyof typeof ChainExplorerStringUrls
                         ]
                       }/tx/${fulfillmentTxHash}`,
                     }

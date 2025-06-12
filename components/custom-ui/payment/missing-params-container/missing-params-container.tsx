@@ -6,7 +6,6 @@ import { Input } from "@/components/shadcn-ui/input";
 import { Separator } from "@/components/shadcn-ui/separator";
 import { useQueryState } from "nuqs";
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
-import { chainIdToChainName } from "@/lib/utils";
 import { ChainImages } from "@/lib/enums";
 import { PaymentPageState } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
@@ -19,6 +18,7 @@ import { getAddressFromEns } from "@/lib/names/ens";
 import { isAddress } from "viem";
 import { ContinueButton } from "./continue-button";
 import { CopyLinkButton } from "./copy-link-button";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface MissingParamsContainerProps {
   setPaymentPageState: (paymentPageState: PaymentPageState) => void;
@@ -27,7 +27,7 @@ interface MissingParamsContainerProps {
 export const MissingParamsContainer = ({
   setPaymentPageState,
 }: MissingParamsContainerProps) => {
-  const { paymentParams } = usePaymentParams();
+  const { paymentParams, desiredNetworkString } = usePaymentParams();
   const [isFormValid, setIsFormValid] = useState(false);
 
   // Payment Query Params
@@ -87,7 +87,7 @@ export const MissingParamsContainer = ({
   // Chain Info
   const chainInfo: { name: string; image: string } = useMemo(() => {
     try {
-      const chainName = chainIdToChainName(paymentParams.desiredNetworkId!);
+      const chainName = capitalizeFirstLetter(desiredNetworkString);
       return {
         name: chainName,
         image: ChainImages[chainName as keyof typeof ChainImages],

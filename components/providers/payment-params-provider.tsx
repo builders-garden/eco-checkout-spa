@@ -1,4 +1,5 @@
 import { PaymentParamsValidator } from "@/lib/classes/PaymentParamsValidator";
+import { chainIdToChain } from "@/lib/utils";
 import { ValidatedPaymentParams } from "@/lib/types";
 import { useQueryState } from "nuqs";
 import {
@@ -16,6 +17,7 @@ export const PaymentParamsContext = createContext<
 
 export type PaymentParamsContextType = {
   paymentParams: ValidatedPaymentParams;
+  desiredNetworkString: string;
   areAllPaymentParamsValid: boolean;
   isDoingFirstValidation: boolean;
 };
@@ -84,13 +86,29 @@ export const PaymentParamsProvider = ({
     });
   }, [paymentParams]);
 
+  // Convert the desiredNetworkId to a string
+  const desiredNetworkString = useMemo(() => {
+    if (!paymentParams.desiredNetworkId) return "";
+    try {
+      return chainIdToChain(paymentParams.desiredNetworkId, true) as string;
+    } catch {
+      return "";
+    }
+  }, [paymentParams.desiredNetworkId]);
+
   const value = useMemo(
     () => ({
       paymentParams: paymentParams,
+      desiredNetworkString,
       areAllPaymentParamsValid,
       isDoingFirstValidation,
     }),
-    [paymentParams, areAllPaymentParamsValid, isDoingFirstValidation]
+    [
+      paymentParams,
+      desiredNetworkString,
+      areAllPaymentParamsValid,
+      isDoingFirstValidation,
+    ]
   );
 
   return (

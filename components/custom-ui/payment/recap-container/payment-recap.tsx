@@ -1,8 +1,4 @@
-import {
-  chainIdToChain,
-  chainIdToChainName,
-  truncateAddress,
-} from "@/lib/utils";
+import { capitalizeFirstLetter, truncateAddress } from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages, PaymentPageState } from "@/lib/enums";
 import { ArrowLeft } from "lucide-react";
@@ -19,11 +15,11 @@ interface PaymentRecapProps {
 
 export const PaymentRecap = ({ setPaymentPageState }: PaymentRecapProps) => {
   const { recipientNames } = useNames();
-  const { paymentParams } = usePaymentParams();
+  const { paymentParams, desiredNetworkString } = usePaymentParams();
   const { recipient, desiredNetworkId, amountDue } = paymentParams;
   const { totalNetworkFee } = useTransactionSteps();
 
-  const networkName = chainIdToChainName(desiredNetworkId!);
+  const networkName = capitalizeFirstLetter(desiredNetworkString);
 
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
@@ -69,14 +65,9 @@ export const PaymentRecap = ({ setPaymentPageState }: PaymentRecapProps) => {
             <p className="text-[16px] font-semibold">{networkName}</p>
             <img
               src={
-                ChainImages[
-                  chainIdToChain(
-                    desiredNetworkId!,
-                    true
-                  ) as keyof typeof ChainImages
-                ]
+                ChainImages[desiredNetworkString as keyof typeof ChainImages]
               }
-              alt={desiredNetworkId!.toString()}
+              alt={desiredNetworkString}
               className="size-5 rounded-full object-cover"
             />
           </div>
