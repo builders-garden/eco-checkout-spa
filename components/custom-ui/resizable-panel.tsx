@@ -18,11 +18,13 @@ const ignoreCircularReferences = () => {
 interface ResizablePanelProps {
   children: React.ReactNode;
   initialHeight?: number;
+  id?: string;
 }
 
 export function ResizablePanel({
   children,
   initialHeight,
+  id,
 }: ResizablePanelProps) {
   let [ref, { height }] = useMeasure();
 
@@ -34,7 +36,7 @@ export function ResizablePanel({
     >
       <AnimatePresence initial={false} mode="wait">
         <motion.div
-          key={JSON.stringify(children, ignoreCircularReferences())}
+          key={id ?? JSON.stringify(children, ignoreCircularReferences())}
           ref={ref}
           initial={{
             opacity: 0,

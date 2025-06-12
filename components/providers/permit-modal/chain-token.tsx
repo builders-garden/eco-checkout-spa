@@ -7,7 +7,6 @@ import { cn } from "@/lib/shadcn/utils";
 interface ChainTokenProps {
   chain: string;
   token: UserAsset;
-  isWholeChainSelected: boolean;
   selectedTokens: Record<string, UserAsset[]>;
   setSelectedTokens: (tokens: Record<string, UserAsset[]>) => void;
 }
@@ -15,7 +14,6 @@ interface ChainTokenProps {
 export const ChainToken = ({
   chain,
   token,
-  isWholeChainSelected,
   selectedTokens,
   setSelectedTokens,
 }: ChainTokenProps) => {
@@ -57,7 +55,9 @@ export const ChainToken = ({
         </p>
       </div>
       <div className="flex justify-between items-center w-full gap-2 p-3">
-        <p className="text-sm font-medium">${token.amount.toFixed(2)}</p>
+        <p className="text-sm font-medium">
+          ${token.humanReadableAmount.toFixed(2)}
+        </p>
         <div
           className={cn(
             "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200 cursor-pointer",

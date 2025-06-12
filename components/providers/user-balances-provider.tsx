@@ -41,9 +41,13 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingUserBalances, setIsLoadingUserBalances] = useState(false);
   const [isErrorUserBalances, setIsErrorUserBalances] = useState(false);
 
-  const { paymentParams, areAllPaymentParamsValid, desiredNetworkString } =
-    usePaymentParams();
-  const { amountDue, desiredToken } = paymentParams;
+  const {
+    paymentParams,
+    areAllPaymentParamsValid,
+    desiredNetworkString,
+    amountDueRaw,
+  } = usePaymentParams();
+  const { desiredToken } = paymentParams;
 
   // Reset the user balances when the wallet is disconnected
   useEffect(() => {
@@ -63,7 +67,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
       try {
         const response = await ky
           .get<UserAsset[]>(
-            `/api/user-balances?userAddress=${address}&amountDue=${amountDue}&desiredNetwork=${desiredNetworkString}&desiredToken=${desiredToken}`,
+            `/api/user-balances?userAddress=${address}&amountDue=${amountDueRaw}&desiredNetwork=${desiredNetworkString}&desiredToken=${desiredToken}`,
             { timeout: false }
           )
           .json();

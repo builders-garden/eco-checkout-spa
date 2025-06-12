@@ -12,7 +12,9 @@ export const POST = async (req: NextRequest) => {
   // Get the parameters from the URL
   const sender = searchParams.get("sender");
   const recipient = searchParams.get("recipient");
-  const destinationNetwork = searchParams.get("destinationNetwork");
+  const destinationNetwork = searchParams
+    .get("destinationNetwork")
+    ?.toUpperCase();
   const destinationToken = searchParams.get("destinationToken");
   const transferAmount = searchParams.get("transferAmount");
 
@@ -34,27 +36,13 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  // Convert the destination network to a string
-  let destinationNetworkString: string;
-
-  try {
-    destinationNetworkString = (
-      chainIdToChain(Number(destinationNetwork), true) as string
-    ).toUpperCase();
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Invalid destination network" },
-      { status: 400 }
-    );
-  }
-
   // Create the request body
   const requestBody = {
     sender,
     recipient,
-    destinationNetwork: destinationNetworkString,
+    destinationNetwork,
     destinationToken,
-    transferAmount: (Number(transferAmount) * 10 ** 6).toString(),
+    transferAmount,
     requestedTransfers: [],
   };
 
@@ -70,10 +58,10 @@ export const POST = async (req: NextRequest) => {
 
     // Get the userBalances that are corresponding to the tokens returned by the API
     let optimizedSelection: UserAsset[] = [];
+    let relayoorSuggestedTokens: UserAsset[] = [];
 
     Object.values(response.data).forEach((tokens) => {
       for (const token of tokens) {
-        console.log(token);
         for (const balance of userBalances) {
           let chainName: string;
           try {
@@ -86,19 +74,33 @@ export const POST = async (req: NextRequest) => {
             TokenSymbols[balance.asset as keyof typeof TokenSymbols] ===
               token.tokenSymbol
           ) {
-            optimizedSelection.push({
+            optimizedSelection.push(balance);
+            relayoorSuggestedTokens.push({
               ...balance,
               amount: Number(token.amount),
               hasPermit: token.hasPermit,
+              permit3Allowance: token.permit3Allowance,
             });
           }
         }
       }
     });
 
-    console.log(JSON.stringify(optimizedSelection, null, 2));
+    optimizedSelection = [...optimizedSelection].sort((a, b) => {
+      return a.amount - b.amount;
+    });
 
-    return NextResponse.json(optimizedSelection);
+    relayoorSuggestedTokens = [...relayoorSuggestedTokens].sort((a, b) => {
+      return a.amount - b.amount;
+    });
+
+    return NextResponse.json(
+      {
+        optimizedSelection,
+        relayoorSuggestedTokens,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to get optimized selection" },

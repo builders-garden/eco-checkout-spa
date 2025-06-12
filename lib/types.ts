@@ -10,11 +10,13 @@ import { IntentType } from "@eco-foundation/routes-ts";
 export type UserAsset = {
   asset: RelayoorToken;
   amount: number;
+  humanReadableAmount: number;
   chain: RelayoorChain;
   tokenContractAddress: Hex;
   decimals: number;
   isTokenAtRisk: boolean;
   hasPermit: boolean;
+  permit3Allowance: string;
 };
 
 export type TransactionAsset = {

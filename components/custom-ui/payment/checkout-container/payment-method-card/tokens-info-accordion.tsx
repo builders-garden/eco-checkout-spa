@@ -13,6 +13,7 @@ import { ChainImages, TokenImages, TokenSymbols } from "@/lib/enums";
 import {
   capitalizeFirstLetter,
   getAmountDeducted,
+  getHumanReadableAmount,
   groupSelectedTokensByAssetName,
 } from "@/lib/utils";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
@@ -23,20 +24,19 @@ import { useSelectedTokens } from "@/components/providers/selected-tokens-provid
 
 export const TokensInfoAccordion = () => {
   const { selectedTokens } = useSelectedTokens();
-  const { paymentParams } = usePaymentParams();
-  const { amountDue } = paymentParams;
+  const { amountDueRaw } = usePaymentParams();
 
   // Group the selected tokens by asset name
   const groupedTokens = useMemo(() => {
-    return groupSelectedTokensByAssetName(selectedTokens, amountDue!);
-  }, [selectedTokens, amountDue]);
+    return groupSelectedTokensByAssetName(selectedTokens, amountDueRaw);
+  }, [selectedTokens, amountDueRaw]);
 
   // Get the token with the highest amount deducted
   const highestDeductedToken = useMemo(() => {
     let highestToken = null;
     for (const token of selectedTokens) {
       const amountDeducted = getAmountDeducted(
-        amountDue!,
+        amountDueRaw,
         selectedTokens,
         token
       );
@@ -45,7 +45,7 @@ export const TokensInfoAccordion = () => {
       }
     }
     return highestToken;
-  }, [selectedTokens, amountDue]);
+  }, [selectedTokens, amountDueRaw]);
 
   return (
     <Accordion type="single" collapsible>
@@ -121,14 +121,13 @@ export const TokensInfoAccordion = () => {
                   </div>
                   <div className="flex flex-col justify-center items-end">
                     <p className="text-sm text-primary font-semibold">
-                      ${token.amount.toFixed(2)}
+                      {token.humanReadableAmount.toFixed(2)}
                     </p>
                     <p className="text-xs text-secondary font-semibold text-right">
                       -$
-                      {getAmountDeducted(
-                        amountDue!,
-                        selectedTokens,
-                        token
+                      {getHumanReadableAmount(
+                        getAmountDeducted(amountDueRaw, selectedTokens, token),
+                        token.decimals
                       ).toFixed(2)}
                     </p>
                   </div>

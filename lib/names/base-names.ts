@@ -1,16 +1,8 @@
-import {
-  Address,
-  createPublicClient,
-  encodePacked,
-  http,
-  keccak256,
-  namehash,
-} from "viem";
+import { Address, encodePacked, keccak256, namehash } from "viem";
 import { base, mainnet } from "viem/chains";
-import { AlchemyRpcBaseUrls } from "../enums";
-import { env } from "../zod";
 import { BASENAME_L2_RESOLVER_ADDRESS } from "../constants";
 import BaseNamesResolverAbi from "../abi/BaseNamesResolverAbi";
+import { getViemPublicClient } from "../utils";
 
 /**
  * Convert a chainId to a coinType hex for reverse chain resolution
@@ -47,16 +39,7 @@ const convertReverseNodeToBytes = (address: Address, chainId: number) => {
 };
 
 // Base Viem Public Client
-export const viemBasePublicClient = createPublicClient({
-  chain: base,
-  transport: http(
-    `${
-      AlchemyRpcBaseUrls[
-        base.name.toLowerCase() as keyof typeof AlchemyRpcBaseUrls
-      ]
-    }/${env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
-  ),
-});
+export const viemBasePublicClient = getViemPublicClient(base);
 
 /**
  * Get the Base name for an address

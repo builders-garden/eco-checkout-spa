@@ -8,6 +8,8 @@ import { useSelectedTokens } from "@/components/providers/selected-tokens-provid
 import { useUserBalances } from "@/components/providers/user-balances-provider";
 import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { cn } from "@/lib/shadcn/utils";
+import { usePermitModal } from "@/components/providers/permit-modal/permit-modal-provider";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface ActionsButtonProps {
   setPaymentPageState: (paymentPageState: PaymentPageState) => void;
@@ -16,13 +18,14 @@ interface ActionsButtonProps {
 export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
-  const { selectedTotal } = useSelectedTokens();
+  const { selectedTotal, isLoadingSelectedTokens } = useSelectedTokens();
   const { isLoadingUserBalances } = useUserBalances();
   const [mounted, setMounted] = useState(false);
   const { isConnected, status } = useAppKitAccount();
   const { transactionStepsLoading, transactionStepsError } =
     useTransactionSteps();
   const { open } = useAppKit();
+  const { openPermitModal } = usePermitModal();
 
   useEffect(() => {
     setMounted(true);
@@ -30,16 +33,21 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
 
   // States
   const ready = status !== "connecting" && status !== "reconnecting";
+  const debouncedIsConnected = useDebounce(isConnected, 100);
   const showLoader =
     !ready ||
     !mounted ||
-    (isConnected && (isLoadingUserBalances || transactionStepsLoading));
+    (isConnected &&
+      (isLoadingUserBalances ||
+        //transactionStepsLoading ||
+        isLoadingSelectedTokens));
+  const debouncedShowLoader = useDebounce(showLoader, 100);
   const isDisabled =
     isConnected && (selectedTotal < amountDue! || !!transactionStepsError);
 
   // Button Props
   const { text, onClick, key } = useMemo(() => {
-    if (!isConnected) {
+    if (!debouncedIsConnected) {
       return {
         text: "Connect Wallet",
         onClick: () => open({ view: "Connect" }),
@@ -49,11 +57,12 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
     return {
       text: "Confirm & Pay",
       onClick: () => {
-        setPaymentPageState(PaymentPageState.TRANSACTIONS);
+        //setPaymentPageState(PaymentPageState.TRANSACTIONS);
+        openPermitModal();
       },
       key: "confirm",
     };
-  }, [isConnected, open, setPaymentPageState]);
+  }, [debouncedIsConnected, open, setPaymentPageState]);
 
   return (
     <div className="sticky sm:bottom-0 bottom-10 left-0 right-0 sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background">
@@ -61,27 +70,33 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
         initial={{ opacity: 0.7 }}
         animate={{ opacity: 1 }}
         whileHover={{
-          scale: showLoader || isDisabled ? 1 : 1.015,
+          scale: debouncedShowLoader || isDisabled ? 1 : 1.015,
         }}
         whileTap={{
-          scale: showLoader || isDisabled ? 1 : 0.985,
+          scale: debouncedShowLoader || isDisabled ? 1 : 0.985,
         }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         onClick={onClick}
         className={cn(
           "flex justify-center items-center w-full rounded-[8px] p-4 h-[60px] cursor-pointer transition-all duration-300",
-          showLoader || isDisabled ? "bg-disabled cursor-default" : "bg-primary"
+          debouncedShowLoader || isDisabled
+            ? "bg-disabled cursor-default"
+            : "bg-primary"
         )}
         type="button"
-        disabled={showLoader || isDisabled}
+        disabled={debouncedShowLoader || isDisabled}
         style={{
           zIndex: 50,
         }}
       >
         <AnimatePresence mode="wait">
           <p key={key} className="text-xl text-white font-bold">
-            {showLoader ? <Loader2 className="size-6 animate-spin" /> : text}
+            {debouncedShowLoader ? (
+              <Loader2 className="size-6 animate-spin" />
+            ) : (
+              text
+            )}
           </p>
         </AnimatePresence>
       </motion.button>

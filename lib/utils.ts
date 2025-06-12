@@ -15,9 +15,9 @@ import {
   UserAsset,
   PaginationState,
 } from "./types";
-import { PaymentPageState } from "./enums";
+import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
-import { erc20Abi } from "viem";
+import { Chain, createPublicClient, erc20Abi, http } from "viem";
 import { IntentSourceAbi } from "@eco-foundation/routes-ts";
 import {
   INCREASE_L2_PROTOCOL_FEE,
@@ -25,6 +25,7 @@ import {
   INCREASE_MAINNET_PROTOCOL_FEE,
   MIN_MAINNET_PROTOCOL_FEE,
 } from "./constants";
+import { env } from "./zod";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -164,12 +165,12 @@ export const getAmountDeducted = (
       const reducedAmount =
         currentToken.amount -
         Math.ceil((MIN_MAINNET_PROTOCOL_FEE - nextRemainingAmount) * 100) / 100;
-      if (currentToken === token) {
+      if (deepCompareUserAssets(currentToken, token)) {
         return reducedAmount;
       } else {
         selectedArraySum += reducedAmount;
       }
-    } else if (currentToken === token) {
+    } else if (deepCompareUserAssets(currentToken, token)) {
       return currentToken.amount > currentRemainingAmount
         ? currentRemainingAmount
         : currentToken.amount;
@@ -376,4 +377,48 @@ export const getFees = (
       10 ** tokenDecimals
     );
   }
+};
+
+/**
+ * Gets a viem public client for a given chain
+ * @param chain - The chain
+ * @returns The viem public client
+ */
+export const getViemPublicClient = (chain: Chain) => {
+  return createPublicClient({
+    chain,
+    transport: http(
+      `${
+        AlchemyRpcBaseUrls[
+          base.name.toLowerCase() as keyof typeof AlchemyRpcBaseUrls
+        ]
+      }/${env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+    ),
+  });
+};
+
+/**
+ * Converts a number to a human readable amount
+ * @param amount - The amount
+ * @param decimals - The decimals
+ * @returns The human readable amount
+ */
+export const getHumanReadableAmount = (amount: number, decimals: number) => {
+  return amount / 10 ** decimals;
+};
+
+/**
+ * Deep compares two user assets
+ * @param asset1 - The first user asset
+ * @param asset2 - The second user asset
+ * @returns True if the user assets are the same, false otherwise
+ */
+export const deepCompareUserAssets = (asset1: UserAsset, asset2: UserAsset) => {
+  return (
+    asset1.asset === asset2.asset &&
+    asset1.chain === asset2.chain &&
+    asset1.decimals === asset2.decimals &&
+    asset1.isTokenAtRisk === asset2.isTokenAtRisk &&
+    asset1.tokenContractAddress === asset2.tokenContractAddress
+  );
 };

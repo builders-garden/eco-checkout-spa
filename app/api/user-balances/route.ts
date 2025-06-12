@@ -4,7 +4,12 @@ import ky from "ky";
 import { RelayoorChain, RelayoorResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals, TokenSymbols } from "@/lib/enums";
-import { chainStringToChainId } from "@/lib/utils";
+import {
+  chainIdToChain,
+  chainStringToChainId,
+  getHumanReadableAmount,
+  getViemPublicClient,
+} from "@/lib/utils";
 import {
   RoutesService,
   RoutesSupportedStable,
@@ -12,8 +17,11 @@ import {
   chainIds as ecoSupportedChains,
   RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
-import { Hex } from "viem";
-import { MIN_MAINNET_PROTOCOL_FEE } from "@/lib/constants";
+import { Address, Chain, erc20Abi, Hex } from "viem";
+import {
+  MIN_MAINNET_PROTOCOL_FEE,
+  PERMIT3_VERIFIER_ADDRESS,
+} from "@/lib/constants";
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -90,8 +98,8 @@ export const GET = async (req: NextRequest) => {
           // Check if the chain is supported
           if (!ecoSupportedChains.includes(chainId)) return [];
 
-          return response.data[chain as RelayoorChain]
-            .map((balance) => {
+          const balances = await Promise.all(
+            response.data[chain as RelayoorChain].map(async (balance) => {
               // If the token is not in the valid tokens array, return undefined
               if (!validTokens.includes(balance.token.toLowerCase()))
                 return undefined;
@@ -99,9 +107,8 @@ export const GET = async (req: NextRequest) => {
               // Get the token decimals
               const decimals = TokenDecimals[balance.token];
 
-              // Get the token amount rounded to 2 decimal places
-              const amount =
-                Math.floor(Number(balance.amount) / 10 ** (decimals - 2)) / 100;
+              // Get the token amount raw
+              const amount = Number(balance.amount);
 
               // If the token amount is less than the base protocol fee on L1 by 2x, return undefined
               if (amount < MIN_MAINNET_PROTOCOL_FEE * 2) return undefined;
@@ -138,18 +145,46 @@ export const GET = async (req: NextRequest) => {
                 return undefined;
               }
 
+              // Get the viem public client for the chain
+              const publicClient = getViemPublicClient(
+                chainIdToChain(chainId) as Chain
+              );
+
+              // Get the allowance of the token for the user
+              let allowance: number = 0;
+              try {
+                allowance = Number(
+                  await publicClient.readContract({
+                    address: tokenContractAddress,
+                    abi: erc20Abi,
+                    functionName: "allowance",
+                    args: [userAddress as Address, PERMIT3_VERIFIER_ADDRESS],
+                  })
+                );
+              } catch (error) {
+                allowance = 0;
+              }
+
+              // Return the balance filled with the allowance for permit3
               return {
                 asset: balance.token,
                 amount,
+                humanReadableAmount: getHumanReadableAmount(amount, decimals),
                 isTokenAtRisk:
                   chainId !== desiredNetworkId &&
                   (chainId === 1 || desiredNetworkId === 1),
                 chain: chain as RelayoorChain,
                 tokenContractAddress,
                 decimals,
+                hasPermit: allowance > 0,
+                permit3Allowance: allowance.toString(),
               };
             })
-            .filter((balance): balance is UserAsset => balance !== undefined);
+          );
+
+          return balances.filter(
+            (balance): balance is UserAsset => balance !== undefined
+          );
         })
       )
     ).flat();

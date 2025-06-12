@@ -68,7 +68,8 @@ export const TransactionStepsProvider = ({
   children: ReactNode;
 }) => {
   const { selectedTokens, selectedTotal } = useSelectedTokens();
-  const { paymentParams, areAllPaymentParamsValid } = usePaymentParams();
+  const { paymentParams, areAllPaymentParamsValid, amountDueRaw } =
+    usePaymentParams();
   const { address } = useAppKitAccount();
   const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>(
     []
@@ -142,11 +143,7 @@ export const TransactionStepsProvider = ({
           const transactionAsset: TransactionAsset = {
             asset: token.asset,
             amountToSend:
-              getAmountDeducted(
-                paymentParams.amountDue!,
-                selectedTokens,
-                token
-              ) *
+              getAmountDeducted(amountDueRaw, selectedTokens, token) *
               10 ** token.decimals,
             chain: token.chain,
             tokenContractAddress: token.tokenContractAddress,
@@ -169,11 +166,7 @@ export const TransactionStepsProvider = ({
             tokens.reduce(
               (acc, token) =>
                 acc +
-                getAmountDeducted(
-                  paymentParams.amountDue!,
-                  selectedTokens,
-                  token
-                ) *
+                getAmountDeducted(amountDueRaw, selectedTokens, token) *
                   10 ** token.decimals,
               0
             )
@@ -231,11 +224,7 @@ export const TransactionStepsProvider = ({
             return {
               asset: token.asset,
               amountToSend: Math.round(
-                getAmountDeducted(
-                  paymentParams.amountDue!,
-                  selectedTokens,
-                  token
-                ) *
+                getAmountDeducted(amountDueRaw, selectedTokens, token) *
                   10 ** token.decimals
               ),
               chain: token.chain,
@@ -345,7 +334,8 @@ export const TransactionStepsProvider = ({
       setTransactionStepsLoading(false);
     };
 
-    getTransactionSteps();
+    // TODO: Remove this
+    //getTransactionSteps();
   }, [selectedTokens, areAllPaymentParamsValid, address]);
 
   // Handle the change of status of a transaction step

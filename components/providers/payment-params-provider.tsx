@@ -10,6 +10,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { TokenDecimals } from "@/lib/enums";
 
 export const PaymentParamsContext = createContext<
   PaymentParamsContextType | undefined
@@ -18,6 +19,7 @@ export const PaymentParamsContext = createContext<
 export type PaymentParamsContextType = {
   paymentParams: ValidatedPaymentParams;
   desiredNetworkString: string;
+  amountDueRaw: number;
   areAllPaymentParamsValid: boolean;
   isDoingFirstValidation: boolean;
 };
@@ -96,16 +98,30 @@ export const PaymentParamsProvider = ({
     }
   }, [paymentParams.desiredNetworkId]);
 
+  // Convert the amountDue to the desired token decimals
+  const amountDueRaw = useMemo(() => {
+    if (!paymentParams.amountDue) return 0;
+    return (
+      Number(paymentParams.amountDue) *
+      10 **
+        (TokenDecimals[
+          paymentParams.desiredToken?.toLowerCase() as keyof typeof TokenDecimals
+        ] ?? 18)
+    );
+  }, [paymentParams.amountDue, paymentParams.desiredToken]);
+
   const value = useMemo(
     () => ({
       paymentParams: paymentParams,
       desiredNetworkString,
+      amountDueRaw,
       areAllPaymentParamsValid,
       isDoingFirstValidation,
     }),
     [
       paymentParams,
       desiredNetworkString,
+      amountDueRaw,
       areAllPaymentParamsValid,
       isDoingFirstValidation,
     ]

@@ -30,7 +30,7 @@ export const ChainAccordion = ({
 
   // Calculate the total amount of tokens on the chain
   const totalChainAmount = balances.reduce(
-    (acc, balance) => acc + balance.amount,
+    (acc, balance) => acc + balance.humanReadableAmount,
     0
   );
 
@@ -74,8 +74,10 @@ export const ChainAccordion = ({
               className="size-4.5 mr-2"
             />
             <p>
-              <span className="font-semibold">${totalChainAmount}</span> on{" "}
-              {capitalizeFirstLetter(chain)}
+              <span className="font-semibold">
+                ${totalChainAmount.toFixed(2)}
+              </span>{" "}
+              on {capitalizeFirstLetter(chain)}
             </p>
           </div>
           <div className="flex justify-end items-center gap-1">
@@ -118,7 +120,6 @@ export const ChainAccordion = ({
                 key={chain + balance.asset}
                 chain={chain}
                 token={balance}
-                isWholeChainSelected={isWholeChainSelected}
                 selectedTokens={selectedTokens}
                 setSelectedTokens={setSelectedTokens}
               />

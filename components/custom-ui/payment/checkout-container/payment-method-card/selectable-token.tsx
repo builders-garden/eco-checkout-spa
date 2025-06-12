@@ -2,7 +2,12 @@ import { usePaymentParams } from "@/components/providers/payment-params-provider
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
-import { capitalizeFirstLetter, getAmountDeducted } from "@/lib/utils";
+import {
+  capitalizeFirstLetter,
+  deepCompareUserAssets,
+  getAmountDeducted,
+  getHumanReadableAmount,
+} from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
@@ -22,8 +27,7 @@ export const SelectableToken = ({
   selectedTokens,
   setSelectedTokens,
 }: SelectableTokenProps) => {
-  const { paymentParams } = usePaymentParams();
-  const { amountDue } = paymentParams;
+  const { amountDueRaw } = usePaymentParams();
   const [isMounted, setIsMounted] = useState(false);
 
   // This is to prevent delayed animations when the tokens
@@ -34,11 +38,15 @@ export const SelectableToken = ({
     }, 100);
   }, []);
 
-  const isSelected = selectedTokens.some((t) => t === token);
+  const isSelected = selectedTokens.some((t) =>
+    deepCompareUserAssets(t, token)
+  );
 
   const handleSelectToken = () => {
     if (isSelected) {
-      setSelectedTokens(selectedTokens.filter((t) => t !== token));
+      setSelectedTokens(
+        selectedTokens.filter((t) => !deepCompareUserAssets(t, token))
+      );
     } else if (!isAmountReached) {
       setSelectedTokens([...selectedTokens, token]);
     } else {
@@ -49,8 +57,8 @@ export const SelectableToken = ({
 
   // Calculate the amount deducted from this specific token
   const amountDeducted = useMemo(() => {
-    return getAmountDeducted(amountDue!, selectedTokens, token);
-  }, [amountDue, token.amount, selectedTokens]);
+    return getAmountDeducted(amountDueRaw, selectedTokens, token);
+  }, [amountDueRaw, token, selectedTokens]);
 
   return (
     <motion.button
@@ -113,11 +121,12 @@ export const SelectableToken = ({
       </div>
       <div className="flex flex-col justify-center items-end">
         <p className="text-sm text-primary font-semibold">
-          ${token.amount.toFixed(2)}
+          ${token.humanReadableAmount.toFixed(2)}
         </p>
         {isSelected && (
           <p className="text-xs text-secondary font-semibold">
-            -${amountDeducted.toFixed(2)}
+            -$
+            {getHumanReadableAmount(amountDeducted, token.decimals).toFixed(2)}
           </p>
         )}
       </div>

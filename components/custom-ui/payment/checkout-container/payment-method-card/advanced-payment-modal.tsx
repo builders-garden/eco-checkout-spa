@@ -31,7 +31,7 @@ export const AdvancedPaymentModal = ({
   const { isMobile } = useIsMobile();
   const { selectedTokens, setSelectedTokens } = useSelectedTokens();
   const { userBalances } = useUserBalances();
-  const { paymentParams } = usePaymentParams();
+  const { paymentParams, amountDueRaw } = usePaymentParams();
   const { amountDue } = paymentParams;
 
   const [open, setOpen] = useState(false);
@@ -39,12 +39,20 @@ export const AdvancedPaymentModal = ({
     useState<UserAsset[]>(selectedTokens);
 
   // Calculate the selected total inside the modal
-  const modalSelectedTotal = modalSelectedTokens?.reduce((acc, token) => {
-    return acc + token.amount;
-  }, 0);
+  const { modalSelectedTotal, humanReadableTotal } =
+    modalSelectedTokens?.reduce(
+      (acc, token) => {
+        return {
+          modalSelectedTotal: acc.modalSelectedTotal + token.amount,
+          humanReadableTotal:
+            acc.humanReadableTotal + token.humanReadableAmount,
+        };
+      },
+      { modalSelectedTotal: 0, humanReadableTotal: 0 }
+    );
 
   // Check if the selected amount is enough to cover the required amount
-  const isAmountReached = modalSelectedTotal >= amountDue!;
+  const isAmountReached = modalSelectedTotal >= amountDueRaw;
 
   // Handle the open state of the modal
   const handleOpenChange = (open: boolean) => {
@@ -87,7 +95,7 @@ export const AdvancedPaymentModal = ({
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
-            Selected: {isMobile && <br />}${modalSelectedTotal!.toFixed(2)}
+            Selected: {isMobile && <br />}${humanReadableTotal!.toFixed(2)}
           </p>
         </div>
 

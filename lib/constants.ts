@@ -4,16 +4,16 @@ import { Hex } from "viem";
 export const EMPTY_ADDRESS: Hex = "0x0000000000000000000000000000000000000000";
 
 // Minimum Protocol Fee on Mainnet
-export const MIN_MAINNET_PROTOCOL_FEE: number = 0.365;
+export const MIN_MAINNET_PROTOCOL_FEE: number = 365000;
 
 // Minimum Protocol Fee on L2s
-export const MIN_L2_PROTOCOL_FEE: number = 0.00275;
+export const MIN_L2_PROTOCOL_FEE: number = 2750;
 
 // Increase in fees per 100 tokens on Mainnet
-export const INCREASE_MAINNET_PROTOCOL_FEE: number = 0.015;
+export const INCREASE_MAINNET_PROTOCOL_FEE: number = 15000;
 
 // Increase in fees per 100 tokens on L2s
-export const INCREASE_L2_PROTOCOL_FEE: number = 0.00075;
+export const INCREASE_L2_PROTOCOL_FEE: number = 750;
 
 // ENS Resolvers
 export const ENS_PUBLIC_RESOLVER_ADDRESS =
