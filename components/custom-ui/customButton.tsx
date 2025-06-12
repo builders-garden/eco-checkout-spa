@@ -19,19 +19,18 @@ export const CustomButton = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      whileHover={{
+        scale: isLoading || isDisabled ? 1 : 1.015,
+      }}
+      whileTap={{
+        scale: isLoading || isDisabled ? 1 : 0.985,
+      }}
       className="sticky sm:bottom-0 bottom-10 left-0 right-0 w-full sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background"
     >
       <motion.button
         initial={{ opacity: 0 }}
         animate={{
           opacity: isLoading || isDisabled ? 0.7 : 1,
-        }}
-        whileHover={{
-          scale: isLoading || isDisabled ? 1 : 1.015,
-        }}
-        whileTap={{
-          scale: isLoading || isDisabled ? 1 : 0.985,
         }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}

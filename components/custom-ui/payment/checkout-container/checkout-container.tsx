@@ -32,14 +32,15 @@ export const CheckoutContainer = ({
     PaymentPageState.TRANSACTIONS
   );
 
+  // TODO: Move this one
   // Open Permit Modal as soon as the user is connected and his stables are fetched
-  useEffect(() => {
-    if (isConnected && hasFetchedUserBalances && userBalances.length > 0) {
-      setTimeout(() => {
-        openPermitModal();
-      }, 1300);
-    }
-  }, [isConnected, hasFetchedUserBalances, userBalances]);
+  // useEffect(() => {
+  //   if (isConnected && hasFetchedUserBalances && userBalances.length > 0) {
+  //     setTimeout(() => {
+  //       openPermitModal();
+  //     }, 1300);
+  //   }
+  // }, [isConnected, hasFetchedUserBalances, userBalances]);
 
   return (
     <motion.div

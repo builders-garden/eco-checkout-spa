@@ -14,6 +14,7 @@ export type UserAsset = {
   tokenContractAddress: Hex;
   decimals: number;
   isTokenAtRisk: boolean;
+  hasPermit: boolean;
 };
 
 export type TransactionAsset = {

@@ -15,3 +15,16 @@ export interface TokenBalance {
   token: RelayoorToken;
   amount: string;
 }
+
+export interface GetTransfersResponse {
+  data: Record<string, Transfer[]>;
+}
+
+export interface Transfer {
+  chainID: number;
+  token: string;
+  tokenSymbol: string;
+  amount: string;
+  hasPermit: boolean;
+  permit3Allowance: string;
+}

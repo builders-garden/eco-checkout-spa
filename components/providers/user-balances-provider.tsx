@@ -71,7 +71,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
       try {
         const response = await ky
           .get<UserAsset[]>(
-            `/api/supported-user-balances?userAddress=${address}&amountDue=${amountDue}&desiredNetwork=${desiredNetworkString}&desiredToken=${desiredToken}`,
+            `/api/user-balances?userAddress=${address}&amountDue=${amountDue}&desiredNetwork=${desiredNetworkString}&desiredToken=${desiredToken}`,
             { timeout: false }
           )
           .json();

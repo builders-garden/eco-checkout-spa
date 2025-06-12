@@ -24,3 +24,7 @@ export const ENS_PUBLIC_RESOLVER_ADDRESS_2 =
 // Base Names Resolver
 export const BASENAME_L2_RESOLVER_ADDRESS =
   "0xC6d566A56A1aFf6508b41f6c90ff131615583BCD";
+
+// Permit3 Verifier Address
+export const PERMIT3_VERIFIER_ADDRESS =
+  "0xFB63C771dd42F5f8C949c69Cddb15aFe585D6889";
