@@ -11,14 +11,16 @@ import { groupUserBalancesByChain } from "@/lib/utils";
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import { Separator } from "../../shadcn-ui/separator";
 import { useUserBalances } from "../user-balances-provider";
-import { ChainAccordion } from "./chain-accordion";
-import { UserAsset } from "@/lib/types";
+import { UserAssetsByChain } from "@/lib/types";
 import { TopCard } from "./top-card";
 import { CustomButton } from "@/components/custom-ui/customButton";
 import { useEffect, useState } from "react";
 import { useMemo } from "react";
 import { ResizablePanel } from "@/components/custom-ui/resizable-panel";
 import { useSelectedTokens } from "../selected-tokens-provider";
+import { RelayoorChain } from "@/lib/relayoor/types";
+import { PermitModalState } from "@/lib/enums";
+import { BottomAccordions } from "./bottom-accordions";
 
 interface PermitModalProps {
   open: boolean;
@@ -30,32 +32,43 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
   const { disconnect } = useDisconnect();
   const { userBalances } = useUserBalances();
   const { selectedTokens } = useSelectedTokens();
-  const [selectedTokensToApprove, setSelectedTokensToApprove] = useState<
-    Record<string, UserAsset[]>
-  >({});
-  const [allGroupedUserBalances, setAllGroupedUserBalances] = useState<
-    Record<string, UserAsset[]>
-  >({});
-  const [permitModalState, setPermitModalState] = useState<
-    "select" | "approve" | "end"
-  >("select");
+  const [selectedTokensToApprove, setSelectedTokensToApprove] =
+    useState<UserAssetsByChain>({});
+  const [permitModalState, setPermitModalState] = useState<PermitModalState>(
+    PermitModalState.SELECT
+  );
 
-  // Group the user tokens by chain and set the selected tokens to approve
+  // Get all the chains of the selected tokens
+  const allSelectedChains = useMemo(
+    () => selectedTokens.map((token) => token.chain),
+    [selectedTokens]
+  );
+
+  // Group the user balances by chain
+  const allGroupedUserBalances = useMemo(
+    () => groupUserBalancesByChain(userBalances),
+    [userBalances]
+  );
+
+  // Set the selected tokens to approve later in the flow
   useEffect(() => {
-    const allGroupedUserBalances = groupUserBalancesByChain(userBalances);
-    setAllGroupedUserBalances(allGroupedUserBalances);
+    let selectedTokensToApprove: UserAssetsByChain = {};
 
-    let selectedTokensToApprove = groupUserBalancesByChain(selectedTokens);
-
-    // For each chain, if the chain is not among the selected tokens, set the value to []
-    Object.keys(allGroupedUserBalances).forEach((chain) => {
-      if (!selectedTokensToApprove[chain]) {
+    Object.entries(allGroupedUserBalances).forEach(([chain, balances]) => {
+      if (allSelectedChains.includes(chain as RelayoorChain)) {
+        selectedTokensToApprove[chain] = balances;
+      } else {
         selectedTokensToApprove[chain] = [];
       }
     });
 
     setSelectedTokensToApprove(selectedTokensToApprove);
-  }, [userBalances, selectedTokens]);
+  }, [allGroupedUserBalances, allSelectedChains]);
+
+  // Log the selected tokens to approve TODO: remove this later
+  useEffect(() => {
+    console.log("selectedTokensToApprove", selectedTokensToApprove);
+  }, [selectedTokensToApprove]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,24 +90,17 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
                 onOpenChange={onOpenChange}
                 disconnect={disconnect}
                 address={address ?? ""}
+                selectedTokensToApprove={selectedTokensToApprove}
               />
 
               <Separator dashed />
 
-              {/* Tokens */}
-              <div className="flex flex-col gap-4 w-full max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar-track]:bg-transparent">
-                {Object.entries(allGroupedUserBalances).map(
-                  ([chain, balances]) => (
-                    <ChainAccordion
-                      key={chain}
-                      chain={chain}
-                      balances={balances}
-                      selectedTokens={selectedTokensToApprove}
-                      setSelectedTokens={setSelectedTokensToApprove}
-                    />
-                  )
-                )}
-              </div>
+              <BottomAccordions
+                allGroupedUserBalances={allGroupedUserBalances}
+                allSelectedChains={allSelectedChains}
+                selectedTokensToApprove={selectedTokensToApprove}
+                setSelectedTokensToApprove={setSelectedTokensToApprove}
+              />
             </div>
           )}
 
@@ -109,7 +115,9 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
             text="Continue"
             onClick={() => {
               setPermitModalState(
-                permitModalState === "select" ? "approve" : "select"
+                permitModalState === PermitModalState.SELECT
+                  ? PermitModalState.APPROVE
+                  : PermitModalState.SELECT
               );
             }}
           />

@@ -1,5 +1,5 @@
 import { TokenImages, TokenSymbols } from "@/lib/enums";
-import { UserAsset } from "@/lib/types";
+import { UserAsset, UserAssetsByChain } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/shadcn/utils";
@@ -7,8 +7,9 @@ import { cn } from "@/lib/shadcn/utils";
 interface ChainTokenProps {
   chain: string;
   token: UserAsset;
-  selectedTokens: Record<string, UserAsset[]>;
-  setSelectedTokens: (tokens: Record<string, UserAsset[]>) => void;
+  selectedTokens: UserAssetsByChain;
+  setSelectedTokens: (tokens: UserAssetsByChain) => void;
+  unselectable: boolean;
 }
 
 export const ChainToken = ({
@@ -16,6 +17,7 @@ export const ChainToken = ({
   token,
   selectedTokens,
   setSelectedTokens,
+  unselectable,
 }: ChainTokenProps) => {
   const selectedTokensOnChain = selectedTokens[chain];
 
@@ -23,6 +25,8 @@ export const ChainToken = ({
 
   // Handle selecting a single token
   const handleSelectToken = (token: UserAsset) => {
+    if (unselectable) return;
+
     // Deselect the token if it is already selected
     if (selectedTokensOnChain.includes(token)) {
       setSelectedTokens({
@@ -58,27 +62,29 @@ export const ChainToken = ({
         <p className="text-sm font-medium">
           ${token.humanReadableAmount.toFixed(2)}
         </p>
-        <div
-          className={cn(
-            "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200 cursor-pointer",
-            isTokenSelected && "border-success"
-          )}
-          onClick={() => handleSelectToken(token)}
-        >
-          <AnimatePresence mode="wait">
-            {isTokenSelected && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex justify-center items-center bg-success rounded-[5px] sm:rounded-[6px] size-[17px] sm:size-[20px]"
-              >
-                <Check className="size-3 text-white" />
-              </motion.div>
+        {!unselectable && (
+          <div
+            className={cn(
+              "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200 cursor-pointer",
+              isTokenSelected && "border-success"
             )}
-          </AnimatePresence>
-        </div>
+            onClick={() => handleSelectToken(token)}
+          >
+            <AnimatePresence mode="wait">
+              {isTokenSelected && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex justify-center items-center bg-success rounded-[5px] sm:rounded-[6px] size-[17px] sm:size-[20px]"
+                >
+                  <Check className="size-3 text-white" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

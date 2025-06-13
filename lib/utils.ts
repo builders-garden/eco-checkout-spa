@@ -14,6 +14,7 @@ import {
   TransactionStep,
   UserAsset,
   PaginationState,
+  UserAssetsByChain,
 } from "./types";
 import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
@@ -26,6 +27,7 @@ import {
   MIN_MAINNET_PROTOCOL_FEE,
 } from "./constants";
 import { env } from "./zod";
+import { RelayoorChain } from "./relayoor/types";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -220,12 +222,12 @@ export const groupSelectedTokensByAssetName = (
  */
 export const groupUserBalancesByChain = (
   userBalances: UserAsset[]
-): Record<string, UserAsset[]> => {
+): UserAssetsByChain => {
   return userBalances.reduce((acc, balance) => {
     acc[balance.chain] = acc[balance.chain] || [];
     acc[balance.chain].push(balance);
     return acc;
-  }, {} as Record<string, UserAsset[]>);
+  }, {} as UserAssetsByChain);
 };
 
 /**

@@ -7,6 +7,8 @@ import {
 } from "@eco-foundation/routes-sdk";
 import { IntentType } from "@eco-foundation/routes-ts";
 
+export type UserAssetsByChain = Record<string, UserAsset[]>;
+
 export type UserAsset = {
   asset: RelayoorToken;
   amount: number;

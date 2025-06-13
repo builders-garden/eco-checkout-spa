@@ -6,23 +6,25 @@ import {
 } from "../../shadcn-ui/accordion";
 import { ChainImages } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
-import { UserAsset } from "@/lib/types";
+import { UserAsset, UserAssetsByChain } from "@/lib/types";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDownIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChainToken } from "./chain-token";
 
 interface ChainAccordionProps {
   chain: string;
   balances: UserAsset[];
-  selectedTokens: Record<string, UserAsset[]>;
-  setSelectedTokens: (tokens: Record<string, UserAsset[]>) => void;
+  unselectable: boolean;
+  selectedTokens: UserAssetsByChain;
+  setSelectedTokens: (tokens: UserAssetsByChain) => void;
 }
 
 export const ChainAccordion = ({
   chain,
   balances,
+  unselectable,
   selectedTokens,
   setSelectedTokens,
 }: ChainAccordionProps) => {
@@ -39,6 +41,8 @@ export const ChainAccordion = ({
 
   // Handle selecting a whole chain
   const handleSelectWholeChain = () => {
+    if (unselectable) return;
+
     if (!isWholeChainSelected) {
       setSelectedTokens({
         ...selectedTokens,
@@ -81,30 +85,32 @@ export const ChainAccordion = ({
             </p>
           </div>
           <div className="flex justify-end items-center gap-1">
-            <div
-              className={cn(
-                "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200",
-                isWholeChainSelected && "border-success"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSelectWholeChain();
-              }}
-            >
-              <AnimatePresence mode="wait">
-                {isWholeChainSelected && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex justify-center items-center bg-success rounded-[5px] sm:rounded-[6px] size-[17px] sm:size-[20px]"
-                  >
-                    <Check className="size-3 text-white" />
-                  </motion.div>
+            {!unselectable && (
+              <div
+                className={cn(
+                  "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200",
+                  isWholeChainSelected && "border-success"
                 )}
-              </AnimatePresence>
-            </div>
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectWholeChain();
+                }}
+              >
+                <AnimatePresence mode="wait">
+                  {isWholeChainSelected && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex justify-center items-center bg-success rounded-[5px] sm:rounded-[6px] size-[17px] sm:size-[20px]"
+                    >
+                      <Check className="size-3 text-white" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
             <ChevronDownIcon
               className={cn(
                 "text-muted-foreground pointer-events-none size-4 shrink-0 transition-transform duration-200",
@@ -122,6 +128,7 @@ export const ChainAccordion = ({
                 token={balance}
                 selectedTokens={selectedTokens}
                 setSelectedTokens={setSelectedTokens}
+                unselectable={unselectable}
               />
             ))}
           </div>

@@ -14,6 +14,7 @@ import {
   TransactionAsset,
   TransactionStep,
   UserAsset,
+  UserAssetsByChain,
 } from "@/lib/types";
 import {
   OpenQuotingClient,
@@ -90,7 +91,7 @@ export const TransactionStepsProvider = ({
     }
     acc[chain].push(token);
     return acc;
-  }, {} as Record<string, UserAsset[]>);
+  }, {} as UserAssetsByChain);
 
   // UseEffect to create the transaction steps
   useEffect(() => {

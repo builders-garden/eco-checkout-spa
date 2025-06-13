@@ -1,21 +1,35 @@
 import AnimatedName from "@/components/custom-ui/animated-name";
-import { truncateAddress } from "@/lib/utils";
+import { getHumanReadableAmount, truncateAddress } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 import { useNames } from "../names-provider";
+import { UserAssetsByChain } from "@/lib/types";
+import { useMemo } from "react";
 
 interface TopCardProps {
   onOpenChange: (open: boolean) => void;
   disconnect: () => void;
   address: string;
+  selectedTokensToApprove: UserAssetsByChain;
 }
 
 export const TopCard = ({
   onOpenChange,
   disconnect,
   address,
+  selectedTokensToApprove,
 }: TopCardProps) => {
   const { userNames } = useNames();
+
+  // Calculate all the amount of the selected tokens
+  const selectedTokensAmount = useMemo(() => {
+    return Object.entries(selectedTokensToApprove).reduce(
+      (acc, [chain, balances]) => {
+        return acc + balances.reduce((acc, balance) => acc + balance.amount, 0);
+      },
+      0
+    );
+  }, [selectedTokensToApprove]);
 
   return (
     <div className="relative flex flex-col justify-between items-center bg-secondary-foreground h-full w-full p-4 gap-7 rounded-lg overflow-hidden">
@@ -29,10 +43,10 @@ export const TopCard = ({
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.3 }}
           className="text-sm font-semibold border border-border rounded-[8px] px-3 py-2.5 cursor-pointer hover:bg-border"
-          onClick={async () => {
+          onClick={() => {
             onOpenChange(false);
-            setTimeout(async () => {
-              await disconnect();
+            setTimeout(() => {
+              disconnect();
             }, 300);
           }}
         >
@@ -40,7 +54,9 @@ export const TopCard = ({
         </motion.div>
       </div>
       <div className="flex justify-between items-center w-full z-10">
-        <p className="text-2xl font-bold">$2000.25</p>
+        <p className="text-2xl font-bold">
+          ${getHumanReadableAmount(selectedTokensAmount, 6).toFixed(2)}
+        </p>
         <AnimatedName
           name={userNames.preferredName}
           address={truncateAddress(address)}

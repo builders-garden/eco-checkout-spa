@@ -89,6 +89,12 @@ export enum TransactionStatus {
   ERROR = "error",
 }
 
+export enum PermitModalState {
+  SELECT = "select",
+  APPROVE = "approve",
+  END = "end",
+}
+
 // Alchemy RPC Base URLs
 export enum AlchemyRpcBaseUrls {
   "ethereum" = "https://eth-mainnet.g.alchemy.com/v2",
