@@ -14,8 +14,7 @@ import { useUserBalances } from "../user-balances-provider";
 import { UserAssetsByChain } from "@/lib/types";
 import { TopCard } from "./top-card";
 import { CustomButton } from "@/components/custom-ui/customButton";
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ResizablePanel } from "@/components/custom-ui/resizable-panel";
 import { useSelectedTokens } from "../selected-tokens-provider";
 import { RelayoorChain } from "@/lib/relayoor/types";
@@ -106,7 +105,18 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
 
           {permitModalState === "approve" && (
             <div className="flex flex-col gap-4">
-              <div>Approve</div>
+              {Object.entries(selectedTokensToApprove).map(
+                ([chain, balances]) => {
+                  if (balances.length > 0) {
+                    return (
+                      <div key={chain}>
+                        {chain} {balances.length}
+                      </div>
+                    );
+                  }
+                  return null;
+                }
+              )}
             </div>
           )}
         </ResizablePanel>
