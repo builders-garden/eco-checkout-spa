@@ -1,6 +1,5 @@
 import { cn } from "@/lib/shadcn/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
 import { useMeasure } from "@uidotdev/usehooks";
 
 const ignoreCircularReferences = () => {
@@ -17,12 +16,14 @@ const ignoreCircularReferences = () => {
 
 interface ResizablePanelProps {
   children: React.ReactNode;
+  className?: string;
   initialHeight?: number;
   id?: string;
 }
 
 export function ResizablePanel({
   children,
+  className,
   initialHeight,
   id,
 }: ResizablePanelProps) {
@@ -32,7 +33,7 @@ export function ResizablePanel({
     <motion.div
       animate={{ height: height || initialHeight || "auto" }}
       transition={{ ease: "linear" }}
-      className={cn("overflow-hidden size-full")}
+      className={cn("overflow-hidden size-full", className)}
     >
       <AnimatePresence initial={false} mode="wait">
         <motion.div

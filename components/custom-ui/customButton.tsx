@@ -1,3 +1,4 @@
+import { cn } from "@/lib/shadcn/utils";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
@@ -6,6 +7,7 @@ interface CustomButtonProps {
   isDisabled?: boolean;
   onClick: () => void;
   text: string;
+  className?: string;
 }
 
 export const CustomButton = ({
@@ -13,6 +15,7 @@ export const CustomButton = ({
   isDisabled = false,
   onClick,
   text,
+  className,
 }: CustomButtonProps) => {
   return (
     <motion.div
@@ -25,7 +28,10 @@ export const CustomButton = ({
       whileTap={{
         scale: isLoading || isDisabled ? 1 : 0.985,
       }}
-      className="sticky sm:bottom-0 bottom-10 left-0 right-0 w-full sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background"
+      className={cn(
+        "sticky sm:bottom-0 bottom-10 left-0 right-0 flex justify-center items-center w-full sm:pt-2 sm:relative sm:p-0 mt-auto sm:bg-transparent bg-background",
+        className
+      )}
     >
       <motion.button
         initial={{ opacity: 0 }}

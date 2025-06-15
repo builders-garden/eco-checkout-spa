@@ -20,6 +20,7 @@ import { useSelectedTokens } from "../selected-tokens-provider";
 import { RelayoorChain } from "@/lib/relayoor/types";
 import { PermitModalState } from "@/lib/enums";
 import { BottomAccordions } from "./bottom-accordions";
+import { ApproveContainer } from "./approve-container";
 
 interface PermitModalProps {
   open: boolean;
@@ -94,44 +95,32 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
 
               <Separator dashed />
 
+              {/* Bottom Accordions */}
               <BottomAccordions
                 allGroupedUserBalances={allGroupedUserBalances}
                 allSelectedChains={allSelectedChains}
                 selectedTokensToApprove={selectedTokensToApprove}
                 setSelectedTokensToApprove={setSelectedTokensToApprove}
               />
+
+              {/* Continue Button */}
+              <CustomButton
+                text="Continue"
+                onClick={() => {
+                  setPermitModalState(PermitModalState.APPROVE);
+                }}
+                className="w-full max-w-[98.5%] mx-auto"
+              />
             </div>
           )}
 
           {permitModalState === "approve" && (
-            <div className="flex flex-col gap-4">
-              {Object.entries(selectedTokensToApprove).map(
-                ([chain, balances]) => {
-                  if (balances.length > 0) {
-                    return (
-                      <div key={chain}>
-                        {chain} {balances.length}
-                      </div>
-                    );
-                  }
-                  return null;
-                }
-              )}
-            </div>
+            <ApproveContainer
+              selectedTokensToApprove={selectedTokensToApprove}
+              setPermitModalState={setPermitModalState}
+            />
           )}
         </ResizablePanel>
-        <DialogFooter>
-          <CustomButton
-            text="Continue"
-            onClick={() => {
-              setPermitModalState(
-                permitModalState === PermitModalState.SELECT
-                  ? PermitModalState.APPROVE
-                  : PermitModalState.SELECT
-              );
-            }}
-          />
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
