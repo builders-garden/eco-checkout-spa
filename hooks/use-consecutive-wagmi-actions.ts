@@ -78,9 +78,9 @@ export const useConsecutiveWagmiActions = ({
   );
 
   // Initialize the current transaction and its index
-  const [currentTransaction, setCurrentTransaction] = useState<
-    TransactionItem | undefined
-  >(queuedTransactions[0]);
+  const [currentTransaction, setCurrentTransaction] = useState<TransactionItem>(
+    queuedTransactions[0]
+  );
   const [currentTransactionIndex, setCurrentTransactionIndex] =
     useState<number>(0);
 
@@ -131,18 +131,12 @@ export const useConsecutiveWagmiActions = ({
 
   // Handles the processing of the transactions
   useEffect(() => {
+    let currentTxIdx = currentTransactionIndex;
+
     const processTransactions = async () => {
       while (hookStatus === HookStatus.RUNNING) {
-        // Get the next transaction to process and its index
-        const currentTx = queuedTransactions.find(
-          (transaction) => transaction.status !== TransactionStatus.SUCCESS
-        );
-        const currentTxIdx = currentTx
-          ? queuedTransactions.indexOf(currentTx)
-          : -1;
-
-        console.log("currentTx", currentTx);
-        console.log("currentTxIdx", currentTxIdx);
+        // Get the current transaction to process
+        const currentTx = queuedTransactions[currentTxIdx];
 
         // If there is no transaction to send or retry, set the job as finished and break the loop
         if (!currentTx) {
@@ -154,7 +148,7 @@ export const useConsecutiveWagmiActions = ({
         setCurrentTransaction(currentTx);
         setCurrentTransactionIndex(currentTxIdx);
 
-        updateTransactionInfo(currentTransactionIndex, {
+        updateTransactionInfo(currentTxIdx, {
           status: TransactionStatus.PENDING,
         });
 
@@ -188,7 +182,7 @@ export const useConsecutiveWagmiActions = ({
             // User rejected or another error occurred
             console.log(error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTransactionIndex, {
+            updateTransactionInfo(currentTxIdx, {
               status: TransactionStatus.ERROR,
             });
             break;
@@ -204,7 +198,7 @@ export const useConsecutiveWagmiActions = ({
             // The simulation failed, the user rejected or another error occurred
             console.log(error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTransactionIndex, {
+            updateTransactionInfo(currentTxIdx, {
               status: TransactionStatus.ERROR,
             });
             break;
@@ -224,7 +218,7 @@ export const useConsecutiveWagmiActions = ({
             // The simulation failed, the user rejected or another error occurred
             console.log(error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTransactionIndex, {
+            updateTransactionInfo(currentTxIdx, {
               status: TransactionStatus.ERROR,
             });
             break;
@@ -234,7 +228,7 @@ export const useConsecutiveWagmiActions = ({
         // If the transaction was sent successfully, update the transaction status
         // And watch for the transaction's receipt
         if (txHash) {
-          updateTransactionInfo(currentTransactionIndex, {
+          updateTransactionInfo(currentTxIdx, {
             status: TransactionStatus.PENDING,
             hash: txHash,
             txLink: `${blockExplorerBaseUrl}/tx/${txHash}`,
@@ -247,20 +241,20 @@ export const useConsecutiveWagmiActions = ({
               chainId: transactionChainId,
             });
 
-            console.log("transactionReceipt", transactionReceipt);
-
             // If the transaction was mined successfully, update the transaction status
             if (transactionReceipt) {
-              console.log("Updating transaction status to success");
-              updateTransactionInfo(currentTransactionIndex, {
+              updateTransactionInfo(currentTxIdx, {
                 status: TransactionStatus.SUCCESS,
               });
+
+              // Increment the current transaction index
+              currentTxIdx++;
             }
           } catch (error) {
             // The transaction reverted or another error occurred
             console.log("Transaction reverted", error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTransactionIndex, {
+            updateTransactionInfo(currentTxIdx, {
               status: TransactionStatus.ERROR,
             });
             break;

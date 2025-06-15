@@ -21,6 +21,7 @@ import { RelayoorChain } from "@/lib/relayoor/types";
 import { PermitModalState } from "@/lib/enums";
 import { BottomAccordions } from "./bottom-accordions";
 import { ApproveContainer } from "./approve-container";
+import { ApproveCompleted } from "./approve-completed";
 
 interface PermitModalProps {
   open: boolean;
@@ -65,11 +66,6 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
     setSelectedTokensToApprove(selectedTokensToApprove);
   }, [allGroupedUserBalances, allSelectedChains]);
 
-  // Log the selected tokens to approve TODO: remove this later
-  useEffect(() => {
-    console.log("selectedTokensToApprove", selectedTokensToApprove);
-  }, [selectedTokensToApprove]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger />
@@ -82,9 +78,18 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
             Allocate your balances for one-click spending
           </DialogDescription>
         </DialogHeader>
-        <ResizablePanel initialHeight={423} id={permitModalState}>
+        <ResizablePanel
+          initialHeight={
+            permitModalState === "select"
+              ? 477
+              : permitModalState === "end"
+              ? 237
+              : undefined
+          }
+          id={permitModalState}
+        >
           {permitModalState === "select" && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-full">
               {/* Card */}
               <TopCard
                 onOpenChange={onOpenChange}
@@ -119,6 +124,10 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
               selectedTokensToApprove={selectedTokensToApprove}
               setPermitModalState={setPermitModalState}
             />
+          )}
+
+          {permitModalState === "end" && (
+            <ApproveCompleted onOpenChange={onOpenChange} />
           )}
         </ResizablePanel>
       </DialogContent>

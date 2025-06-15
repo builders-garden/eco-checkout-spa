@@ -48,6 +48,7 @@ export function ResizablePanel({
           exit={{
             opacity: 0,
           }}
+          className="flex justify-center items-center w-full"
         >
           {children}
         </motion.div>

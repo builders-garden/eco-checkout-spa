@@ -13,11 +13,14 @@ import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { useEffect } from "react";
 import { chainStringToChainId } from "@/lib/utils";
 import { CustomButton } from "@/components/custom-ui/customButton";
-import { ChainImages, PermitModalState, TokenImages } from "@/lib/enums";
+import {
+  ChainImages,
+  PermitModalState,
+  TokenImages,
+  TokenSymbols,
+} from "@/lib/enums";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/shadcn/utils";
-import StatusIndicator from "@/components/custom-ui/payment/transactions-container/status-indicator";
-import { OperationLabel } from "@/components/custom-ui/payment/transactions-container/operation-label";
 import {
   CheckCircle,
   Clock,
@@ -55,7 +58,9 @@ export const ApproveContainer = ({
         chain: balance.chain,
         asset: balance.asset,
         amount: balance.amount,
-        description: `Approve ${balance.asset}`,
+        description: `Approve ${
+          TokenSymbols[balance.asset as keyof typeof TokenSymbols]
+        }`,
       },
     })
   );
@@ -72,12 +77,20 @@ export const ApproveContainer = ({
     initialWagmiActions,
   });
 
+  // If the hook has finished, set the state to end
+  useEffect(() => {
+    if (hookStatus === HookStatus.FINISHED) {
+      setPermitModalState(PermitModalState.END);
+    }
+  }, [hookStatus]);
+
+  // Start the hook at mount
   useEffect(() => {
     start();
   }, []);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
       <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 w-full gap-[22px]">
         <motion.div
           animate={{
@@ -89,6 +102,8 @@ export const ApproveContainer = ({
           transition={{ duration: 0.55 }}
           className="absolute left-[32px] top-[35px] w-[6px] rounded-full bg-success/97"
         />
+
+        {/* Transactions */}
         {queuedTransactions.map((transaction, index) => (
           <div
             key={index}
@@ -126,7 +141,7 @@ export const ApproveContainer = ({
               </div>
 
               <div className="flex justify-center items-center gap-3 sm:gap-5">
-                {/* Tokens */}
+                {/* Token */}
                 <div className="flex justify-start items-center -space-x-4">
                   <div
                     key={index}
