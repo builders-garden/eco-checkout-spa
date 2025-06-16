@@ -7,7 +7,7 @@ import {
 } from "@/hooks/use-consecutive-wagmi-actions";
 import { UserAssetsByChain } from "@/lib/types";
 import { config } from "@/lib/appkit";
-import { erc20Abi } from "viem";
+import { erc20Abi, maxUint256 } from "viem";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { useEffect } from "react";
@@ -51,7 +51,7 @@ export const ApproveContainer = ({
         abi: erc20Abi,
         functionName: "approve",
         address: balance.tokenContractAddress,
-        args: [address, PERMIT3_VERIFIER_ADDRESS],
+        args: [PERMIT3_VERIFIER_ADDRESS, maxUint256],
         chainId: chainStringToChainId(balance.chain),
       },
       metadata: {
