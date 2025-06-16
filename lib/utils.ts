@@ -120,8 +120,7 @@ export const capitalizeFirstLetter = (str: string) => {
 export const compareArrays = (arr1: any[], arr2: any[]) => {
   return (
     arr1.length === arr2.length &&
-    arr1.every((value) => arr2.every((v) => deepCompareUserAssets(value, v))) &&
-    arr2.every((value) => arr1.every((v) => deepCompareUserAssets(value, v)))
+    arr1.every((value, index) => deepCompareUserAssets(value, arr2[index]))
   );
 };
 
@@ -420,7 +419,6 @@ export const deepCompareUserAssets = (asset1: UserAsset, asset2: UserAsset) => {
     asset1.asset === asset2.asset &&
     asset1.chain === asset2.chain &&
     asset1.decimals === asset2.decimals &&
-    asset1.isTokenAtRisk === asset2.isTokenAtRisk &&
     asset1.tokenContractAddress === asset2.tokenContractAddress
   );
 };
