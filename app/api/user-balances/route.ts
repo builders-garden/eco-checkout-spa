@@ -1,4 +1,3 @@
-import { env } from "@/lib/zod";
 import { NextRequest, NextResponse } from "next/server";
 import ky from "ky";
 import { RelayoorChain, BalanceResponse } from "@/lib/relayoor/types";

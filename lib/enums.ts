@@ -80,14 +80,6 @@ export enum HistoryPageState {
   PAYMENT = "payment",
 }
 
-// Transaction States
-export enum TransactionStatus {
-  TO_SEND = "to-send",
-  AWAITING_CONFIRMATION = "awaiting-confirmation",
-  SUCCESS = "success",
-  ERROR = "error",
-}
-
 export enum PermitModalState {
   SELECT = "select",
   APPROVE = "approve",

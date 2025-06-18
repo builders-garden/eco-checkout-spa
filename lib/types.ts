@@ -1,11 +1,10 @@
 import { Abi, Hex } from "viem";
-import { PaymentPageState, TransactionStatus } from "./enums";
+import { PaymentPageState } from "./enums";
 import { RelayoorChain, RelayoorToken } from "./relayoor/types";
 import {
   RoutesSupportedChainId,
   RoutesSupportedStable,
 } from "@eco-foundation/routes-sdk";
-import { IntentType } from "@eco-foundation/routes-ts";
 
 export type UserAssetsByChain = Record<string, UserAsset[]>;
 
@@ -19,14 +18,6 @@ export type UserAsset = {
   isTokenAtRisk: boolean;
   hasPermit: boolean;
   permit3Allowance: string;
-};
-
-export type TransactionAsset = {
-  asset: RelayoorToken;
-  amountToSend: number;
-  chain: RelayoorChain;
-  tokenContractAddress: Hex;
-  decimals: number;
 };
 
 export type GroupedTokens = Record<
@@ -61,35 +52,6 @@ export type ValidatedPaymentParams = {
   redirect: string | null;
   showFees: boolean;
 };
-
-export type ApproveStep = {
-  type: "approve";
-  status: TransactionStatus;
-  originTransaction: { hash: Hex; link: string } | null;
-  assets: TransactionAsset[];
-  allowanceAmount: bigint;
-  intentSourceContract: Hex;
-};
-
-export type TransferStep = {
-  type: "transfer";
-  status: TransactionStatus;
-  originTransaction: { hash: Hex; link: string } | null;
-  assets: TransactionAsset[];
-  to: Hex;
-};
-
-export type IntentStep = {
-  type: "intent";
-  status: TransactionStatus;
-  originTransaction: { hash: Hex; link: string } | null;
-  destinationTransaction: { hash: Hex; link: string } | null;
-  assets: TransactionAsset[];
-  intent: IntentType | null;
-  intentSourceContract: Hex;
-};
-
-export type TransactionStep = ApproveStep | TransferStep | IntentStep;
 
 export type ContractParams = {
   abi: Abi;

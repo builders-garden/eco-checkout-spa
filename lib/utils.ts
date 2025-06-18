@@ -9,17 +9,14 @@ import {
   ink,
 } from "viem/chains";
 import {
-  ContractParams,
   CheckoutPageStateType,
-  TransactionStep,
   UserAsset,
   PaginationState,
   UserAssetsByChain,
 } from "./types";
 import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
-import { Chain, createPublicClient, erc20Abi, http } from "viem";
-import { IntentSourceAbi } from "@eco-foundation/routes-ts";
+import { Chain, createPublicClient, http } from "viem";
 import {
   INCREASE_L2_PROTOCOL_FEE,
   MIN_L2_PROTOCOL_FEE,
@@ -297,43 +294,6 @@ export const getPaginationVariants = () => {
  */
 export const bigIntWeiToGwei = (wei: bigint): number => {
   return Number(wei) / 10 ** 9; // 1.000.000.000
-};
-
-/**
- * Extracts the parameters for a transaction step
- * @param step - The transaction step
- * @param chainId - The chain id
- * @returns The parameters for the transaction step
- */
-export const extractStepParams = (
-  step: TransactionStep,
-  chainId: RoutesSupportedChainId
-): ContractParams => {
-  if (step.type === "approve") {
-    return {
-      abi: erc20Abi,
-      functionName: "approve",
-      address: step.assets[0].tokenContractAddress,
-      args: [step.intentSourceContract, step.allowanceAmount],
-      chainId,
-    };
-  } else if (step.type === "transfer") {
-    return {
-      abi: erc20Abi,
-      functionName: "transfer",
-      address: step.assets[0].tokenContractAddress,
-      args: [step.to, BigInt(step.assets[0].amountToSend)],
-      chainId,
-    };
-  } else {
-    return {
-      abi: IntentSourceAbi,
-      address: step.intentSourceContract,
-      functionName: "publishAndFund",
-      args: [step.intent!, false],
-      chainId,
-    };
-  }
 };
 
 /**

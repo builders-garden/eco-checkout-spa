@@ -2,7 +2,6 @@ import { TokenSymbols } from "@/lib/enums";
 import { GetTransfersResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { chainIdToChain } from "@/lib/utils";
-import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 

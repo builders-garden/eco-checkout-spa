@@ -12,6 +12,8 @@ import {
   getChains,
   simulateContract,
   call,
+  SignTypedDataParameters,
+  signTypedData,
 } from "@wagmi/core";
 import { Hex } from "viem";
 
@@ -19,6 +21,7 @@ export enum WagmiActionType {
   SEND_TRANSACTION = "sendTransaction",
   WRITE_CONTRACT = "writeContract",
   CALL_CONTRACT = "callContract",
+  SIGN_TYPED_DATA = "signTypedData",
 }
 
 export enum HookStatus {
@@ -28,23 +31,35 @@ export enum HookStatus {
   FINISHED = "finished",
 }
 
-export enum TransactionStatus {
+export enum ActionStatus {
   TO_SEND = "toSend",
   PENDING = "pending",
   SUCCESS = "success",
   ERROR = "error",
 }
 
-export type WagmiAction = {
+export type InitialWagmiAction = {
   type: WagmiActionType;
-  data: WriteContractParameters | SendTransactionParameters | CallParameters;
+  data:
+    | WriteContractParameters
+    | SendTransactionParameters
+    | CallParameters
+    | SignTypedDataParameters;
+  onSuccess?: (args: Record<string, any>) => Promise<void>;
+  chainId: number;
   metadata?: any;
 };
 
-export type TransactionItem = {
+export type ActionItem = {
   type: WagmiActionType;
-  data: WriteContractParameters | SendTransactionParameters | CallParameters;
-  status: TransactionStatus;
+  data:
+    | WriteContractParameters
+    | SendTransactionParameters
+    | CallParameters
+    | SignTypedDataParameters;
+  onSuccess?: (args: Record<string, any>) => Promise<void>;
+  chainId: number;
+  status: ActionStatus;
   hash: string | null;
   txLink: string | null;
   metadata?: any;
@@ -52,7 +67,7 @@ export type TransactionItem = {
 
 interface ConsecutiveWagmiActionProps {
   config: Config;
-  initialWagmiActions: WagmiAction[];
+  initialWagmiActions: InitialWagmiAction[];
   startDelay?: number;
 }
 
@@ -64,33 +79,31 @@ export const useConsecutiveWagmiActions = ({
   // Initialize the hook statuses
   const [hookStatus, setHookStatus] = useState<HookStatus>(HookStatus.PAUSED);
 
-  // Initialize the transactions queue
-  const [queuedTransactions, setQueuedTransactions] = useState<
-    TransactionItem[]
-  >(
+  // Initialize the actions queue
+  const [queuedActions, setQueuedActions] = useState<ActionItem[]>(
     initialWagmiActions.map((initialAction) => ({
       ...initialAction,
-      status: TransactionStatus.TO_SEND,
+      status: ActionStatus.TO_SEND,
       hash: null,
       txLink: null,
       metadata: initialAction.metadata,
+      chainId: initialAction.chainId,
     }))
   );
 
-  // Initialize the current transaction and its index
-  const [currentTransaction, setCurrentTransaction] = useState<TransactionItem>(
-    queuedTransactions[0]
+  // Initialize the current action and its index
+  const [currentAction, setCurrentAction] = useState<ActionItem>(
+    queuedActions[0]
   );
-  const [currentTransactionIndex, setCurrentTransactionIndex] =
-    useState<number>(0);
+  const [currentActionIndex, setCurrentActionIndex] = useState<number>(0);
 
-  // Handles the adding of a new transaction to the queue
-  const addAction = (action: WagmiAction) => {
-    setQueuedTransactions((prev) => [
+  // Handles the adding of a new action to the queue
+  const addAction = (action: InitialWagmiAction) => {
+    setQueuedActions((prev) => [
       ...prev,
       {
         ...action,
-        status: TransactionStatus.TO_SEND,
+        status: ActionStatus.TO_SEND,
         hash: null,
         txLink: null,
         metadata: action.metadata,
@@ -98,70 +111,68 @@ export const useConsecutiveWagmiActions = ({
     ]);
   };
 
-  // Handles the starting of the transactions processing
+  // Handles the starting of the actions processing
   const start = async () => {
     setTimeout(async () => {
       setHookStatus(HookStatus.RUNNING);
     }, startDelay);
   };
 
-  // Handles the retrying of the transactions
+  // Handles the retrying of the actions
   const retry = async () => {
     setTimeout(async () => {
       setHookStatus(HookStatus.RUNNING);
     }, startDelay);
   };
 
-  // Handles the pausing of the transactions processing
+  // Handles the pausing of the actions processing
   const pause = () => {
     setHookStatus(HookStatus.PAUSED);
   };
 
-  // Handles the updating of the transaction info
-  const updateTransactionInfo = (
-    transactionIndex: number,
-    info: Partial<TransactionItem>
-  ) => {
-    setQueuedTransactions((prev) =>
-      prev.map((transaction, index) =>
-        index === transactionIndex ? { ...transaction, ...info } : transaction
+  // Handles the updating of the action info
+  const updateActionInfo = (actionIndex: number, info: Partial<ActionItem>) => {
+    setQueuedActions((prev) =>
+      prev.map((action, index) =>
+        index === actionIndex ? { ...action, ...info } : action
       )
     );
   };
 
-  // Handles the processing of the transactions
+  // Handles the processing of the actions
   useEffect(() => {
-    let currentTxIdx = currentTransactionIndex;
+    let currentActionIdx = currentActionIndex;
 
-    const processTransactions = async () => {
+    const processActions = async () => {
       while (hookStatus === HookStatus.RUNNING) {
-        // Get the current transaction to process
-        const currentTx = queuedTransactions[currentTxIdx];
+        // Get the current action to process
+        const currentAction = queuedActions[currentActionIdx];
 
-        // If there is no transaction to send or retry, set the job as finished and break the loop
-        if (!currentTx) {
+        // If there is no action to send or retry, set the job as finished and break the loop
+        if (!currentAction) {
           setHookStatus(HookStatus.FINISHED);
           break;
         }
 
         // Set the states for external usage
-        setCurrentTransaction(currentTx);
-        setCurrentTransactionIndex(currentTxIdx);
+        setCurrentAction(currentAction);
+        setCurrentActionIndex(currentActionIdx);
 
-        updateTransactionInfo(currentTxIdx, {
-          status: TransactionStatus.PENDING,
+        updateActionInfo(currentActionIdx, {
+          status: ActionStatus.PENDING,
         });
 
         // Get the current chain id
         let currentChainId = getChainId(config);
 
-        // Switch the chain to the transaction's chain if it's not the current chain
-        const transactionChainId = currentTx.data.chainId;
-        if (transactionChainId && transactionChainId !== currentChainId) {
+        // Switch the chain to the action's chain if it's not the current chain
+        const actionChainId = currentAction.chainId;
+
+        if (actionChainId && actionChainId !== currentChainId) {
           await switchChain(config, {
-            chainId: transactionChainId,
+            chainId: actionChainId,
           });
-          currentChainId = transactionChainId;
+          currentChainId = actionChainId;
         }
 
         // Get the block explorer url
@@ -170,66 +181,103 @@ export const useConsecutiveWagmiActions = ({
         );
         const blockExplorerBaseUrl = currentChain?.blockExplorers?.default.url;
 
-        // Send the transaction
+        // Perform the action
         let txHash: Hex | null = null;
-        if (currentTx.type === WagmiActionType.SEND_TRANSACTION) {
+        if (currentAction.type === WagmiActionType.SEND_TRANSACTION) {
           try {
             txHash = await sendTransaction(
               config,
-              currentTx.data as SendTransactionParameters
+              currentAction.data as SendTransactionParameters
             );
+
+            if (currentAction.onSuccess) {
+              await currentAction.onSuccess({
+                txHash,
+              });
+            }
           } catch (error) {
             // User rejected or another error occurred
             console.log(error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTxIdx, {
-              status: TransactionStatus.ERROR,
+            updateActionInfo(currentActionIdx, {
+              status: ActionStatus.ERROR,
             });
             break;
           }
-        } else if (currentTx.type === WagmiActionType.WRITE_CONTRACT) {
+        } else if (currentAction.type === WagmiActionType.WRITE_CONTRACT) {
           try {
             const { request } = await simulateContract(
               config,
-              currentTx.data as WriteContractParameters
+              currentAction.data as WriteContractParameters
             );
             txHash = await writeContract(config, request);
+
+            if (currentAction.onSuccess) {
+              await currentAction.onSuccess({
+                txHash,
+              });
+            }
           } catch (error) {
             // The simulation failed, the user rejected or another error occurred
             console.log(error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTxIdx, {
-              status: TransactionStatus.ERROR,
+            updateActionInfo(currentActionIdx, {
+              status: ActionStatus.ERROR,
             });
             break;
           }
-        } else {
+        } else if (currentAction.type === WagmiActionType.CALL_CONTRACT) {
           try {
             const { data } = await call(
               config,
-              currentTx.data as CallParameters
+              currentAction.data as CallParameters
             );
             if (data) {
               txHash = data;
             } else {
               throw new Error("Call failed");
             }
+
+            if (currentAction.onSuccess) {
+              await currentAction.onSuccess({
+                txHash,
+              });
+            }
           } catch (error) {
             // The simulation failed, the user rejected or another error occurred
             console.log(error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTxIdx, {
-              status: TransactionStatus.ERROR,
+            updateActionInfo(currentActionIdx, {
+              status: ActionStatus.ERROR,
             });
             break;
           }
+        } else if (currentAction.type === WagmiActionType.SIGN_TYPED_DATA) {
+          try {
+            const userSignedMessage = await signTypedData(
+              config,
+              currentAction.data as SignTypedDataParameters
+            );
+
+            if (!userSignedMessage) {
+              throw new Error("Failed to sign typed data");
+            }
+
+            if (currentAction.onSuccess) {
+              await currentAction.onSuccess({
+                userSignedMessage,
+              });
+            }
+          } catch (error) {
+            console.log(error);
+          }
         }
 
-        // If the transaction was sent successfully, update the transaction status
-        // And watch for the transaction's receipt
-        if (txHash) {
-          updateTransactionInfo(currentTxIdx, {
-            status: TransactionStatus.PENDING,
+        // If the action was sent successfully, and the action wasn't a signTypedData,
+        //  update the action status and watch for the action's receipt, because it was a transaction
+        if (txHash && currentAction.type !== WagmiActionType.SIGN_TYPED_DATA) {
+          updateActionInfo(currentActionIdx, {
+            status: ActionStatus.PENDING,
             hash: txHash,
             txLink: `${blockExplorerBaseUrl}/tx/${txHash}`,
           });
@@ -238,38 +286,47 @@ export const useConsecutiveWagmiActions = ({
           try {
             const transactionReceipt = await waitForTransactionReceipt(config, {
               hash: txHash,
-              chainId: transactionChainId,
+              chainId: actionChainId,
             });
 
             // If the transaction was mined successfully, update the transaction status
             if (transactionReceipt) {
-              updateTransactionInfo(currentTxIdx, {
-                status: TransactionStatus.SUCCESS,
+              updateActionInfo(currentActionIdx, {
+                status: ActionStatus.SUCCESS,
               });
 
               // Increment the current transaction index
-              currentTxIdx++;
+              currentActionIdx++;
             }
           } catch (error) {
             // The transaction reverted or another error occurred
             console.log("Transaction reverted", error);
             setHookStatus(HookStatus.ERROR);
-            updateTransactionInfo(currentTxIdx, {
-              status: TransactionStatus.ERROR,
+            updateActionInfo(currentActionIdx, {
+              status: ActionStatus.ERROR,
             });
             break;
           }
         }
+        // If the action was a signTypedData, update the action status to success
+        // and increment the current action index
+        else if (currentAction.type === WagmiActionType.SIGN_TYPED_DATA) {
+          updateActionInfo(currentActionIdx, {
+            status: ActionStatus.SUCCESS,
+          });
+
+          currentActionIdx++;
+        }
       }
     };
 
-    processTransactions();
+    processActions();
   }, [hookStatus]);
 
   return {
-    queuedTransactions,
-    currentTransaction,
-    currentTransactionIndex,
+    queuedActions: queuedActions,
+    currentAction: currentAction,
+    currentActionIndex: currentActionIndex,
     hookStatus,
     addAction,
     start,

@@ -1,3 +1,5 @@
+import { Address } from "viem";
+
 // Common Types
 export type RelayoorChain =
   | "ethereum"
@@ -75,7 +77,7 @@ export interface Permit3SignatureData {
     name: string;
     version: string;
     chainId: number;
-    verifyingContract: string;
+    verifyingContract: Address;
   };
   message: {
     owner: string;
