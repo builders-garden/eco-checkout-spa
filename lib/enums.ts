@@ -71,7 +71,6 @@ export enum CardState {
 export enum PaymentPageState {
   MISSING_PARAMS = "missing-params",
   CHECKOUT = "checkout",
-  PAYMENT_RECAP = "payment-recap",
   TRANSACTIONS = "transactions",
   PAYMENT_COMPLETED = "payment-completed",
 }

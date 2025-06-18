@@ -1,15 +1,11 @@
-import { CheckCircle, ChevronDown, SquareArrowOutUpRight } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { CustomButton } from "@/components/custom-ui/customButton";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { OperationLabel } from "../transactions-container/operation-label";
-import { ChainImages, TokenImages } from "@/lib/enums";
-import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 
 export default function PaymentCompletedContainer() {
   const { paymentParams } = usePaymentParams();
   const { amountDue, redirect } = paymentParams;
-  const { transactionSteps } = useTransactionSteps();
 
   return (
     <motion.div
@@ -36,80 +32,7 @@ export default function PaymentCompletedContainer() {
 
       {/* Transactions */}
       <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 sm:mb-0 mb-10 w-full gap-[22px]">
-        {transactionSteps.map((step, index) => (
-          <div
-            key={index}
-            className="flex justify-between items-center w-full min-h-[44px] sm:min-h-0"
-          >
-            <div className="flex justify-start items-center w-full gap-3">
-              <div className="flex justify-center items-center gap-4 sm:gap-5">
-                {/* Tokens */}
-                <div className="flex justify-start items-center -space-x-4">
-                  {step.assets.map((token, index) => (
-                    <div
-                      key={index}
-                      className="relative flex justify-center items-center"
-                    >
-                      <img
-                        src={
-                          TokenImages[token.asset as keyof typeof TokenImages]
-                        }
-                        alt={`${token.chain} logo`}
-                        width={31}
-                        height={31}
-                        className="object-cover rounded-full"
-                      />
-                      {index === step.assets.length - 1 && (
-                        <img
-                          src={ChainImages[token.chain]}
-                          alt={`${token.chain} logo`}
-                          className="absolute bottom-0 right-0 object-cover rounded-full"
-                          width={12}
-                          height={12}
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Action description */}
-                <OperationLabel step={step} />
-              </div>
-            </div>
-
-            {/* Tx hashes */}
-            <div className="flex sm:flex-row flex-col justify-center items-end sm:items-center sm:gap-1.5 text-xs underline shrink-0 cursor-pointer">
-              {step.originTransaction && (
-                <div
-                  className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
-                  onClick={() =>
-                    window.open(step.originTransaction!.link, "_blank")
-                  }
-                >
-                  {step.type === "intent" ? "Initial Transfer" : "Transfer"}
-                  <SquareArrowOutUpRight className="size-3" />
-                </div>
-              )}
-
-              {step.type === "intent" && step.destinationTransaction && (
-                <>
-                  <div className="flex w-full justify-center items-center">
-                    <ChevronDown className="size-3 sm:rotate-270" />
-                  </div>
-                  <div
-                    className="flex justify-center items-center gap-1 text-xs underline shrink-0 cursor-pointer"
-                    onClick={() =>
-                      window.open(step.destinationTransaction!.link, "_blank")
-                    }
-                  >
-                    Fulfillment
-                    <SquareArrowOutUpRight className="size-3" />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
+        Completed transactions goes here
       </div>
 
       {/* Redirect Button */}

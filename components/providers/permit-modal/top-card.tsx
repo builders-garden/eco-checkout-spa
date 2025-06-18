@@ -24,7 +24,7 @@ export const TopCard = ({
   // Calculate all the amount of the selected tokens
   const selectedTokensAmount = useMemo(() => {
     return Object.entries(selectedTokensToApprove).reduce(
-      (acc, [chain, balances]) => {
+      (acc, [_, balances]) => {
         return acc + balances.reduce((acc, balance) => acc + balance.amount, 0);
       },
       0

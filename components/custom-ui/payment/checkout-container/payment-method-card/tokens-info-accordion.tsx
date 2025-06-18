@@ -135,13 +135,14 @@ export const TokensInfoAccordion = () => {
               </AnimatePresence>
             ))}
 
-            {/* Advanced payment options */}
+            {/* Advanced payment options TODO: Reenable this in production (restore opacity to 1 too in framer motion settings)*/}
             <AdvancedPaymentModal>
               <motion.button
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 0.3 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
+                disabled
                 className="flex justify-center items-center w-full gap-1.5 border border-secondary-foreground rounded-[8px] cursor-pointer py-2 mt-2"
               >
                 <SquarePen className="size-[18px] text-primary" />

@@ -5,14 +5,14 @@ import { usePaymentParams } from "@/components/providers/payment-params-provider
 import { PoweredByCapsule } from "@/components/custom-ui/powered-by-capsule";
 import { useNames } from "@/components/providers/names-provider";
 import AnimatedName from "@/components/custom-ui/animated-name";
-import { useTransactionSteps } from "@/components/providers/transaction-steps-provider";
 import { motion } from "framer-motion";
+
+// Restore the network fees calculation here
 
 export const PaymentSummary = () => {
   const { recipientNames } = useNames();
   const { paymentParams, desiredNetworkString } = usePaymentParams();
-  const { recipient, desiredNetworkId, amountDue, showFees } = paymentParams;
-  const { totalNetworkFee } = useTransactionSteps();
+  const { recipient, amountDue, showFees } = paymentParams;
 
   const networkName = capitalizeFirstLetter(desiredNetworkString ?? "");
 
@@ -63,27 +63,28 @@ export const PaymentSummary = () => {
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">Amount</p>
               <motion.p
-                key={amountDue! - totalNetworkFee}
+                key={amountDue!}
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="text-[16px] font-semibold"
               >
-                ${(amountDue! - totalNetworkFee).toFixed(2)}
+                ${amountDue!.toFixed(2)}
               </motion.p>
             </div>
             {/* Network Fee */}
             <div className="flex justify-between items-center w-full gap-2">
               <p className="text-[16px] text-secondary">Network Fee</p>
               <motion.p
-                key={totalNetworkFee}
+                key={"0"}
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
                 className="text-[16px] font-semibold"
               >
-                {totalNetworkFee < 0.01
+                {/* {totalNetworkFee < 0.01
                   ? "< $0.01"
-                  : `$${totalNetworkFee.toFixed(2)}`}
+                  : `$${totalNetworkFee.toFixed(2)}`} */}
+                0
               </motion.p>
             </div>
           </>
@@ -92,7 +93,7 @@ export const PaymentSummary = () => {
         <div className="flex justify-between items-center w-full gap-2">
           <p className="text-lg font-semibold">Total</p>
           <motion.p
-            key={amountDue! - totalNetworkFee - 100}
+            key={amountDue!}
             initial={{ opacity: showFees ? 0 : 1, x: showFees ? 10 : 0 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}

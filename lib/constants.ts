@@ -28,3 +28,14 @@ export const BASENAME_L2_RESOLVER_ADDRESS =
 // Permit3 Verifier Address
 export const PERMIT3_VERIFIER_ADDRESS =
   "0xFB63C771dd42F5f8C949c69Cddb15aFe585D6889";
+
+// Permit3 Types
+export const PERMIT3_TYPES = {
+  SignedUnhingedPermit3: [
+    { name: "owner", type: "address" },
+    { name: "salt", type: "bytes32" },
+    { name: "deadline", type: "uint256" },
+    { name: "timestamp", type: "uint48" },
+    { name: "unhingedRoot", type: "bytes32" },
+  ],
+};

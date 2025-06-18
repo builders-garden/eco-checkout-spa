@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -26,9 +25,14 @@ import { ApproveCompleted } from "./approve-completed";
 interface PermitModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  setAllApprovalsCompleted: (allApprovalsCompleted: boolean) => void;
 }
 
-export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
+export const PermitModal = ({
+  open,
+  onOpenChange,
+  setAllApprovalsCompleted,
+}: PermitModalProps) => {
   const { address } = useAppKitAccount();
   const { disconnect } = useDisconnect();
   const { userBalances } = useUserBalances();
@@ -123,6 +127,7 @@ export const PermitModal = ({ open, onOpenChange }: PermitModalProps) => {
             <ApproveContainer
               selectedTokensToApprove={selectedTokensToApprove}
               setPermitModalState={setPermitModalState}
+              setAllApprovalsCompleted={setAllApprovalsCompleted}
             />
           )}
 

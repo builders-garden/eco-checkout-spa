@@ -1,7 +1,7 @@
 import { env } from "@/lib/zod";
 import { NextRequest, NextResponse } from "next/server";
 import ky from "ky";
-import { RelayoorChain, RelayoorResponse } from "@/lib/relayoor/types";
+import { RelayoorChain, BalanceResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals, TokenSymbols } from "@/lib/enums";
 import {
@@ -79,9 +79,10 @@ export const GET = async (req: NextRequest) => {
   try {
     const response = await ky
       .get(
-        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/balances?address=${userAddress}&includeNativeBalance=false`
+        // TODO: Change with env variable
+        `https://relayoor-preprod.beam.eco/api/v1/buildersGarden/balances?address=${userAddress}&includeNativeBalance=false`
       )
-      .json<RelayoorResponse>();
+      .json<BalanceResponse>();
 
     // Reduce the data from RelayoorResponse to an array of assets
     const userBalances: UserAsset[] = (

@@ -1,5 +1,5 @@
 import { TokenSymbols } from "@/lib/enums";
-import { GetTransfersResponse, Transfer } from "@/lib/relayoor/types";
+import { GetTransfersResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { chainIdToChain } from "@/lib/utils";
 import { env } from "@/lib/zod";
@@ -49,7 +49,8 @@ export const POST = async (req: NextRequest) => {
   try {
     const response = await ky
       .post<GetTransfersResponse>(
-        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/getTransfers`,
+        // TODO: Change with env variable
+        `https://relayoor-preprod.beam.eco/api/v1/buildersGarden/getTransfers`,
         {
           json: requestBody,
         }

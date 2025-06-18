@@ -27,7 +27,6 @@ import {
   MIN_MAINNET_PROTOCOL_FEE,
 } from "./constants";
 import { env } from "./zod";
-import { RelayoorChain } from "./relayoor/types";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix

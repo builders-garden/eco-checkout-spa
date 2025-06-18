@@ -8,7 +8,6 @@ import {
 import { UserAssetsByChain } from "@/lib/types";
 import { config } from "@/lib/appkit";
 import { erc20Abi, maxUint256 } from "viem";
-import { useAppKitAccount } from "@reown/appkit/react";
 import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { useEffect } from "react";
 import { chainStringToChainId } from "@/lib/utils";
@@ -32,14 +31,14 @@ import {
 interface ApproveContainerProps {
   selectedTokensToApprove: UserAssetsByChain;
   setPermitModalState: (state: PermitModalState) => void;
+  setAllApprovalsCompleted: (allApprovalsCompleted: boolean) => void;
 }
 
 export const ApproveContainer = ({
   selectedTokensToApprove,
   setPermitModalState,
+  setAllApprovalsCompleted,
 }: ApproveContainerProps) => {
-  const { address } = useAppKitAccount();
-
   // Get all balances to approve
   const allBalancesToApprove = Object.values(selectedTokensToApprove).flat();
 
@@ -81,6 +80,7 @@ export const ApproveContainer = ({
   useEffect(() => {
     if (hookStatus === HookStatus.FINISHED) {
       setPermitModalState(PermitModalState.END);
+      setAllApprovalsCompleted(true);
     }
   }, [hookStatus]);
 

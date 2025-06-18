@@ -52,12 +52,10 @@ export const CheckoutContainer = ({
       </AnimatePresence>
 
       {/* Connect Button */}
-      <AnimatePresence mode="wait" initial={false}>
-        <ActionsButton
-          key="actions-button"
-          setPaymentPageState={setPaymentPageState}
-        />
-      </AnimatePresence>
+      <ActionsButton
+        key="actions-button"
+        setPaymentPageState={setPaymentPageState}
+      />
     </motion.div>
   );
 };

@@ -10,6 +10,7 @@ export type PermitModalContextType = {
   setIsPermitModalOpen: (isPermitModalOpen: boolean) => void;
   openPermitModal: () => void;
   closePermitModal: () => void;
+  allApprovalsCompleted: boolean;
 };
 
 export const usePermitModal = () => {
@@ -22,6 +23,7 @@ export const usePermitModal = () => {
 
 export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
   const [isPermitModalOpen, setIsPermitModalOpen] = useState(false);
+  const [allApprovalsCompleted, setAllApprovalsCompleted] = useState(false);
 
   // Handle Permit Modal Open
   const handlePermitModalOpen = () => {
@@ -39,12 +41,14 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       setIsPermitModalOpen,
       openPermitModal: handlePermitModalOpen,
       closePermitModal: handlePermitModalClose,
+      allApprovalsCompleted,
     }),
     [
       isPermitModalOpen,
       setIsPermitModalOpen,
       handlePermitModalOpen,
       handlePermitModalClose,
+      allApprovalsCompleted,
     ]
   );
 
@@ -54,6 +58,7 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       <PermitModal
         open={isPermitModalOpen}
         onOpenChange={setIsPermitModalOpen}
+        setAllApprovalsCompleted={setAllApprovalsCompleted}
       />
     </PermitModalContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Config } from "wagmi";
 import {
   type WriteContractParameters,

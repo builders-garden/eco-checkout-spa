@@ -2,7 +2,6 @@
 
 import { AnimatePresence } from "framer-motion";
 import { PaymentPageState } from "@/lib/enums";
-import { RecapContainer } from "@/components/custom-ui/payment/recap-container/recap-container";
 import { CheckoutContainer } from "@/components/custom-ui/payment/checkout-container/checkout-container";
 import TransactionsContainer from "@/components/custom-ui/payment/transactions-container/transactions-container";
 import { usePaymentPageState } from "@/hooks/use-payment-page-state";
@@ -33,12 +32,6 @@ export default function Home() {
         ) : paymentPageState.current === PaymentPageState.MISSING_PARAMS ? (
           <MissingParamsContainer
             key="missing-params-container"
-            setPaymentPageState={setPaymentPageState}
-          />
-        ) : paymentPageState.current === PaymentPageState.PAYMENT_RECAP ? (
-          <RecapContainer
-            key="recap-container"
-            paymentPageState={paymentPageState}
             setPaymentPageState={setPaymentPageState}
           />
         ) : paymentPageState.current === PaymentPageState.TRANSACTIONS ? (

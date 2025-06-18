@@ -22,9 +22,6 @@ export const ApproveCompleted = ({ onOpenChange }: ApproveCompletedProps) => {
         </div>
 
         <h1 className="text-2xl font-bold">Tokens approved!</h1>
-        <p className="text-[15px] text-center text-secondary">
-          Your completed all the token approvals.
-        </p>
       </div>
 
       {/* Close modal button */}
