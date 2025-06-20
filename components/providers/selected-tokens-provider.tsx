@@ -22,7 +22,6 @@ export type SelectedTokensContextType = {
   setSelectedTokens: (tokens: UserAsset[]) => void;
   optimizedSelection: UserAsset[];
   hasFetchedSelectedTokens: boolean;
-  relayoorSuggestedTokens: UserAsset[];
   isLoadingSelectedTokens: boolean;
   isErrorSelectedTokens: boolean;
 };
@@ -49,9 +48,6 @@ export const SelectedTokensProvider = ({
   const [isErrorSelectedTokens, setIsErrorSelectedTokens] = useState(false);
   const [hasFetchedSelectedTokens, setHasFetchedSelectedTokens] =
     useState(false);
-  const [relayoorSuggestedTokens, setRelayoorSuggestedTokens] = useState<
-    UserAsset[]
-  >([]);
   const { userBalances, hasFetchedUserBalances, isLoadingUserBalances } =
     useUserBalances();
   const { paymentParams, amountDueRaw, desiredNetworkString } =
@@ -63,7 +59,6 @@ export const SelectedTokensProvider = ({
     if (!address) {
       setSelectedTokens([]);
       setOptimizedSelection([]);
-      setRelayoorSuggestedTokens([]);
 
       // Reset the loading and other states
       setIsLoadingSelectedTokens(false);
@@ -91,7 +86,6 @@ export const SelectedTokensProvider = ({
       setHasFetchedSelectedTokens(true);
       setSelectedTokens([]);
       setOptimizedSelection([]);
-      setRelayoorSuggestedTokens([]);
       return;
     }
 
@@ -101,10 +95,7 @@ export const SelectedTokensProvider = ({
     const fetchSelectedTokens = async () => {
       try {
         const getTransfersResponse = await ky
-          .post<{
-            optimizedSelection: UserAsset[];
-            relayoorSuggestedTokens: UserAsset[];
-          }>(
+          .post<UserAsset[]>(
             `/api/tokens-selection?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
             {
               json: {
@@ -114,11 +105,8 @@ export const SelectedTokensProvider = ({
           )
           .json();
 
-        setSelectedTokens(getTransfersResponse.optimizedSelection);
-        setOptimizedSelection(getTransfersResponse.optimizedSelection);
-        setRelayoorSuggestedTokens(
-          getTransfersResponse.relayoorSuggestedTokens
-        );
+        setSelectedTokens(getTransfersResponse);
+        setOptimizedSelection(getTransfersResponse);
       } catch (error) {
         setIsErrorSelectedTokens(true);
       } finally {
@@ -149,7 +137,6 @@ export const SelectedTokensProvider = ({
       selectedTotal,
       setSelectedTokens,
       optimizedSelection,
-      relayoorSuggestedTokens,
       isLoadingSelectedTokens,
       isErrorSelectedTokens,
       hasFetchedSelectedTokens,
@@ -159,7 +146,6 @@ export const SelectedTokensProvider = ({
       selectedTotal,
       optimizedSelection,
       setSelectedTokens,
-      relayoorSuggestedTokens,
       isLoadingSelectedTokens,
       isErrorSelectedTokens,
       hasFetchedSelectedTokens,

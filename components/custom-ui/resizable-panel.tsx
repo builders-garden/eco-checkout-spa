@@ -6,6 +6,9 @@ const ignoreCircularReferences = () => {
   const seen = new WeakSet();
   return (key: string, value: any) => {
     if (key.startsWith("_")) return; // Don't compare React's internal props.
+    if (typeof value === "bigint") {
+      return value.toString(); // Convert BigInt to string
+    }
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) return;
       seen.add(value);

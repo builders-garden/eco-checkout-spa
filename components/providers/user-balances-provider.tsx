@@ -110,7 +110,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
           ]);
         }
       } catch (error) {
-        toast.error("Error fetching user balances");
+        console.log("error", error);
         setIsErrorUserBalances(true);
       } finally {
         setIsLoadingUserBalances(false);

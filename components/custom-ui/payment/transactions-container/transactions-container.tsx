@@ -1,27 +1,14 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
-import { PaymentPageState, TokenSymbols } from "@/lib/enums";
+import { PaymentPageState } from "@/lib/enums";
 import { motion } from "framer-motion";
 import { TxContainerHeader } from "./tx-container-header";
-import { useAppKitAccount } from "@reown/appkit/react";
-import { useEffect, useState } from "react";
-import ky from "ky";
-import { Permit3SignatureData } from "@/lib/relayoor/types";
-import { config } from "@/lib/appkit";
-import { PERMIT3_TYPES } from "@/lib/constants";
-import { erc20Abi } from "viem";
-import { toast } from "sonner";
-import {
-  HookStatus,
-  useConsecutiveWagmiActions,
-  InitialWagmiAction,
-  WagmiActionType,
-} from "@/hooks/use-consecutive-wagmi-actions";
-import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
-import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { HookStatus } from "@/hooks/use-consecutive-wagmi-actions";
 import { CustomButton } from "../../customButton";
 import { ResizablePanel } from "../../resizable-panel";
 import { TransactionsList } from "../../transactions-list";
+import { Loader2 } from "lucide-react";
+import { useTransactions } from "@/components/providers/transactions-provider";
+import { useEffect } from "react";
 
 interface TransactionsContainerProps {
   setPaymentPageState: (paymentPageState: PaymentPageState) => void;
@@ -30,142 +17,32 @@ interface TransactionsContainerProps {
 export default function TransactionsContainer({
   setPaymentPageState,
 }: TransactionsContainerProps) {
-  const { address } = useAppKitAccount();
-  const { paymentParams, desiredNetworkString, amountDueRaw } =
-    usePaymentParams();
-  const { recipient, desiredToken, amountDue, desiredNetworkId } =
-    paymentParams;
-  const { selectedTokens } = useSelectedTokens();
-  const [isLoading, setIsLoading] = useState(false);
-  const [initialWagmiActions, setInitialWagmiActions] = useState<
-    InitialWagmiAction[]
-  >([]);
+  const {
+    consecutiveWagmiActionsObject,
+    isLoading,
+    isError,
+    getRequestIDAndSignatureData,
+  } = useTransactions();
+  const { queuedActions, currentActionIndex, hookStatus, retry, start } =
+    consecutiveWagmiActionsObject;
+  const { paymentParams } = usePaymentParams();
+  const { amountDue } = paymentParams;
 
-  const { start, retry, queuedActions, hookStatus, currentActionIndex } =
-    useConsecutiveWagmiActions({
-      config,
-      initialWagmiActions,
-    });
-
-  // Gets the requestID and signature data
-  // Then fills the initialWagmiActions array which will be used to send the transactions
+  // Loads the transactions and launches them after 250ms
   useEffect(() => {
-    const getRequestIDAndSignatureData = async () => {
-      if (
-        address &&
-        desiredNetworkString &&
-        desiredToken &&
-        amountDueRaw &&
-        recipient
-      ) {
-        try {
-          setIsLoading(true);
-          const response = await ky
-            .post<{
-              signatureData: Permit3SignatureData;
-              requestID: string;
-            }>(
-              `/api/get-intents?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
-              {
-                timeout: false,
-              }
-            )
-            .json();
-
-          if (!response.signatureData || !response.requestID) {
-            throw new Error("Failed to get intents");
-          }
-
-          const initialWagmiActions: InitialWagmiAction[] = [
-            {
-              type: WagmiActionType.SIGN_TYPED_DATA,
-              data: {
-                domain: response.signatureData.domain,
-                types: PERMIT3_TYPES,
-                primaryType: "SignedUnhingedPermit3",
-                message: response.signatureData.message,
-              },
-              chainId: 1,
-              onSuccess: async (args) => {
-                if (!args.userSignedMessage) {
-                  throw new Error("User signed message is required");
-                }
-
-                console.log(
-                  "Executing intent with signature",
-                  response.requestID,
-                  args.userSignedMessage
-                );
-
-                const executeIntentResponse = await ky
-                  .post(`/api/execute-intent`, {
-                    json: {
-                      requestID: response.requestID,
-                      userSignedMessage: args.userSignedMessage,
-                    },
-                    timeout: false,
-                  })
-                  .json();
-                console.log("Intent executed", executeIntentResponse);
-              },
-              metadata: {
-                description: "Sign message to execute the intent",
-              },
-            },
-            ...selectedTokens
-              .map((token) => {
-                const chainId = chainStringToChainId(token.chain);
-
-                // If it's not the desired network, don't add it to the actions
-                // because the intents will already execute that transfer
-                if (chainId !== desiredNetworkId) {
-                  return undefined;
-                }
-
-                const amountToSend = getAmountDeducted(
-                  amountDueRaw,
-                  selectedTokens,
-                  token
-                );
-                return {
-                  type: WagmiActionType.WRITE_CONTRACT,
-                  data: {
-                    abi: erc20Abi,
-                    functionName: "transfer",
-                    address: token.tokenContractAddress,
-                    args: [recipient, BigInt(amountToSend)],
-                    chainId,
-                  },
-                  chainId,
-                  metadata: {
-                    chain: token.chain,
-                    asset: token.asset,
-                    amount: token.amount,
-                    description: `Transfer ${
-                      TokenSymbols[token.asset as keyof typeof TokenSymbols]
-                    }`,
-                  },
-                };
-              })
-              .filter((action) => action !== undefined),
-          ];
-
-          setInitialWagmiActions(initialWagmiActions);
-        } catch (error) {
-          toast.error("Failed to get intents");
-          console.error(error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
+    const loadAndLaunchTransactions = async () => {
+      await getRequestIDAndSignatureData();
+      start();
     };
-
-    getRequestIDAndSignatureData();
+    setTimeout(loadAndLaunchTransactions, 250);
   }, []);
 
+  // When the transactions are finished, set the payment page state to payment completed
   useEffect(() => {
-    console.log("initialWagmiActions", initialWagmiActions);
-  }, [initialWagmiActions]);
+    if (hookStatus === HookStatus.FINISHED) {
+      setPaymentPageState(PaymentPageState.PAYMENT_COMPLETED);
+    }
+  }, [hookStatus]);
 
   return (
     <motion.div
@@ -178,29 +55,43 @@ export default function TransactionsContainer({
       {/* Header */}
       <TxContainerHeader amountDue={amountDue!} />
 
-      <ResizablePanel className="flex flex-col justify-center items-center w-full h-full">
+      <ResizablePanel
+        initialHeight={76}
+        className="flex flex-col justify-center items-center w-full h-full"
+        id={isLoading ? "loading" : "transactions-list"}
+      >
         {isLoading ? (
-          <div className="flex justify-center items-center w-full h-full">
-            <Loader2 className="size-5 text-blue-500 animate-spin" />
+          <div className="flex justify-center items-center w-full h-full pt-5 pb-4">
+            <Loader2 className="size-10 animate-spin opacity-70" />
           </div>
         ) : (
           <TransactionsList
             queuedActions={queuedActions}
             currentActionIndex={currentActionIndex}
             hookStatus={hookStatus}
+            isError={isError}
+            isLoading={isLoading}
           />
         )}
       </ResizablePanel>
 
       <CustomButton
-        text={hookStatus === HookStatus.ERROR ? "Retry" : ""}
+        text={
+          isLoading
+            ? "Loading..."
+            : hookStatus === HookStatus.ERROR
+            ? "Retry"
+            : isError
+            ? "Endpoint Error"
+            : ""
+        }
         onClick={() => {
           if (hookStatus === HookStatus.ERROR) {
             retry();
           }
         }}
-        isLoading={hookStatus === HookStatus.RUNNING || isLoading}
-        isDisabled={hookStatus === HookStatus.RUNNING || isLoading}
+        isLoading={hookStatus === HookStatus.RUNNING}
+        isDisabled={hookStatus === HookStatus.RUNNING || isLoading || isError}
       />
     </motion.div>
   );

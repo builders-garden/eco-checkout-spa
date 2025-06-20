@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 import { PermitModal } from "./permit-modal";
+import { useUserBalances } from "../user-balances-provider";
 
 export const PermitModalContext = createContext<
   PermitModalContextType | undefined
@@ -23,7 +24,10 @@ export const usePermitModal = () => {
 
 export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
   const [isPermitModalOpen, setIsPermitModalOpen] = useState(false);
+  const { userBalances } = useUserBalances();
   const [allApprovalsCompleted, setAllApprovalsCompleted] = useState(false);
+  //   userBalances.every((balance) => balance.hasPermit)
+  // );
 
   // Handle Permit Modal Open
   const handlePermitModalOpen = () => {

@@ -2,10 +2,15 @@ import { CheckCircle } from "lucide-react";
 import { CustomButton } from "@/components/custom-ui/customButton";
 import { motion } from "framer-motion";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useTransactions } from "@/components/providers/transactions-provider";
+import { TransactionsList } from "../../transactions-list";
 
 export default function PaymentCompletedContainer() {
   const { paymentParams } = usePaymentParams();
   const { amountDue, redirect } = paymentParams;
+  const { consecutiveWagmiActionsObject } = useTransactions();
+  const { queuedActions, currentActionIndex, hookStatus } =
+    consecutiveWagmiActionsObject;
 
   return (
     <motion.div
@@ -31,9 +36,12 @@ export default function PaymentCompletedContainer() {
       </div>
 
       {/* Transactions */}
-      <div className="relative flex flex-col justify-center items-center bg-secondary-foreground/40 rounded-[8px] p-4 sm:mb-0 mb-10 w-full gap-[22px]">
-        Completed transactions goes here
-      </div>
+      <TransactionsList
+        queuedActions={queuedActions}
+        currentActionIndex={currentActionIndex}
+        hookStatus={hookStatus}
+        showState={false}
+      />
 
       {/* Redirect Button */}
       {redirect && (

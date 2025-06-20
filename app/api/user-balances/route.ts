@@ -162,6 +162,7 @@ export const GET = async (req: NextRequest) => {
                   })
                 );
               } catch (error) {
+                console.log("Error: ", error);
                 allowance = 0;
               }
 

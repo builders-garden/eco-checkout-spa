@@ -350,7 +350,7 @@ export const getViemPublicClient = (chain: Chain) => {
     transport: http(
       `${
         AlchemyRpcBaseUrls[
-          base.name.toLowerCase() as keyof typeof AlchemyRpcBaseUrls
+          chain.name.toLowerCase() as keyof typeof AlchemyRpcBaseUrls
         ]
       }/${env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
     ),

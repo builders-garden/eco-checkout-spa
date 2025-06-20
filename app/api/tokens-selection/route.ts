@@ -58,7 +58,6 @@ export const POST = async (req: NextRequest) => {
 
     // Get the userBalances that are corresponding to the tokens returned by the API
     let optimizedSelection: UserAsset[] = [];
-    let relayoorSuggestedTokens: UserAsset[] = [];
 
     Object.values(response.data).forEach((tokens) => {
       for (const token of tokens) {
@@ -74,8 +73,7 @@ export const POST = async (req: NextRequest) => {
             TokenSymbols[balance.asset as keyof typeof TokenSymbols] ===
               token.tokenSymbol
           ) {
-            optimizedSelection.push(balance);
-            relayoorSuggestedTokens.push({
+            optimizedSelection.push({
               ...balance,
               amount: Number(token.amount),
               hasPermit: token.hasPermit,
@@ -90,17 +88,7 @@ export const POST = async (req: NextRequest) => {
       return a.amount - b.amount;
     });
 
-    relayoorSuggestedTokens = [...relayoorSuggestedTokens].sort((a, b) => {
-      return a.amount - b.amount;
-    });
-
-    return NextResponse.json(
-      {
-        optimizedSelection,
-        relayoorSuggestedTokens,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(optimizedSelection, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to get optimized selection" },

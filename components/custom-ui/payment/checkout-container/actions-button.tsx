@@ -50,8 +50,7 @@ export const ActionsButton = ({ setPaymentPageState }: ActionsButtonProps) => {
         key: "connect",
       };
     }
-    // TODO: Remove this exclamation mark
-    if (!allApprovalsCompleted) {
+    if (allApprovalsCompleted) {
       return {
         text: "Confirm & Pay",
         onClick: () => {

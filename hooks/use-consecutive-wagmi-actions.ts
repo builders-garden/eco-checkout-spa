@@ -65,6 +65,17 @@ export type ActionItem = {
   metadata?: any;
 };
 
+export type ConsecutiveWagmiActionReturnType = {
+  queuedActions: ActionItem[];
+  currentAction: ActionItem;
+  currentActionIndex: number;
+  hookStatus: HookStatus;
+  addAction: (action: ActionItem) => void;
+  start: () => void;
+  retry: () => void;
+  pause: () => void;
+};
+
 interface ConsecutiveWagmiActionProps {
   config: Config;
   initialWagmiActions: InitialWagmiAction[];
@@ -90,6 +101,20 @@ export const useConsecutiveWagmiActions = ({
       chainId: initialAction.chainId,
     }))
   );
+
+  // Keep queuedActions in sync with initialWagmiActions
+  useEffect(() => {
+    setQueuedActions(
+      initialWagmiActions.map((initialAction) => ({
+        ...initialAction,
+        status: ActionStatus.TO_SEND,
+        hash: null,
+        txLink: null,
+        metadata: initialAction.metadata,
+        chainId: initialAction.chainId,
+      }))
+    );
+  }, [initialWagmiActions]);
 
   // Initialize the current action and its index
   const [currentAction, setCurrentAction] = useState<ActionItem>(
@@ -270,6 +295,11 @@ export const useConsecutiveWagmiActions = ({
             }
           } catch (error) {
             console.log(error);
+            setHookStatus(HookStatus.ERROR);
+            updateActionInfo(currentActionIdx, {
+              status: ActionStatus.ERROR,
+            });
+            break;
           }
         }
 
