@@ -65,13 +65,15 @@ export default function TransactionsContainer({
             <Loader2 className="size-10 animate-spin opacity-70" />
           </div>
         ) : (
-          <TransactionsList
-            queuedActions={queuedActions}
-            currentActionIndex={currentActionIndex}
-            hookStatus={hookStatus}
-            isError={isError}
-            isLoading={isLoading}
-          />
+          queuedActions.length > 0 && (
+            <TransactionsList
+              queuedActions={queuedActions}
+              currentActionIndex={currentActionIndex}
+              hookStatus={hookStatus}
+              isError={isError}
+              isLoading={isLoading}
+            />
+          )
         )}
       </ResizablePanel>
 

@@ -10,7 +10,6 @@ import {
 } from "react";
 import { usePaymentParams } from "./payment-params-provider";
 import ky from "ky";
-import { toast } from "sonner";
 
 export const UserBalancesContext = createContext<
   UserBalancesContextType | undefined

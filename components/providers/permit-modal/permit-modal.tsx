@@ -59,7 +59,10 @@ export const PermitModal = ({
 
   // Group the user balances by chain
   const allGroupedUserBalances = useMemo(
-    () => groupUserBalancesByChain(userBalances),
+    () =>
+      groupUserBalancesByChain(
+        userBalances //.filter((balance) => !balance.hasPermit) //TODO: Restore this
+      ),
     [userBalances]
   );
 

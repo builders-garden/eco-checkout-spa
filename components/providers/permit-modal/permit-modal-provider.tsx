@@ -24,10 +24,11 @@ export const usePermitModal = () => {
 
 export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
   const [isPermitModalOpen, setIsPermitModalOpen] = useState(false);
-  const { userBalances } = useUserBalances();
+  //const { userBalances } = useUserBalances();
   const [allApprovalsCompleted, setAllApprovalsCompleted] = useState(false);
   //   userBalances.every((balance) => balance.hasPermit)
   // );
+  // TODO: Restore this
 
   // Handle Permit Modal Open
   const handlePermitModalOpen = () => {
