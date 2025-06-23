@@ -49,6 +49,7 @@ export const PermitModal = ({
   const { desiredNetworkString } = usePaymentParams();
   const [selectedTokensToApprove, setSelectedTokensToApprove] =
     useState<UserAssetsByChain>({});
+  const [totalTokensToApprove, setTotalTokensToApprove] = useState(0);
   const [permitModalState, setPermitModalState] = useState<PermitModalState>(
     PermitModalState.SELECT
   );
@@ -74,16 +75,19 @@ export const PermitModal = ({
   // Set the selected tokens to approve later in the flow
   useEffect(() => {
     let selectedTokensToApprove: UserAssetsByChain = {};
+    let count = 0;
 
     Object.entries(allGroupedUserBalances).forEach(([chain, balances]) => {
       if (allSelectedChains.includes(chain as RelayoorChain)) {
         selectedTokensToApprove[chain] = balances;
+        count += balances.length;
       } else {
         selectedTokensToApprove[chain] = [];
       }
     });
 
     setSelectedTokensToApprove(selectedTokensToApprove);
+    setTotalTokensToApprove(count);
   }, [allGroupedUserBalances, allSelectedChains]);
 
   // Create the wagmi actions
@@ -144,7 +148,7 @@ export const PermitModal = ({
         <ResizablePanel
           initialHeight={
             permitModalState === "select"
-              ? 477
+              ? 418 + (totalTokensToApprove - 1) * 60
               : permitModalState === "end"
               ? 237
               : undefined

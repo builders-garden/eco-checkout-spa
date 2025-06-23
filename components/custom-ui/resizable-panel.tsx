@@ -34,7 +34,10 @@ export function ResizablePanel({
 
   return (
     <motion.div
-      animate={{ height: height || initialHeight || "auto" }}
+      initial={{ height: initialHeight || "auto" }}
+      animate={{
+        height: !!height ? height : initialHeight || "auto",
+      }}
       transition={{ ease: "linear" }}
       className={cn("overflow-hidden size-full", className)}
     >
