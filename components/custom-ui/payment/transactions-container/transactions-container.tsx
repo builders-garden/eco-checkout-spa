@@ -39,7 +39,7 @@ export default function TransactionsContainer({
 
   // When the transactions are finished, set the payment page state to payment completed
   useEffect(() => {
-    if (hookStatus === HookStatus.FINISHED) {
+    if (hookStatus === HookStatus.FINISHED && !isError) {
       setPaymentPageState(PaymentPageState.PAYMENT_COMPLETED);
     }
   }, [hookStatus]);
@@ -64,14 +64,18 @@ export default function TransactionsContainer({
           <div className="flex justify-center items-center w-full h-full pt-5 pb-4">
             <Loader2 className="size-10 animate-spin opacity-70" />
           </div>
+        ) : isError ? (
+          <div className="flex justify-center items-center w-full h-full">
+            <p className="text-destructive text-center">
+              Error fetching intents from endpoint
+            </p>
+          </div>
         ) : (
           queuedActions.length > 0 && (
             <TransactionsList
               queuedActions={queuedActions}
               currentActionIndex={currentActionIndex}
               hookStatus={hookStatus}
-              isError={isError}
-              isLoading={isLoading}
             />
           )
         )}
