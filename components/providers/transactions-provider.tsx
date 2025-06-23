@@ -101,6 +101,11 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
             },
             chainId: 1,
             onSuccess: async (args) => {
+              args.updateActionInfo(args.currentActionIdx, {
+                txLink:
+                  "https://basescan.org/tx/0x3743fb70d1e3b8267cb45f7160069d0c627c0f72ab9957da97a8f53df574124d", // TODO: Change this into the actual tx link
+              });
+
               if (!args.userSignedMessage) {
                 throw new Error("User signed message is required");
               }
@@ -123,7 +128,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
               console.log("Intent executed", executeIntentResponse);
             },
             metadata: {
-              description: "Sign Intent Message",
+              description: "Sign and Execute Intent",
             },
           },
           ...selectedTokens

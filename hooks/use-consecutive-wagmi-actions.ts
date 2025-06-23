@@ -194,9 +194,9 @@ export const useConsecutiveWagmiActions = ({
         const actionChainId = currentAction.chainId;
 
         if (actionChainId && actionChainId !== currentChainId) {
-          await switchChain(config, {
-            chainId: actionChainId,
-          });
+          await switchChain(config, { chainId: actionChainId });
+          // This timeout is to wait for the chain to be switched
+          await new Promise((_) => setTimeout(_, 300));
           currentChainId = actionChainId;
         }
 
@@ -291,6 +291,8 @@ export const useConsecutiveWagmiActions = ({
             if (currentAction.onSuccess) {
               await currentAction.onSuccess({
                 userSignedMessage,
+                updateActionInfo,
+                currentActionIdx,
               });
             }
           } catch (error) {
