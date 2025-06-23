@@ -44,6 +44,15 @@ export interface SendResponse {
   };
 }
 
+export interface RequestedTransferType {
+  chainID: number;
+  token: string;
+  tokenSymbol: string;
+  amount: string;
+  hasPermit: boolean;
+  permit3Allowance: string;
+}
+
 export interface Intent {
   routeData: RouteData;
   rewardData: RewardData;
