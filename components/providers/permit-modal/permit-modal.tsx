@@ -29,6 +29,7 @@ import {
 import { erc20Abi, maxUint256 } from "viem";
 import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { config } from "@/lib/appkit";
+import { usePaymentParams } from "../payment-params-provider";
 
 interface PermitModalProps {
   open: boolean;
@@ -45,6 +46,7 @@ export const PermitModal = ({
   const { disconnect } = useDisconnect();
   const { userBalances } = useUserBalances();
   const { selectedTokens } = useSelectedTokens();
+  const { desiredNetworkString } = usePaymentParams();
   const [selectedTokensToApprove, setSelectedTokensToApprove] =
     useState<UserAssetsByChain>({});
   const [permitModalState, setPermitModalState] = useState<PermitModalState>(
@@ -53,15 +55,18 @@ export const PermitModal = ({
 
   // Get all the chains of the selected tokens
   const allSelectedChains = useMemo(
-    () => selectedTokens.map((token) => token.chain),
-    [selectedTokens]
+    () =>
+      selectedTokens
+        .map((token) => token.chain)
+        .filter((chain) => chain !== desiredNetworkString),
+    [selectedTokens, desiredNetworkString]
   );
 
   // Group the user balances by chain
   const allGroupedUserBalances = useMemo(
     () =>
       groupUserBalancesByChain(
-        userBalances //.filter((balance) => !balance.hasPermit) //TODO: Restore this
+        userBalances.filter((balance) => !balance.hasPermit) //HINT: Change this to approve every time
       ),
     [userBalances]
   );
