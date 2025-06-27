@@ -3,6 +3,7 @@ import { TransactionsList } from "@/components/custom-ui/transactions-list";
 import { ActionItem, HookStatus } from "@/hooks/use-consecutive-wagmi-actions";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
+import { usePermitModal } from "./permit-modal-provider";
 
 interface ApproveCompletedProps {
   onOpenChange: (open: boolean) => void;
@@ -17,6 +18,8 @@ export const ApproveCompleted = ({
   currentActionIndex,
   hookStatus,
 }: ApproveCompletedProps) => {
+  const { setAllApprovalsCompleted } = usePermitModal();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -46,6 +49,7 @@ export const ApproveCompleted = ({
       <CustomButton
         text="Close"
         onClick={() => {
+          setAllApprovalsCompleted(true);
           onOpenChange(false);
         }}
         className="w-full max-w-[98.5%] mx-auto"

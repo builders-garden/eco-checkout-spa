@@ -6,30 +6,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../shadcn-ui/dialog";
-import { chainStringToChainId, groupUserBalancesByChain } from "@/lib/utils";
-import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
+import { useAppKitAccount } from "@reown/appkit/react";
 import { Separator } from "../../shadcn-ui/separator";
-import { useUserBalances } from "../user-balances-provider";
-import { UserAssetsByChain } from "@/lib/types";
 import { TopCard } from "./top-card";
 import { CustomButton } from "@/components/custom-ui/customButton";
-import { useEffect, useState, useMemo } from "react";
+import { useState } from "react";
 import { ResizablePanel } from "@/components/custom-ui/resizable-panel";
-import { useSelectedTokens } from "../selected-tokens-provider";
-import { RelayoorChain } from "@/lib/relayoor/types";
-import { PermitModalState, TokenSymbols } from "@/lib/enums";
+import { PermitModalState } from "@/lib/enums";
 import { BottomAccordions } from "./bottom-accordions";
 import { ApproveContainer } from "./approve-container";
 import { ApproveCompleted } from "./approve-completed";
-import {
-  InitialWagmiAction,
-  useConsecutiveWagmiActions,
-  WagmiActionType,
-} from "@/hooks/use-consecutive-wagmi-actions";
-import { erc20Abi, maxUint256 } from "viem";
-import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
+import { useConsecutiveWagmiActions } from "@/hooks/use-consecutive-wagmi-actions";
 import { config } from "@/lib/appkit";
-import { usePaymentParams } from "../payment-params-provider";
+import { usePermitModal } from "./permit-modal-provider";
 
 interface PermitModalProps {
   open: boolean;
@@ -43,95 +32,28 @@ export const PermitModal = ({
   setAllApprovalsCompleted,
 }: PermitModalProps) => {
   const { address } = useAppKitAccount();
-  const { disconnect } = useDisconnect();
-  const { userBalances } = useUserBalances();
-  const { selectedTokens } = useSelectedTokens();
-  const { desiredNetworkString } = usePaymentParams();
-  const [selectedTokensToApprove, setSelectedTokensToApprove] =
-    useState<UserAssetsByChain>({});
-  const [totalTokensToApprove, setTotalTokensToApprove] = useState(0);
   const [permitModalState, setPermitModalState] = useState<PermitModalState>(
     PermitModalState.SELECT
   );
-
-  // Get all the chains of the selected tokens
-  const allSelectedChains = useMemo(
-    () =>
-      selectedTokens
-        .map((token) => token.chain)
-        .filter((chain) => chain !== desiredNetworkString), // HINT: Change this to remove the same chain as the desired network
-    [selectedTokens, desiredNetworkString]
-  );
-
-  // Group the user balances by chain
-  const allGroupedUserBalances = useMemo(
-    () =>
-      groupUserBalancesByChain(
-        userBalances.filter((balance) => !balance.hasPermit) //HINT: Change this to approve every time
-      ),
-    [userBalances]
-  );
-
-  // Set the selected tokens to approve later in the flow
-  useEffect(() => {
-    let selectedTokensToApprove: UserAssetsByChain = {};
-    let count = 0;
-
-    Object.entries(allGroupedUserBalances).forEach(([chain, balances]) => {
-      if (allSelectedChains.includes(chain as RelayoorChain)) {
-        selectedTokensToApprove[chain] = balances;
-        count += balances.length;
-      } else {
-        selectedTokensToApprove[chain] = [];
-      }
-    });
-
-    setSelectedTokensToApprove(selectedTokensToApprove);
-    setTotalTokensToApprove(count);
-  }, [allGroupedUserBalances, allSelectedChains]);
-
-  // Create the wagmi actions
-  const initialWagmiActions: InitialWagmiAction[] = useMemo(
-    () =>
-      Object.values(selectedTokensToApprove)
-        .flat()
-        .map((balance) => {
-          const chainId = chainStringToChainId(balance.chain);
-          return {
-            type: WagmiActionType.WRITE_CONTRACT,
-            data: {
-              abi: erc20Abi,
-              functionName: "approve",
-              address: balance.tokenContractAddress,
-              args: [PERMIT3_VERIFIER_ADDRESS, maxUint256],
-              chainId,
-            },
-            chainId,
-            metadata: {
-              chain: balance.chain,
-              asset: balance.asset,
-              amount: balance.amount,
-              description: `Approve ${
-                TokenSymbols[balance.asset as keyof typeof TokenSymbols]
-              }`,
-            },
-          };
-        }),
-    [selectedTokensToApprove]
-  );
-
-  // Initialize the hook
-  const { start, retry, queuedActions, hookStatus, currentActionIndex } =
-    useConsecutiveWagmiActions({
-      config,
-      initialWagmiActions,
-    });
+  const {
+    selectedTokensToApprove,
+    approveWagmiActions,
+    mandatoryTokensAmount,
+    otherTokensAmount,
+  } = usePermitModal();
 
   // Handle Permit Modal Close
   const handlePermitModalClose = () => {
     setPermitModalState(PermitModalState.SELECT);
     onOpenChange(false);
   };
+
+  // Initialize the hook
+  const { start, retry, queuedActions, hookStatus, currentActionIndex } =
+    useConsecutiveWagmiActions({
+      config,
+      initialWagmiActions: approveWagmiActions,
+    });
 
   return (
     <Dialog open={open} onOpenChange={handlePermitModalClose}>
@@ -147,39 +69,32 @@ export const PermitModal = ({
         </DialogHeader>
         <ResizablePanel
           initialHeight={
-            permitModalState === "select"
-              ? 418 + (totalTokensToApprove - 1) * 60
-              : permitModalState === "end"
-              ? 237
-              : undefined
+            mandatoryTokensAmount > 0
+              ? 418 + (mandatoryTokensAmount - 1) * 60
+              : 293 + (otherTokensAmount === 1 ? 52 : otherTokensAmount * 60)
           }
           id={permitModalState}
         >
           {permitModalState === "select" && (
             <div className="flex flex-col gap-4 w-full">
               {/* Card */}
-              <TopCard
-                onOpenChange={onOpenChange}
-                disconnect={disconnect}
-                address={address ?? ""}
-                selectedTokensToApprove={selectedTokensToApprove}
-              />
+              <TopCard onOpenChange={onOpenChange} address={address ?? ""} />
 
               <Separator dashed />
 
               {/* Bottom Accordions */}
-              <BottomAccordions
-                allGroupedUserBalances={allGroupedUserBalances}
-                allSelectedChains={allSelectedChains}
-                selectedTokensToApprove={selectedTokensToApprove}
-                setSelectedTokensToApprove={setSelectedTokensToApprove}
-              />
+              <BottomAccordions />
 
               {/* Continue Button */}
               <CustomButton
                 text="Continue"
                 onClick={() => {
-                  setPermitModalState(PermitModalState.APPROVE);
+                  if (selectedTokensToApprove.length > 0) {
+                    setPermitModalState(PermitModalState.APPROVE);
+                  } else {
+                    handlePermitModalClose();
+                    setAllApprovalsCompleted(true);
+                  }
                 }}
                 className="w-full max-w-[98.5%] mx-auto"
               />

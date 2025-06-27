@@ -3,32 +3,25 @@ import { getHumanReadableAmount, truncateAddress } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 import { useNames } from "../names-provider";
-import { UserAssetsByChain } from "@/lib/types";
 import { useMemo } from "react";
+import { useDisconnect } from "@reown/appkit/react";
+import { usePermitModal } from "./permit-modal-provider";
 
 interface TopCardProps {
   onOpenChange: (open: boolean) => void;
-  disconnect: () => void;
   address: string;
-  selectedTokensToApprove: UserAssetsByChain;
 }
 
-export const TopCard = ({
-  onOpenChange,
-  disconnect,
-  address,
-  selectedTokensToApprove,
-}: TopCardProps) => {
+export const TopCard = ({ onOpenChange, address }: TopCardProps) => {
   const { userNames } = useNames();
+  const { disconnect } = useDisconnect();
+  const { selectedTokensToApprove } = usePermitModal();
 
   // Calculate all the amount of the selected tokens
   const selectedTokensAmount = useMemo(() => {
-    return Object.entries(selectedTokensToApprove).reduce(
-      (acc, [_, balances]) => {
-        return acc + balances.reduce((acc, balance) => acc + balance.amount, 0);
-      },
-      0
-    );
+    return selectedTokensToApprove.reduce((acc, token) => {
+      return acc + token.amount;
+    }, 0);
   }, [selectedTokensToApprove]);
 
   return (

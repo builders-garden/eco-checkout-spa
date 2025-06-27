@@ -9,12 +9,7 @@ import {
   ink,
   apeChain,
 } from "viem/chains";
-import {
-  CheckoutPageStateType,
-  UserAsset,
-  PaginationState,
-  UserAssetsByChain,
-} from "./types";
+import { CheckoutPageStateType, UserAsset, PaginationState } from "./types";
 import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 import { Chain, createPublicClient, http } from "viem";
@@ -213,21 +208,6 @@ export const groupSelectedTokensByAssetName = (
     }
     return acc;
   }, {} as Record<string, { assetName: string; chain: string }[]>);
-};
-
-/**
- * Groups user balances by chain
- * @param userBalances - The user balances
- * @returns The grouped user balances
- */
-export const groupUserBalancesByChain = (
-  userBalances: UserAsset[]
-): UserAssetsByChain => {
-  return userBalances.reduce((acc, balance) => {
-    acc[balance.chain] = acc[balance.chain] || [];
-    acc[balance.chain].push(balance);
-    return acc;
-  }, {} as UserAssetsByChain);
 };
 
 /**

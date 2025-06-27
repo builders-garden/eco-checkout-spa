@@ -5,83 +5,69 @@ import {
   AccordionTrigger,
 } from "@/components/shadcn-ui/accordion";
 import { ChainAccordion } from "./chain-accordion";
-import { UserAssetsByChain } from "@/lib/types";
-import { RelayoorChain } from "@/lib/relayoor/types";
+import { usePermitModal } from "./permit-modal-provider";
 
-interface BottomAccordionsProps {
-  allGroupedUserBalances: UserAssetsByChain;
-  allSelectedChains: RelayoorChain[];
-  selectedTokensToApprove: UserAssetsByChain;
-  setSelectedTokensToApprove: (tokens: UserAssetsByChain) => void;
-}
+export const BottomAccordions = () => {
+  const { groupedTokens, mandatoryTokensAmount, otherTokensAmount } =
+    usePermitModal();
 
-export const BottomAccordions = ({
-  allGroupedUserBalances,
-  allSelectedChains,
-  selectedTokensToApprove,
-  setSelectedTokensToApprove,
-}: BottomAccordionsProps) => {
   return (
     <div className="flex flex-col gap-4 w-full max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar-track]:bg-transparent">
       <Accordion
         type="single"
         collapsible
         className="w-full"
-        defaultValue="item-1"
+        defaultValue={mandatoryTokensAmount > 0 ? "item-1" : "item-2"}
       >
-        {/* Unselectable tokens to approve */}
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="text-sm px-1 cursor-pointer">
-            Payment Approvals
-          </AccordionTrigger>
-          <AccordionContent className="flex flex-col px-1 pt-0.5 transition-all duration-300">
-            <div className="flex flex-col gap-2">
-              {Object.entries(allGroupedUserBalances).map(
-                ([chain, balances]) => {
-                  if (allSelectedChains.includes(chain as RelayoorChain)) {
+        {/* Mandatory tokens to approve */}
+        {mandatoryTokensAmount > 0 && (
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-sm px-1 cursor-pointer">
+              Required for this payment
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col px-1 pt-0.5 transition-all duration-300">
+              <div className="flex flex-col gap-2">
+                {Object.entries(groupedTokens.mandatoryTokens).map(
+                  ([chain, chainBalances]) => {
                     return (
                       <ChainAccordion
                         key={chain}
                         chain={chain}
-                        balances={balances}
-                        selectedTokens={selectedTokensToApprove}
-                        setSelectedTokens={setSelectedTokensToApprove}
+                        chainBalances={chainBalances}
                         unselectable={true}
                       />
                     );
                   }
-                }
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
-        {/* Other tokens to select */}
-        <AccordionItem value="item-2">
-          <AccordionTrigger className="text-sm px-1 cursor-pointer">
-            Select more tokens
-          </AccordionTrigger>
-          <AccordionContent className="flex flex-col px-1 pb-1 pt-0.5 transition-all duration-300">
-            <div className="flex flex-col gap-2">
-              {Object.entries(allGroupedUserBalances).map(
-                ([chain, balances]) => {
-                  if (!allSelectedChains.includes(chain as RelayoorChain)) {
+        {/* Other tokens to select and approve for future payments */}
+        {otherTokensAmount > 0 && (
+          <AccordionItem value="item-2">
+            <AccordionTrigger className="text-sm px-1 cursor-pointer">
+              Approve more tokens for future payments
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col px-1 pb-1 pt-0.5 transition-all duration-300">
+              <div className="flex flex-col gap-2">
+                {Object.entries(groupedTokens.otherTokens).map(
+                  ([chain, chainBalances]) => {
                     return (
                       <ChainAccordion
                         key={chain}
                         chain={chain}
-                        balances={balances}
-                        selectedTokens={selectedTokensToApprove}
-                        setSelectedTokens={setSelectedTokensToApprove}
+                        chainBalances={chainBalances}
                         unselectable={false}
                       />
                     );
                   }
-                }
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
     </div>
   );

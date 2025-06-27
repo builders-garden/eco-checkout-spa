@@ -99,5 +99,5 @@ export enum AlchemyRpcBaseUrls {
   "unichain" = "https://unichain-mainnet.g.alchemy.com/v2",
   "celo" = "https://celo-mainnet.g.alchemy.com/v2",
   "ink" = "https://ink-mainnet.g.alchemy.com/v2",
-  "apechain" = "https://apechain-mainnet.g.alchemy.com/v2",
+  "ape chain" = "https://apechain-mainnet.g.alchemy.com/v2",
 }

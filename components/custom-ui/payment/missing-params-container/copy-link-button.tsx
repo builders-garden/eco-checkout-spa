@@ -41,7 +41,6 @@ export const CopyLinkButton = ({
         })
         .json();
 
-      console.log("paymentId", paymentId);
       setTimeout(() => {
         const paymentUrl = `${window.location.origin}/${paymentId}`;
         navigator.clipboard.writeText(paymentUrl);
