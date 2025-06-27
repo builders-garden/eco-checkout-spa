@@ -79,7 +79,7 @@ export const GET = async (req: NextRequest) => {
     const response = await ky
       .get(
         // TODO: Change with env variable
-        `https://relayoor-preprod.beam.eco/api/v1/buildersGarden/balances?address=0xF416fffcF021d2d95eb777dC3424ee18a06beC26&includeNativeBalance=false`
+        `https://relayoor-preprod.beam.eco/api/v1/buildersGarden/balances?address=${userAddress}&includeNativeBalance=false`
       )
       .json<BalanceResponse>();
 

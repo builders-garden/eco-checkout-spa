@@ -37,7 +37,7 @@ export const POST = async (req: NextRequest) => {
 
   // Create the request body
   const requestBody = {
-    sender: "0xF416fffcF021d2d95eb777dC3424ee18a06beC26",
+    sender,
     recipient,
     destinationNetwork,
     destinationToken,
