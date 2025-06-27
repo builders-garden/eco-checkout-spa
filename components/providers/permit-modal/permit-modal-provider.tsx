@@ -1,4 +1,11 @@
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { PermitModal } from "./permit-modal";
 import { useUserBalances } from "../user-balances-provider";
 
@@ -29,6 +36,15 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
     userBalances.every((balance) => balance.hasPermit)
   );
   // HINT: Change this to approve every time
+
+  // Update the allApprovalsCompleted state when the userBalances change
+  useEffect(() => {
+    if (userBalances.length > 0) {
+      setAllApprovalsCompleted(
+        userBalances.every((balance) => balance.hasPermit)
+      );
+    }
+  }, [userBalances]);
 
   // Handle Permit Modal Open
   const handlePermitModalOpen = () => {

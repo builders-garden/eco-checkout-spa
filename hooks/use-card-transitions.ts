@@ -26,18 +26,6 @@ export const useCardTransitions = () => {
     hasFetchedUserBalances &&
     hasFetchedSelectedTokens;
 
-  // useEffect(() => {
-  //   console.log("isConnectedAndFetched", {
-  //     isConnected,
-  //     address,
-  //     isLoadingUserBalances,
-  //     isLoadingSelectedTokens,
-  //     hasFetchedUserBalances,
-  //     hasFetchedSelectedTokens,
-  //     isConnectedAndFetched,
-  //   });
-  // }, [isConnectedAndFetched]);
-
   // Handle transition between states
   const handleSetAnimationState = (state: CardState) => {
     setAnimationState(null);
