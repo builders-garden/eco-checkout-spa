@@ -59,7 +59,7 @@ export const PermitModal = ({
     () =>
       selectedTokens
         .map((token) => token.chain)
-        .filter((chain) => chain !== desiredNetworkString),
+        .filter((chain) => chain !== desiredNetworkString), // HINT: Change this to remove the same chain as the desired network
     [selectedTokens, desiredNetworkString]
   );
 

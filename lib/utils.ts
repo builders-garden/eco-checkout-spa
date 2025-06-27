@@ -7,6 +7,7 @@ import {
   unichain,
   celo,
   ink,
+  apeChain,
 } from "viem/chains";
 import {
   CheckoutPageStateType,
@@ -60,6 +61,8 @@ export const chainIdToChain = (chainId: number, asString: boolean = false) => {
       return asString ? "celo" : celo;
     case 57073:
       return asString ? "ink" : ink;
+    case 33139:
+      return asString ? "apechain" : apeChain;
     default:
       throw new Error(`Unknown chain ID: ${chainId}`);
   }
@@ -93,6 +96,8 @@ export const chainStringToChainId = (chain: string): RoutesSupportedChainId => {
       return 42220;
     case "ink":
       return 57073;
+    case "apechain":
+      return 33139;
     default:
       throw new Error(`Unknown chain: ${chain}`);
   }

@@ -86,6 +86,14 @@ export const ChainSelection = ({
           />
           Ink
         </SelectItem>
+        <SelectItem value="33139" className="flex items-center gap-2">
+          <img
+            src={ChainImages.Apechain}
+            alt="Apechain"
+            className="size-[18px] rounded-full"
+          />
+          Apechain
+        </SelectItem>
       </SelectContent>
     </Select>
   );

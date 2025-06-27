@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@eco-foundation/routes-sdk':
         specifier: latest
-        version: 0.12.7(@eco-foundation/routes-ts@1.17.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        version: 0.14.0(@eco-foundation/routes-ts@2.8.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@eco-foundation/routes-ts':
-        specifier: 1.17.6
-        version: 1.17.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
+        specifier: latest
+        version: 2.8.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
       '@ensdomains/ensjs':
         specifier: ^4.0.2
         version: 4.0.2(typescript@5.8.3)(viem@2.26.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))(zod@3.24.2)
@@ -170,13 +170,13 @@ packages:
     peerDependencies:
       '@noble/ciphers': ^1.0.0
 
-  '@eco-foundation/routes-sdk@0.12.7':
-    resolution: {integrity: sha512-57dPqR4g9hXag3c4iuy9Y1VCdOfDkyS03Ye6meBrnH9O9heoEzrhCt/uFypwbNhj2xO65/0OB++aCN1644EYsg==}
+  '@eco-foundation/routes-sdk@0.14.0':
+    resolution: {integrity: sha512-5A+czF+n1bp4E9CeP15jQFF1v7R4H7XBwt8BkUzjQcYoMS0cihZt+WW0084Wy8OQPbOpOyfRXhnx1ZJrwnpLbw==}
     peerDependencies:
-      '@eco-foundation/routes-ts': ^1.17.6
+      '@eco-foundation/routes-ts': ^2.8.2
 
-  '@eco-foundation/routes-ts@1.17.6':
-    resolution: {integrity: sha512-VN/cWbpPx1mM7Ewxj8z1zgYsuQZRdtOWclvE4WdW4YR9x02sonVk62mr0uXEHLRmhqF9mND2m+MeUir3sQSC/A==}
+  '@eco-foundation/routes-ts@2.8.3':
+    resolution: {integrity: sha512-yBtokUCwMtI6+4zNk66VVRz9TlAwnsgH4b2c95421d2c20MZ3fg4TSr+H/dZhfCY1Shsz3PE+SaXcfp21yQgHw==}
 
   '@emnapi/core@1.4.0':
     resolution: {integrity: sha512-H+N/FqT07NmLmt6OFFtDfwe8PNygprzBikrEMyQfgqSmT0vzE515Pz7R8izwB9q/zsH/MA64AKoul3sA6/CzVg==}
@@ -3824,15 +3824,15 @@ snapshots:
     dependencies:
       '@noble/ciphers': 1.2.1
 
-  '@eco-foundation/routes-sdk@0.12.7(@eco-foundation/routes-ts@1.17.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
+  '@eco-foundation/routes-sdk@0.14.0(@eco-foundation/routes-ts@2.8.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
     dependencies:
-      '@eco-foundation/routes-ts': 1.17.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
+      '@eco-foundation/routes-ts': 2.8.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
       axios: 1.8.4
       axios-retry: 4.5.0(axios@1.8.4)
     transitivePeerDependencies:
       - debug
 
-  '@eco-foundation/routes-ts@1.17.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)':
+  '@eco-foundation/routes-ts@2.8.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)':
     dependencies:
       viem: 2.26.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.2)
     transitivePeerDependencies:

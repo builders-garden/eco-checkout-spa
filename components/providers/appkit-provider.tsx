@@ -15,6 +15,7 @@ import {
   arbitrum,
   celo,
   ink,
+  apeChain,
 } from "@reown/appkit/networks";
 
 // Set up queryClient
@@ -32,7 +33,17 @@ const metadata = {
 createAppKit({
   adapters: [wagmiAdapter],
   projectId,
-  networks: [mainnet, optimism, polygon, base, unichain, arbitrum, celo, ink],
+  networks: [
+    mainnet,
+    optimism,
+    polygon,
+    base,
+    unichain,
+    arbitrum,
+    celo,
+    ink,
+    apeChain,
+  ],
   defaultNetwork: base,
   metadata: metadata,
   features: {

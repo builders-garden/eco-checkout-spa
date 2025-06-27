@@ -8,6 +8,7 @@ export enum ChainImages {
   "arbitrum" = "/images/chains/arbitrum-logo.svg",
   "celo" = "/images/chains/celo-logo.svg",
   "ink" = "/images/chains/ink-logo.svg",
+  "apechain" = "/images/chains/apechain-logo.svg",
 
   // Capitalized Chain Names
   "Ethereum" = "/images/chains/ethereum-logo.svg",
@@ -18,6 +19,7 @@ export enum ChainImages {
   "Arbitrum" = "/images/chains/arbitrum-logo.svg",
   "Celo" = "/images/chains/celo-logo.svg",
   "Ink" = "/images/chains/ink-logo.svg",
+  "Apechain" = "/images/chains/apechain-logo.svg",
 }
 
 export enum ChainExplorerStringUrls {
@@ -29,6 +31,7 @@ export enum ChainExplorerStringUrls {
   "arbitrum" = "https://arbiscan.io",
   "celo" = "https://celoscan.io",
   "ink" = "https://explorer.inkonchain.com",
+  "apechain" = "https://apescan.io",
 }
 
 // Token Images
@@ -96,4 +99,5 @@ export enum AlchemyRpcBaseUrls {
   "unichain" = "https://unichain-mainnet.g.alchemy.com/v2",
   "celo" = "https://celo-mainnet.g.alchemy.com/v2",
   "ink" = "https://ink-mainnet.g.alchemy.com/v2",
+  "apechain" = "https://apechain-mainnet.g.alchemy.com/v2",
 }

@@ -10,6 +10,7 @@ import {
   arbitrum,
   celo,
   ink,
+  apeChain,
 } from "@reown/appkit/networks";
 import { env } from "../zod";
 import { AlchemyRpcBaseUrls } from "../enums";
@@ -23,6 +24,7 @@ export const networks = [
   arbitrum,
   celo,
   ink,
+  apeChain,
 ];
 
 export const projectId = env.NEXT_PUBLIC_REOWN_APP_ID;
