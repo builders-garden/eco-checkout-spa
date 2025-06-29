@@ -79,7 +79,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
             signatureData: Permit3SignatureData;
             requestID: string;
           }>(
-            `/api/get-intents?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
+            `/api/send?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
             {
               timeout: false,
             }
