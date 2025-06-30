@@ -23,8 +23,14 @@ export default function TransactionsContainer({
     isError,
     getRequestIDAndSignatureData,
   } = useTransactions();
-  const { queuedActions, currentActionIndex, hookStatus, retry, start } =
-    consecutiveWagmiActionsObject;
+  const {
+    queuedActions,
+    currentActionIndex,
+    currentAction,
+    hookStatus,
+    retry,
+    start,
+  } = consecutiveWagmiActionsObject;
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
 
@@ -75,6 +81,7 @@ export default function TransactionsContainer({
             <TransactionsList
               queuedActions={queuedActions}
               currentActionIndex={currentActionIndex}
+              currentAction={currentAction}
               hookStatus={hookStatus}
             />
           )

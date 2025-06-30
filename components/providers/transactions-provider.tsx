@@ -9,7 +9,11 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 import { usePaymentParams } from "./payment-params-provider";
 import { useSelectedTokens } from "./selected-tokens-provider";
-import { Permit3SignatureData } from "@/lib/relayoor/types";
+import {
+  ExecuteIntentResponse,
+  GetIntentResponse,
+  Permit3SignatureData,
+} from "@/lib/relayoor/types";
 import ky from "ky";
 import { PERMIT3_TYPES } from "@/lib/constants";
 import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
@@ -101,11 +105,6 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
             },
             chainId: 1,
             onSuccess: async (args) => {
-              args.updateActionInfo(args.currentActionIdx, {
-                txLink:
-                  "https://basescan.org/tx/0x3743fb70d1e3b8267cb45f7160069d0c627c0f72ab9957da97a8f53df574124d", // TODO: Change this into the actual tx link
-              });
-
               if (!args.userSignedMessage) {
                 throw new Error("User signed message is required");
               }
@@ -116,8 +115,9 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 args.userSignedMessage
               );
 
+              // Execute intent
               const executeIntentResponse = await ky
-                .post(`/api/execute-intent`, {
+                .post<ExecuteIntentResponse>(`/api/execute-intent`, {
                   json: {
                     requestID: response.requestID,
                     userSignedMessage: args.userSignedMessage,
@@ -126,14 +126,95 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 })
                 .json();
               console.log("Intent executed", executeIntentResponse);
+
+              // Map all the quoteIDs
+              const quoteIDs = [
+                ...executeIntentResponse.data.failures.flatMap((failure) =>
+                  failure.quoteIDs.map((quoteID) => quoteID)
+                ),
+                ...executeIntentResponse.data.successes.flatMap((success) =>
+                  success.quoteIDs.map((quoteID) => quoteID)
+                ),
+              ];
+
+              console.log("Quote IDs", quoteIDs);
+
+              // Get all the intents form the endpoint
+              const intentsResponse = await ky
+                .post<{
+                  quoteIDsArray: {
+                    response: GetIntentResponse;
+                    destinationTokenAddress: string | undefined;
+                  }[];
+                }>(`/api/get-intents`, { json: { quoteIDs, creator: address } })
+                .json();
+
+              console.log("Intents response", intentsResponse);
+
+              // For each involved token update the metadata with the relative tx Link
             },
             metadata: {
               description: "Sign and Execute Intent",
+              involvedTokens: [
+                ...selectedTokens
+                  .map((token) => {
+                    let chainId: number;
+                    try {
+                      chainId = chainStringToChainId(token.chain);
+                    } catch (error) {
+                      return undefined;
+                    }
+
+                    // Take all the tokens that are not on the desired network
+                    if (chainId === desiredNetworkId) {
+                      return undefined;
+                    }
+
+                    return {
+                      chain: token.chain,
+                      asset: token.asset,
+                      txLink: null,
+                      description: `Transfer ${
+                        TokenSymbols[token.asset as keyof typeof TokenSymbols]
+                      }`,
+                    };
+                  })
+                  .filter((token) => token !== undefined),
+                ...selectedTokens
+                  .map((token) => {
+                    let chainId: number;
+                    try {
+                      chainId = chainStringToChainId(token.chain);
+                    } catch (error) {
+                      return undefined;
+                    }
+
+                    // Take all the tokens that are not on the desired network
+                    if (chainId === desiredNetworkId) {
+                      return undefined;
+                    }
+
+                    return {
+                      chain: token.chain,
+                      asset: token.asset,
+                      txLink: null,
+                      description: `Transfer ${
+                        TokenSymbols[token.asset as keyof typeof TokenSymbols]
+                      }`,
+                    };
+                  })
+                  .filter((token) => token !== undefined),
+              ],
             },
           },
           ...selectedTokens
             .map((token) => {
-              const chainId = chainStringToChainId(token.chain);
+              let chainId: number;
+              try {
+                chainId = chainStringToChainId(token.chain);
+              } catch (error) {
+                return undefined;
+              }
 
               // If it's not the desired network, don't add it to the actions
               // because the intents will already execute that transfer

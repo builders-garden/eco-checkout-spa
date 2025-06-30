@@ -10,6 +10,7 @@ interface ApproveContainerProps {
   hookStatus: HookStatus;
   queuedActions: ActionItem[];
   currentActionIndex: number;
+  currentAction: ActionItem;
   start: () => void;
   retry: () => void;
 }
@@ -20,6 +21,7 @@ export const ApproveContainer = ({
   hookStatus,
   queuedActions,
   currentActionIndex,
+  currentAction,
   start,
   retry,
 }: ApproveContainerProps) => {
@@ -43,6 +45,7 @@ export const ApproveContainer = ({
       <TransactionsList
         queuedActions={queuedActions}
         currentActionIndex={currentActionIndex}
+        currentAction={currentAction}
         hookStatus={hookStatus}
       />
 

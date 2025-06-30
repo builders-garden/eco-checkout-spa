@@ -1,3 +1,4 @@
+import { ExecuteIntentResponse } from "@/lib/relayoor/types";
 import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
@@ -11,9 +12,8 @@ export const POST = async (req: NextRequest) => {
 
   // Execute the intent
   try {
-    // TODO: Add a proper response type
     const response = await ky
-      .post(
+      .post<ExecuteIntentResponse>(
         `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/executeIntents`,
         {
           json: {

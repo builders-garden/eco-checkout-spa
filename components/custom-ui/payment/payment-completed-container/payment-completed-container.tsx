@@ -9,7 +9,7 @@ export default function PaymentCompletedContainer() {
   const { paymentParams } = usePaymentParams();
   const { amountDue, redirect } = paymentParams;
   const { consecutiveWagmiActionsObject } = useTransactions();
-  const { queuedActions, currentActionIndex, hookStatus } =
+  const { queuedActions, currentActionIndex, currentAction, hookStatus } =
     consecutiveWagmiActionsObject;
 
   return (
@@ -39,6 +39,7 @@ export default function PaymentCompletedContainer() {
       <TransactionsList
         queuedActions={queuedActions}
         currentActionIndex={currentActionIndex}
+        currentAction={currentAction}
         hookStatus={hookStatus}
         showState={false}
       />

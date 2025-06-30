@@ -15,6 +15,12 @@ export interface TokenBalance {
   amount: string;
 }
 
+export interface CallData {
+  target: string;
+  data: string;
+  value: string;
+}
+
 // Balance Response Types
 export interface BalanceResponse {
   data: Record<RelayoorChain, TokenBalance[]>;
@@ -67,12 +73,6 @@ export interface RouteData {
   calls: CallData[];
 }
 
-export interface CallData {
-  target: string;
-  data: string;
-  value: string;
-}
-
 export interface RewardData {
   creator: string;
   proverContract: string;
@@ -95,4 +95,91 @@ export interface Permit3SignatureData {
     timestamp: number;
     unhingedRoot: string;
   };
+}
+
+// Get Intent Response Types
+export interface GetIntentResponse {
+  data: IntentData[];
+}
+
+export interface IntentData {
+  quoteID: string;
+  dAppID: string;
+  hash: string;
+  intentExecutionType: string;
+  creator: string;
+  chainId: number;
+  transactionHash: string;
+  params: IntentParams;
+  v2GaslessIntentData: V2GaslessIntentData;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IntentParams {
+  hash: string;
+  creator: string;
+  prover: string;
+  salt: string;
+  source: string;
+  destination: string;
+  inbox: string;
+  deadline: string;
+  nativeValue: string;
+  routeTokens: TokenBalance[];
+  rewardTokens: TokenBalance[];
+  calls: CallData[];
+}
+
+export interface V2GaslessIntentData {
+  permitData: PermitData;
+  allowPartial: boolean;
+}
+
+export interface PermitData {
+  permit3: Permit3Data;
+  permit: any[];
+  permit2: any[];
+}
+
+export interface Permit3Data {
+  chainId: number;
+  permitContract: string;
+  owner: string;
+  salt: string;
+  signature: string;
+  deadline: string;
+  timestamp: number;
+  leafs: string[];
+  allowanceOrTransfers: AllowanceOrTransfer[];
+}
+
+export interface AllowanceOrTransfer {
+  chainID: number;
+  modeOrExpiration: number;
+  token: string;
+  account: string;
+  amountDelta: string;
+}
+
+// Execute Intent Response Types
+export interface ExecuteIntentResponse {
+  data: {
+    successes: ExecutionSuccess[];
+    failures: ExecutionFailure[];
+  };
+}
+
+// Execution Success Types
+// TODO: Define success type structure better
+export interface ExecutionSuccess {
+  chainID: number;
+  quoteIDs: string[];
+}
+
+// Execution Failure Types
+export interface ExecutionFailure {
+  chainID: number;
+  quoteIDs: string[];
+  error: string;
 }

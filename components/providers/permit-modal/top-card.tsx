@@ -43,17 +43,14 @@ export const TopCard = ({ onOpenChange, address }: TopCardProps) => {
             }, 300);
           }}
         >
-          Change
+          Change Wallet
         </motion.div>
       </div>
-      <div className="flex justify-between items-center w-full z-10">
-        <p className="text-2xl font-bold">
-          ${getHumanReadableAmount(selectedTokensAmount, 6).toFixed(2)}
-        </p>
+      <div className="flex justify-end items-center w-full z-10 pr-1.5">
         <AnimatedName
           name={userNames.preferredName}
           address={truncateAddress(address)}
-          className="cursor-pointer"
+          className="cursor-pointer w-[40%]"
           textClassName="font-medium"
         />
       </div>

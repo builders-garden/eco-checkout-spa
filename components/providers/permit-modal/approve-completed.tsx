@@ -9,6 +9,7 @@ interface ApproveCompletedProps {
   onOpenChange: (open: boolean) => void;
   queuedActions: ActionItem[];
   currentActionIndex: number;
+  currentAction: ActionItem;
   hookStatus: HookStatus;
 }
 
@@ -16,6 +17,7 @@ export const ApproveCompleted = ({
   onOpenChange,
   queuedActions,
   currentActionIndex,
+  currentAction,
   hookStatus,
 }: ApproveCompletedProps) => {
   const { setAllApprovalsCompleted } = usePermitModal();
@@ -40,6 +42,7 @@ export const ApproveCompleted = ({
         <TransactionsList
           queuedActions={queuedActions}
           currentActionIndex={currentActionIndex}
+          currentAction={currentAction}
           hookStatus={hookStatus}
           showState={false}
         />

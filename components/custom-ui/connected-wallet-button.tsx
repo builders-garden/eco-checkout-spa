@@ -49,7 +49,7 @@ export const ConnectedWalletButton = ({
               name={userNames.preferredName}
               address={truncateAddress(address)}
               className={cn(
-                "items-start h-[20px] cursor-pointer w-[33%]",
+                "items-start h-[20px] cursor-pointer w-[40%]",
                 disabled && "cursor-default"
               )}
               height={20}
