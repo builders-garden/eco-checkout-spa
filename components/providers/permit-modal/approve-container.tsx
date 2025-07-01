@@ -9,8 +9,6 @@ interface ApproveContainerProps {
   setAllApprovalsCompleted: (allApprovalsCompleted: boolean) => void;
   hookStatus: HookStatus;
   queuedActions: ActionItem[];
-  currentActionIndex: number;
-  currentAction: ActionItem;
   start: () => void;
   retry: () => void;
 }
@@ -20,8 +18,6 @@ export const ApproveContainer = ({
   setAllApprovalsCompleted,
   hookStatus,
   queuedActions,
-  currentActionIndex,
-  currentAction,
   start,
   retry,
 }: ApproveContainerProps) => {
@@ -42,12 +38,7 @@ export const ApproveContainer = ({
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      <TransactionsList
-        queuedActions={queuedActions}
-        currentActionIndex={currentActionIndex}
-        currentAction={currentAction}
-        hookStatus={hookStatus}
-      />
+      <TransactionsList queuedActions={queuedActions} />
 
       <CustomButton
         text={hookStatus === HookStatus.ERROR ? "Retry" : ""}

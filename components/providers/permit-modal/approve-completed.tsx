@@ -1,6 +1,6 @@
 import { CustomButton } from "@/components/custom-ui/customButton";
 import { TransactionsList } from "@/components/custom-ui/transactions-list";
-import { ActionItem, HookStatus } from "@/hooks/use-consecutive-wagmi-actions";
+import { ActionItem } from "@/hooks/use-consecutive-wagmi-actions";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import { usePermitModal } from "./permit-modal-provider";
@@ -8,17 +8,11 @@ import { usePermitModal } from "./permit-modal-provider";
 interface ApproveCompletedProps {
   onOpenChange: (open: boolean) => void;
   queuedActions: ActionItem[];
-  currentActionIndex: number;
-  currentAction: ActionItem;
-  hookStatus: HookStatus;
 }
 
 export const ApproveCompleted = ({
   onOpenChange,
   queuedActions,
-  currentActionIndex,
-  currentAction,
-  hookStatus,
 }: ApproveCompletedProps) => {
   const { setAllApprovalsCompleted } = usePermitModal();
 
@@ -39,13 +33,7 @@ export const ApproveCompleted = ({
           <h1 className="text-2xl font-bold">Tokens approved!</h1>
         </div>
 
-        <TransactionsList
-          queuedActions={queuedActions}
-          currentActionIndex={currentActionIndex}
-          currentAction={currentAction}
-          hookStatus={hookStatus}
-          showState={false}
-        />
+        <TransactionsList queuedActions={queuedActions} showState={false} />
       </div>
 
       {/* Close modal button */}

@@ -1,11 +1,9 @@
 import AnimatedName from "@/components/custom-ui/animated-name";
-import { getHumanReadableAmount, truncateAddress } from "@/lib/utils";
+import { truncateAddress } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 import { useNames } from "../names-provider";
-import { useMemo } from "react";
 import { useDisconnect } from "@reown/appkit/react";
-import { usePermitModal } from "./permit-modal-provider";
 
 interface TopCardProps {
   onOpenChange: (open: boolean) => void;
@@ -15,14 +13,6 @@ interface TopCardProps {
 export const TopCard = ({ onOpenChange, address }: TopCardProps) => {
   const { userNames } = useNames();
   const { disconnect } = useDisconnect();
-  const { selectedTokensToApprove } = usePermitModal();
-
-  // Calculate all the amount of the selected tokens
-  const selectedTokensAmount = useMemo(() => {
-    return selectedTokensToApprove.reduce((acc, token) => {
-      return acc + token.amount;
-    }, 0);
-  }, [selectedTokensToApprove]);
 
   return (
     <div className="relative flex flex-col justify-between items-center bg-secondary-foreground h-full w-full p-4 gap-7 rounded-lg overflow-hidden">

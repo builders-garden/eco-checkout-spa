@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  HookStatus,
   ActionItem,
   WagmiActionType,
   ActionStatus,
@@ -13,13 +12,11 @@ import { useMemo } from "react";
 
 interface TransactionsListProps {
   queuedActions: ActionItem[];
-  hookStatus: HookStatus;
   showState?: boolean;
 }
 
 export const TransactionsList = ({
   queuedActions,
-  hookStatus,
   showState = true,
 }: TransactionsListProps) => {
   // Defines the height of the success line

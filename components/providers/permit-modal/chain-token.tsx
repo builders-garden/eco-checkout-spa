@@ -1,4 +1,4 @@
-import { TokenImages, TokenSymbols } from "@/lib/enums";
+import { TokenSymbols } from "@/lib/enums";
 import { UserAsset } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";

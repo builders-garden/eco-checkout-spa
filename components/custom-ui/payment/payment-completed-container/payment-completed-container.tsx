@@ -9,8 +9,7 @@ export default function PaymentCompletedContainer() {
   const { paymentParams } = usePaymentParams();
   const { amountDue, redirect } = paymentParams;
   const { consecutiveWagmiActionsObject } = useTransactions();
-  const { queuedActions, currentActionIndex, currentAction, hookStatus } =
-    consecutiveWagmiActionsObject;
+  const { queuedActions } = consecutiveWagmiActionsObject;
 
   return (
     <motion.div
@@ -36,13 +35,7 @@ export default function PaymentCompletedContainer() {
       </div>
 
       {/* Transactions */}
-      <TransactionsList
-        queuedActions={queuedActions}
-        currentActionIndex={currentActionIndex}
-        currentAction={currentAction}
-        hookStatus={hookStatus}
-        showState={false}
-      />
+      <TransactionsList queuedActions={queuedActions} showState={false} />
 
       {/* Redirect Button */}
       {redirect && (

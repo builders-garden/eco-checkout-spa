@@ -49,17 +49,11 @@ export const PermitModal = ({
   };
 
   // Initialize the hook
-  const {
-    start,
-    retry,
-    queuedActions,
-    hookStatus,
-    currentActionIndex,
-    currentAction,
-  } = useConsecutiveWagmiActions({
-    config,
-    initialWagmiActions: approveWagmiActions,
-  });
+  const { start, retry, queuedActions, hookStatus } =
+    useConsecutiveWagmiActions({
+      config,
+      initialWagmiActions: approveWagmiActions,
+    });
 
   return (
     <Dialog open={open} onOpenChange={handlePermitModalClose}>
@@ -113,8 +107,6 @@ export const PermitModal = ({
               setAllApprovalsCompleted={setAllApprovalsCompleted}
               hookStatus={hookStatus}
               queuedActions={queuedActions}
-              currentActionIndex={currentActionIndex}
-              currentAction={currentAction}
               start={start}
               retry={retry}
             />
@@ -124,9 +116,6 @@ export const PermitModal = ({
             <ApproveCompleted
               onOpenChange={onOpenChange}
               queuedActions={queuedActions}
-              currentActionIndex={currentActionIndex}
-              currentAction={currentAction}
-              hookStatus={hookStatus}
             />
           )}
         </ResizablePanel>

@@ -23,14 +23,8 @@ export default function TransactionsContainer({
     isError,
     getRequestIDAndSignatureData,
   } = useTransactions();
-  const {
-    queuedActions,
-    currentActionIndex,
-    currentAction,
-    hookStatus,
-    retry,
-    start,
-  } = consecutiveWagmiActionsObject;
+  const { queuedActions, hookStatus, retry, start } =
+    consecutiveWagmiActionsObject;
   const { paymentParams } = usePaymentParams();
   const { amountDue } = paymentParams;
 
@@ -78,12 +72,7 @@ export default function TransactionsContainer({
           </div>
         ) : (
           queuedActions.length > 0 && (
-            <TransactionsList
-              queuedActions={queuedActions}
-              currentActionIndex={currentActionIndex}
-              currentAction={currentAction}
-              hookStatus={hookStatus}
-            />
+            <TransactionsList queuedActions={queuedActions} />
           )
         )}
       </ResizablePanel>
