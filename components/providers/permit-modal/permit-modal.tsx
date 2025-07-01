@@ -13,7 +13,7 @@ import { CustomButton } from "@/components/custom-ui/customButton";
 import { useState } from "react";
 import { ResizablePanel } from "@/components/custom-ui/resizable-panel";
 import { PermitModalState } from "@/lib/enums";
-import { BottomAccordions } from "./bottom-accordions";
+import { TokensSection } from "./tokens-section";
 import { ApproveContainer } from "./approve-container";
 import { ApproveCompleted } from "./approve-completed";
 import { useConsecutiveWagmiActions } from "@/hooks/use-consecutive-wagmi-actions";
@@ -75,9 +75,9 @@ export const PermitModal = ({
         </DialogHeader>
         <ResizablePanel
           initialHeight={
-            mandatoryTokensAmount > 0
-              ? 418 + (mandatoryTokensAmount - 1) * 60
-              : 293 + (otherTokensAmount === 1 ? 52 : otherTokensAmount * 60)
+            235 +
+            (mandatoryTokensAmount > 0 ? 20 + mandatoryTokensAmount * 63 : 0) +
+            (otherTokensAmount > 0 ? 36 + otherTokensAmount * 63 : 0)
           }
           id={permitModalState}
         >
@@ -88,8 +88,8 @@ export const PermitModal = ({
 
               <Separator dashed />
 
-              {/* Bottom Accordions */}
-              <BottomAccordions />
+              {/* Tokens Section */}
+              <TokensSection />
 
               {/* Continue Button */}
               <CustomButton

@@ -6,7 +6,7 @@ import {
   RoutesSupportedStable,
 } from "@eco-foundation/routes-sdk";
 
-export type UserAssetsByChain = Record<string, UserAsset[]>;
+export type UserAssetsByAsset = Record<string, UserAsset[]>;
 
 export type UserAsset = {
   asset: RelayoorToken;

@@ -4,27 +4,29 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../../shadcn-ui/accordion";
-import { ChainImages } from "@/lib/enums";
+import { TokenImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
-import { capitalizeFirstLetter, deepCompareUserAssets } from "@/lib/utils";
+import { deepCompareUserAssets } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDownIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ChainToken } from "./chain-token";
 import { usePermitModal } from "./permit-modal-provider";
 
-interface ChainAccordionProps {
-  chain: string;
-  chainBalances: UserAsset[];
+interface GroupedTokensAccordionProps {
+  token: string;
+  tokenBalances: UserAsset[];
   unselectable: boolean;
+  onAccordionChange?: (isOpen: boolean) => void;
 }
 
-export const ChainAccordion = ({
-  chain,
-  chainBalances,
+export const GroupedTokensAccordion = ({
+  token,
+  tokenBalances,
   unselectable,
-}: ChainAccordionProps) => {
+  onAccordionChange,
+}: GroupedTokensAccordionProps) => {
   const {
     selectedTokensToApprove,
     addTokensToApproveList,
@@ -32,38 +34,38 @@ export const ChainAccordion = ({
   } = usePermitModal();
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
-  // Calculate the total amount of tokens on the chain
-  const totalChainAmount = chainBalances.reduce(
-    (acc, balance) => acc + balance.humanReadableAmount,
-    0
-  );
-
-  // Whether the whole chain tokens are selected
-  const isWholeChainSelected = useMemo(
+  // Whether the whole token group is selected
+  const isWholeTokenGroupSelected = useMemo(
     () =>
-      chainBalances.every((balance) =>
+      tokenBalances.every((balance) =>
         selectedTokensToApprove.some((token) =>
           deepCompareUserAssets(token, balance)
         )
       ),
-    [chainBalances, selectedTokensToApprove]
+    [tokenBalances, selectedTokensToApprove]
   );
 
-  // Whether the whole chain tokens are already approved
-  const isWholeChainApproved = useMemo(
-    () => chainBalances.every((balance) => balance.hasPermit),
-    [chainBalances]
+  // Whether the whole token group is already approved
+  const isWholeTokenGroupApproved = useMemo(
+    () => tokenBalances.every((balance) => balance.hasPermit),
+    [tokenBalances]
   );
 
-  // Handle selecting a whole chain
-  const handleSelectWholeChain = () => {
+  // Handle selecting a whole token group
+  const handleSelectWholeTokenGroup = () => {
     if (unselectable) return;
 
-    if (!isWholeChainSelected) {
-      addTokensToApproveList(chainBalances);
+    if (!isWholeTokenGroupSelected) {
+      addTokensToApproveList(tokenBalances);
     } else {
-      removeTokensFromApproveList(chainBalances);
+      removeTokensFromApproveList(tokenBalances);
     }
+  };
+
+  const handleAccordionChange = (value: string) => {
+    const isOpen = value === "item-1";
+    setIsAccordionOpen(isOpen);
+    onAccordionChange?.(isOpen);
   };
 
   return (
@@ -71,31 +73,30 @@ export const ChainAccordion = ({
       type="single"
       collapsible
       className="w-full"
-      onValueChange={(value) => setIsAccordionOpen(value === "item-1")}
+      onValueChange={handleAccordionChange}
     >
       <AccordionItem
         value="item-1"
         className="bg-secondary-foreground rounded-lg"
       >
         <AccordionTrigger
-          className="text-sm px-3.5 cursor-pointer group"
+          className="text-sm p-3 cursor-pointer group"
           showChevron={false}
         >
-          <div className="flex justify-start items-center">
+          <div className="flex justify-start items-center gap-2">
             <img
-              src={ChainImages[chain as keyof typeof ChainImages]}
-              alt={chain}
-              className="size-4.5 mr-2"
+              src={TokenImages[token as keyof typeof TokenImages]}
+              alt={`${token} logo`}
+              width={31}
+              height={31}
+              className="object-cover rounded-full"
             />
-            <p className="group-hover:underline">
-              <span className="font-semibold">
-                ${totalChainAmount.toFixed(2)}
-              </span>{" "}
-              on {capitalizeFirstLetter(chain)}
+            <p className="text-sm font-medium">
+              {TokenSymbols[token as keyof typeof TokenSymbols]}
             </p>
           </div>
-          <div className="flex justify-end items-center gap-1">
-            {unselectable && isWholeChainApproved ? (
+          <div className="flex justify-end items-center h-full gap-1">
+            {unselectable && isWholeTokenGroupApproved ? (
               <div className="flex justify-center items-center gap-2">
                 <p className="text-xs text-secondary">All set!</p>
                 <div className="flex justify-center items-center rounded-full bg-success size-[17px] sm:size-[20px] sm:mr-1">
@@ -107,15 +108,15 @@ export const ChainAccordion = ({
                 <div
                   className={cn(
                     "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200",
-                    isWholeChainSelected && "border-success"
+                    isWholeTokenGroupSelected && "border-success"
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleSelectWholeChain();
+                    handleSelectWholeTokenGroup();
                   }}
                 >
                   <AnimatePresence mode="wait">
-                    {isWholeChainSelected && (
+                    {isWholeTokenGroupSelected && (
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -140,9 +141,9 @@ export const ChainAccordion = ({
         </AccordionTrigger>
         <AccordionContent className="flex flex-col px-1 pb-1 pt-0.5 transition-all duration-300">
           <div className="flex flex-col bg-background rounded-lg p-4 gap-2">
-            {chainBalances.map((balance) => (
+            {tokenBalances.map((balance) => (
               <ChainToken
-                key={chain + balance.asset}
+                key={`${token}-${balance.asset}-${balance.chain}`}
                 token={balance}
                 unselectable={unselectable}
               />

@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/shadcn/utils";
 import { usePermitModal } from "./permit-modal-provider";
-import { deepCompareUserAssets } from "@/lib/utils";
+import { capitalizeFirstLetter, deepCompareUserAssets } from "@/lib/utils";
+import { TokenAssetChainIcon } from "@/components/custom-ui/token-asset-chain-icon";
 
 interface ChainTokenProps {
   token: UserAsset;
@@ -37,39 +38,43 @@ export const ChainToken = ({ token, unselectable }: ChainTokenProps) => {
   return (
     <div
       className={cn(
-        "flex justify-between items-center border border-border rounded-lg",
+        "flex justify-between items-center border border-border rounded-lg px-3 h-[55px] transition-all duration-200",
+        !unselectable && "cursor-pointer",
         !isTokenSelected && !unselectable && "opacity-50"
       )}
+      onClick={() => {
+        if (!unselectable) {
+          handleSelectToken(token);
+        }
+      }}
     >
-      <div className="flex justify-start items-center shrink-0 gap-2 border-r border-border p-3">
-        <img
-          src={TokenImages[token.asset as keyof typeof TokenImages]}
-          alt={token.asset}
-          className="size-4"
-        />
+      <div className="flex justify-start items-center shrink-0 gap-2">
+        <TokenAssetChainIcon asset={token.asset} chain={token.chain} />
         <p className="text-sm font-medium">
-          {TokenSymbols[token.asset as keyof typeof TokenSymbols]}
+          {TokenSymbols[token.asset as keyof typeof TokenSymbols]} on{" "}
+          {capitalizeFirstLetter(token.chain)}
         </p>
       </div>
-      <div className="flex justify-between items-center w-full gap-2 p-3">
-        <p className="text-sm font-medium">
-          ${token.humanReadableAmount.toFixed(2)}
-        </p>
-        {unselectable && token.hasPermit ? (
-          <div className="flex justify-center items-center gap-2">
+      {unselectable ? (
+        <div className="flex justify-center items-center gap-2">
+          {token.hasPermit && (
             <p className="text-xs text-secondary">Already approved</p>
-            <div className="flex justify-center items-center rounded-full bg-success size-[17px] sm:size-[20px] sm:mr-1">
-              <Check className="size-3 text-white" />
-            </div>
+          )}
+          <div className="flex justify-center items-center rounded-full bg-success size-[17px] sm:size-[20px]">
+            <Check className="size-3 text-white" />
           </div>
-        ) : (
-          !unselectable && (
+        </div>
+      ) : (
+        !unselectable && (
+          <div className="flex justify-center items-center sm:mr-[3px] gap-2">
+            <p className="text-sm text-secondary">
+              ${token.humanReadableAmount.toFixed(2)}
+            </p>
             <div
               className={cn(
-                "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] sm:mr-1 transition-all duration-200 cursor-pointer",
+                "flex justify-center items-center rounded-[5px] sm:rounded-[6px] border border-success size-[17px] sm:size-[20px] transition-all duration-200 cursor-pointer",
                 isTokenSelected && "border-success"
               )}
-              onClick={() => handleSelectToken(token)}
             >
               <AnimatePresence mode="wait">
                 {isTokenSelected && (
@@ -85,9 +90,9 @@ export const ChainToken = ({ token, unselectable }: ChainTokenProps) => {
                 )}
               </AnimatePresence>
             </div>
-          )
-        )}
-      </div>
+          </div>
+        )
+      )}
     </div>
   );
 };

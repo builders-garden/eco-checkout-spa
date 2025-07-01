@@ -8,7 +8,7 @@ import {
 } from "react";
 import { PermitModal } from "./permit-modal";
 import { useUserBalances } from "../user-balances-provider";
-import { UserAsset, UserAssetsByChain } from "@/lib/types";
+import { UserAsset, UserAssetsByAsset } from "@/lib/types";
 import { useSelectedTokens } from "../selected-tokens-provider";
 import { usePaymentParams } from "../payment-params-provider";
 import { chainStringToChainId, deepCompareUserAssets } from "@/lib/utils";
@@ -18,15 +18,15 @@ import { erc20Abi, maxUint256 } from "viem";
 import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { TokenSymbols } from "@/lib/enums";
 
-// Support function to group user balances by chain
-const groupUserBalancesByChain = (
+// Support function to group user balances by asset
+const groupUserBalancesByAsset = (
   userBalances: UserAsset[]
-): UserAssetsByChain => {
+): UserAssetsByAsset => {
   return userBalances.reduce((acc, balance) => {
-    acc[balance.chain] = acc[balance.chain] || [];
-    acc[balance.chain].push(balance);
+    acc[balance.asset] = acc[balance.asset] || [];
+    acc[balance.asset].push(balance);
     return acc;
-  }, {} as UserAssetsByChain);
+  }, {} as UserAssetsByAsset);
 };
 
 export const PermitModalContext = createContext<
@@ -40,10 +40,8 @@ export type PermitModalContextType = {
   setAllApprovalsCompleted: (allApprovalsCompleted: boolean) => void;
   addTokensToApproveList: (tokens: UserAsset[]) => void;
   removeTokensFromApproveList: (tokens: UserAsset[]) => void;
-  groupedTokens: {
-    mandatoryTokens: UserAssetsByChain;
-    otherTokens: UserAssetsByChain;
-  };
+  mandatoryTokensList: UserAsset[];
+  otherGroupedTokens: UserAssetsByAsset;
   approveWagmiActions: InitialWagmiAction[];
   selectedTokensToApprove: UserAsset[];
   mandatoryTokensAmount: number;
@@ -70,10 +68,11 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
   const [isPermitModalOpen, setIsPermitModalOpen] = useState(false);
   const [allApprovalsCompleted, setAllApprovalsCompleted] = useState(false);
   const [shouldRenderModal, setShouldRenderModal] = useState(false);
-  const [groupedMandatoryTokens, setGroupedMandatoryTokens] =
-    useState<UserAssetsByChain>({});
-  const [groupedOtherTokens, setGroupedOtherTokens] =
-    useState<UserAssetsByChain>({});
+  const [mandatoryTokensList, setMandatoryTokensList] = useState<UserAsset[]>(
+    []
+  );
+  const [otherGroupedTokens, setOtherGroupedTokens] =
+    useState<UserAssetsByAsset>({});
 
   // Sets both the mandatory and other tokens when the user balances change
   useEffect(() => {
@@ -94,9 +93,9 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       (balance) => !balance.hasPermit && !mandatoryTokens.includes(balance)
     );
 
-    // Set the grouped tokens
-    setGroupedMandatoryTokens(groupUserBalancesByChain(mandatoryTokens));
-    setGroupedOtherTokens(groupUserBalancesByChain(otherTokens));
+    // Set the tokens
+    setMandatoryTokensList(mandatoryTokens);
+    setOtherGroupedTokens(groupUserBalancesByAsset(otherTokens));
   }, [userBalances, selectedTokens, desiredNetworkString]);
 
   // Support function to add multiple tokens to the selected tokens to approve
@@ -158,13 +157,13 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
 
   // Amount of mandatory tokens
   const mandatoryTokensAmount = useMemo(() => {
-    return Object.keys(groupedMandatoryTokens).length;
-  }, [groupedMandatoryTokens]);
+    return mandatoryTokensList.length;
+  }, [mandatoryTokensList]);
 
   // Amount of other tokens
   const otherTokensAmount = useMemo(() => {
-    return Object.keys(groupedOtherTokens).length;
-  }, [groupedOtherTokens]);
+    return Object.keys(otherGroupedTokens).length;
+  }, [otherGroupedTokens]);
 
   const value = useMemo(
     () => ({
@@ -174,10 +173,8 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       setAllApprovalsCompleted,
       addTokensToApproveList,
       removeTokensFromApproveList,
-      groupedTokens: {
-        mandatoryTokens: groupedMandatoryTokens,
-        otherTokens: groupedOtherTokens,
-      },
+      mandatoryTokensList,
+      otherGroupedTokens,
       approveWagmiActions,
       selectedTokensToApprove,
       mandatoryTokensAmount,
@@ -190,8 +187,8 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       setAllApprovalsCompleted,
       addTokensToApproveList,
       removeTokensFromApproveList,
-      groupedMandatoryTokens,
-      groupedOtherTokens,
+      mandatoryTokensList,
+      otherGroupedTokens,
       approveWagmiActions,
       selectedTokensToApprove,
       mandatoryTokensAmount,
