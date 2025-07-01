@@ -155,56 +155,30 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
             },
             metadata: {
               description: "Sign and Execute Intent",
-              involvedTokens: [
-                ...selectedTokens
-                  .map((token) => {
-                    let chainId: number;
-                    try {
-                      chainId = chainStringToChainId(token.chain);
-                    } catch (error) {
-                      return undefined;
-                    }
+              involvedTokens: selectedTokens
+                .map((token) => {
+                  let chainId: number;
+                  try {
+                    chainId = chainStringToChainId(token.chain);
+                  } catch (error) {
+                    return undefined;
+                  }
 
-                    // Take all the tokens that are not on the desired network
-                    if (chainId === desiredNetworkId) {
-                      return undefined;
-                    }
+                  // Take all the tokens that are not on the desired network
+                  if (chainId === desiredNetworkId) {
+                    return undefined;
+                  }
 
-                    return {
-                      chain: token.chain,
-                      asset: token.asset,
-                      txLink: null,
-                      description: `Transfer ${
-                        TokenSymbols[token.asset as keyof typeof TokenSymbols]
-                      }`,
-                    };
-                  })
-                  .filter((token) => token !== undefined),
-                ...selectedTokens
-                  .map((token) => {
-                    let chainId: number;
-                    try {
-                      chainId = chainStringToChainId(token.chain);
-                    } catch (error) {
-                      return undefined;
-                    }
-
-                    // Take all the tokens that are not on the desired network
-                    if (chainId === desiredNetworkId) {
-                      return undefined;
-                    }
-
-                    return {
-                      chain: token.chain,
-                      asset: token.asset,
-                      txLink: null,
-                      description: `Transfer ${
-                        TokenSymbols[token.asset as keyof typeof TokenSymbols]
-                      }`,
-                    };
-                  })
-                  .filter((token) => token !== undefined),
-              ],
+                  return {
+                    chain: token.chain,
+                    asset: token.asset,
+                    txLink: null,
+                    description: `Transfer ${
+                      TokenSymbols[token.asset as keyof typeof TokenSymbols]
+                    }`,
+                  };
+                })
+                .filter((token) => token !== undefined),
             },
           },
           ...selectedTokens

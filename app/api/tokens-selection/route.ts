@@ -2,6 +2,7 @@ import { TokenSymbols } from "@/lib/enums";
 import { GetTransfersResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { chainIdToChain } from "@/lib/utils";
+import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -37,6 +38,7 @@ export const POST = async (req: NextRequest) => {
 
   // Create the request body
   const requestBody = {
+    dAppID: env.NEXT_PUBLIC_ECO_DAPP_ID,
     sender,
     recipient,
     destinationNetwork,
@@ -48,8 +50,7 @@ export const POST = async (req: NextRequest) => {
   try {
     const response = await ky
       .post<GetTransfersResponse>(
-        // TODO: Change with env variable
-        `https://relayoor-preprod.beam.eco/api/v1/buildersGarden/getTransfers`,
+        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/getTransfers`,
         {
           json: requestBody,
         }

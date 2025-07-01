@@ -27,7 +27,8 @@ export const POST = async (req: NextRequest) => {
     for (const quoteID of quoteIDs) {
       const response = await ky
         .get<GetIntentResponse>(
-          `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/intents?dAppID=${dAppID}&quoteID=${quoteID}&creator=${creator}`
+          // TODO: Change with env variable
+          `https://quotes.ngrok.app/api/v1/intents?dAppID=${dAppID}&quoteID=${quoteID}&creator=${creator}`
         )
         .json();
 

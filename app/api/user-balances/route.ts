@@ -21,6 +21,7 @@ import {
   MIN_MAINNET_PROTOCOL_FEE,
   PERMIT3_VERIFIER_ADDRESS,
 } from "@/lib/constants";
+import { env } from "@/lib/zod";
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -78,8 +79,7 @@ export const GET = async (req: NextRequest) => {
   try {
     const response = await ky
       .get(
-        // TODO: Change with env variable
-        `https://relayoor-preprod.beam.eco/api/v1/buildersGarden/balances?address=${userAddress}&includeNativeBalance=false`
+        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/balances?address=${userAddress}&includeNativeBalance=false`
       )
       .json<BalanceResponse>();
 
