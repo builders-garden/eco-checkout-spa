@@ -3,16 +3,20 @@ import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
+interface GetIntentsParams {
+  quoteID: string;
+}
+
 export const GET = async (
   req: NextRequest,
-  { params }: { params: { quoteID: string } }
+  { params }: { params: Promise<GetIntentsParams> }
 ) => {
   const { searchParams } = new URL(req.url);
 
   // Get the creator address from the URL
   const creator = searchParams.get("creator");
 
-  const { quoteID } = params;
+  const { quoteID } = await params;
 
   // Validate the parameters
   if (!quoteID || !creator) {
