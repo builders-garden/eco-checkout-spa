@@ -3,6 +3,7 @@ import {
   useConsecutiveWagmiActions,
   InitialWagmiAction,
   WagmiActionType,
+  ActionStatus,
 } from "@/hooks/use-consecutive-wagmi-actions";
 import { config } from "@/lib/appkit";
 import { useAppKitAccount } from "@reown/appkit/react";
@@ -109,49 +110,41 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 throw new Error("User signed message is required");
               }
 
+              // Get the response RequestID and userSignedMessage
+              const { requestID } = response;
+              const { userSignedMessage } = args;
+
               console.log(
                 "Executing intent with signature",
-                response.requestID,
-                args.userSignedMessage
+                requestID,
+                userSignedMessage
               );
 
               // Execute intent
               const executeIntentResponse = await ky
-                .post<ExecuteIntentResponse>(`/api/execute-intent`, {
+                .post<ExecuteIntentResponse>(`/api/intents/execute-intent`, {
                   json: {
-                    requestID: response.requestID,
-                    userSignedMessage: args.userSignedMessage,
+                    requestID,
+                    userSignedMessage,
                   },
                   timeout: false,
                 })
                 .json();
               console.log("Intent executed", executeIntentResponse);
 
-              // Map all the quoteIDs
-              const quoteIDs = [
-                ...executeIntentResponse.data.failures.flatMap((failure) =>
-                  failure.quoteIDs.map((quoteID) => quoteID)
-                ),
-                ...executeIntentResponse.data.successes.flatMap((success) =>
-                  success.quoteIDs.map((quoteID) => quoteID)
-                ),
-              ];
-
-              console.log("Quote IDs", quoteIDs);
-
-              // Get all the intents form the endpoint
-              const intentsResponse = await ky
-                .post<{
-                  quoteIDsArray: {
-                    response: GetIntentResponse;
-                    destinationTokenAddress: string | undefined;
-                  }[];
-                }>(`/api/get-intents`, { json: { quoteIDs, creator: address } })
+              // Get the intent data
+              const intentData = await ky
+                .get(`/api/intents/get-intent-data/${requestID}`)
                 .json();
 
-              console.log("Intents response", intentsResponse);
+              console.log("Intent data", intentData);
 
-              // For each involved token update the metadata with the relative tx Link
+              // Update the action status to success
+              // args.updateActionInfo(args.currentActionIndex, {
+              //   status: ActionStatus.SUCCESS,
+              //   hash: executeIntentResponse.data.successes[0].transactionHash,
+              //   txLink: `${blockExplorerBaseUrl}/tx/${executeIntentResponse.data.successes[0].transactionHash}`,
+              // });
             },
             metadata: {
               description: "Sign and Execute Intent",

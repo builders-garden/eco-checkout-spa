@@ -16,7 +16,7 @@ import {
   chainIds as ecoSupportedChains,
   RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
-import { Address, Chain, erc20Abi, Hex, maxUint256 } from "viem";
+import { Address, Chain, erc20Abi, Hex, maxUint256, maxUint32 } from "viem";
 import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { env } from "@/lib/zod";
 
@@ -158,7 +158,7 @@ export const GET = async (req: NextRequest) => {
                 chain: chain,
                 tokenContractAddress,
                 decimals,
-                hasPermit: allowance === maxUint256,
+                hasPermit: !(allowance < maxUint256 - maxUint32),
                 permit3Allowance: Number(allowance).toString(),
               };
             })

@@ -96,6 +96,7 @@ export interface IntentData {
   quoteID: string;
   dAppID: string;
   hash: string;
+  intentGroupID: string;
   intentExecutionType: string;
   creator: string;
   chainId: number;
