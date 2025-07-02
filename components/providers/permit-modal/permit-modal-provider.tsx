@@ -11,12 +11,22 @@ import { useUserBalances } from "../user-balances-provider";
 import { UserAsset, UserAssetsByAsset } from "@/lib/types";
 import { useSelectedTokens } from "../selected-tokens-provider";
 import { usePaymentParams } from "../payment-params-provider";
-import { chainStringToChainId, deepCompareUserAssets } from "@/lib/utils";
+import {
+  chainIdToChain,
+  chainStringToChainId,
+  deepCompareUserAssets,
+  getViemPublicClient,
+} from "@/lib/utils";
 import { InitialWagmiAction } from "@/hooks/use-consecutive-wagmi-actions";
 import { WagmiActionType } from "@/hooks/use-consecutive-wagmi-actions";
-import { erc20Abi, maxUint256 } from "viem";
+import { Address, Chain, erc20Abi, maxUint256 } from "viem";
 import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { TokenSymbols } from "@/lib/enums";
+import {
+  RoutesService,
+  RoutesSupportedStable,
+} from "@eco-foundation/routes-sdk";
+import { useAppKitAccount } from "@reown/appkit/react";
 
 // Support function to group user balances by asset
 const groupUserBalancesByAsset = (
@@ -57,9 +67,15 @@ export const usePermitModal = () => {
 };
 
 export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
+  const { address: userAddress } = useAppKitAccount();
   const { userBalances } = useUserBalances();
   const { selectedTokens } = useSelectedTokens();
-  const { desiredNetworkString } = usePaymentParams();
+  const { desiredNetworkString, paymentParams, amountDueRaw } =
+    usePaymentParams();
+
+  // Get the destination token and the destination chain id from the payment params
+  const destinationToken = paymentParams?.desiredToken;
+  const destinationChainId = paymentParams?.desiredNetworkId;
 
   // States
   const [selectedTokensToApprove, setSelectedTokensToApprove] = useState<
@@ -74,28 +90,96 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
   const [otherGroupedTokens, setOtherGroupedTokens] =
     useState<UserAssetsByAsset>({});
 
+  const getExtraTokenToApprove = async (
+    destinationToken: string | null,
+    destinationChainId: number | null,
+    desiredNetworkString: string | null
+  ): Promise<UserAsset | null> => {
+    if (!destinationChainId || !desiredNetworkString || !destinationToken)
+      return null;
+
+    // Get the viem public client for the destination chain
+    const publicClient = getViemPublicClient(
+      chainIdToChain(destinationChainId) as Chain
+    );
+
+    // Get the token contract address
+    const tokenContractAddress = RoutesService.getStableAddress(
+      chainStringToChainId(desiredNetworkString),
+      destinationToken as RoutesSupportedStable
+    );
+
+    // Get the allowance for the extra token to approve
+    let allowance: bigint = BigInt(0);
+    try {
+      allowance = await publicClient.readContract({
+        address: tokenContractAddress,
+        abi: erc20Abi,
+        functionName: "allowance",
+        args: [userAddress as Address, PERMIT3_VERIFIER_ADDRESS],
+      });
+    } catch (error) {
+      allowance = BigInt(0);
+    }
+
+    // Create the extra token to approve
+    return {
+      asset: destinationToken?.toLocaleLowerCase() as string,
+      chain: desiredNetworkString,
+      amount: -1,
+      humanReadableAmount: -1,
+      tokenContractAddress,
+      decimals: 6,
+      hasPermit: allowance >= BigInt(amountDueRaw),
+      permit3Allowance: Number(allowance).toString(),
+      isTokenAtRisk: false,
+    };
+  };
+
   // Sets both the mandatory and other tokens when the user balances change
   useEffect(() => {
-    // Take all the tokens that are not on the desired network and are among the selected tokens
-    const mandatoryTokens = userBalances.filter(
-      (balance) =>
-        balance.chain !== desiredNetworkString &&
-        selectedTokens.some((token) => deepCompareUserAssets(token, balance))
-    );
+    const setupApprovedTokens = async () => {
+      // Take all the tokens that are not on the desired network and are among the selected tokens
+      const mandatoryTokens = userBalances.filter(
+        (balance) =>
+          balance.chain !== desiredNetworkString &&
+          selectedTokens.some((token) => deepCompareUserAssets(token, balance))
+      );
 
-    // Set a first set of selected tokens to approve
-    setSelectedTokensToApprove(
-      mandatoryTokens.filter((token) => !token.hasPermit)
-    );
+      // Get the extra token to approve
+      const extraTokenToApprove = await getExtraTokenToApprove(
+        destinationToken,
+        destinationChainId,
+        desiredNetworkString
+      );
 
-    // Take all the remaining tokens (except the ones that have already been approved)
-    const otherTokens = userBalances.filter(
-      (balance) => !balance.hasPermit && !mandatoryTokens.includes(balance)
-    );
+      // Create the extended mandatory tokens list
+      // If the destination token has some missing data, we don't add it to the selected tokens to approve
+      const extendedMandatoryTokens = extraTokenToApprove
+        ? [...mandatoryTokens, extraTokenToApprove]
+        : mandatoryTokens;
 
-    // Set the tokens
-    setMandatoryTokensList(mandatoryTokens);
-    setOtherGroupedTokens(groupUserBalancesByAsset(otherTokens));
+      // Set a first set of selected tokens to approve
+      setSelectedTokensToApprove(
+        extendedMandatoryTokens.filter((token) => !token.hasPermit)
+      );
+
+      // Take all the remaining tokens (except the ones that have already been approved)
+      const otherTokens = userBalances.filter(
+        (balance) =>
+          !balance.hasPermit &&
+          !mandatoryTokens.includes(balance) &&
+          (extraTokenToApprove
+            ? !deepCompareUserAssets(balance, extraTokenToApprove)
+            : false)
+      );
+
+      // Set the tokens
+      setMandatoryTokensList(extendedMandatoryTokens);
+      setOtherGroupedTokens(groupUserBalancesByAsset(otherTokens));
+    };
+
+    setupApprovedTokens();
   }, [userBalances, selectedTokens, desiredNetworkString]);
 
   // Support function to add multiple tokens to the selected tokens to approve
@@ -123,7 +207,10 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
             abi: erc20Abi,
             functionName: "approve",
             address: balance.tokenContractAddress,
-            args: [PERMIT3_VERIFIER_ADDRESS, maxUint256],
+            args: [
+              PERMIT3_VERIFIER_ADDRESS,
+              balance.amount === -1 ? BigInt(amountDueRaw) : maxUint256,
+            ],
             chainId,
           },
           chainId,
@@ -137,7 +224,7 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
           },
         };
       }),
-    [selectedTokensToApprove]
+    [selectedTokensToApprove, amountDueRaw]
   );
 
   // Handle Permit Modal Open

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import ky from "ky";
-import { RelayoorChain, BalanceResponse } from "@/lib/relayoor/types";
+import { BalanceResponse } from "@/lib/relayoor/types";
 import { UserAsset } from "@/lib/types";
 import { TokenDecimals, TokenSymbols } from "@/lib/enums";
 import {
@@ -16,11 +16,8 @@ import {
   chainIds as ecoSupportedChains,
   RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
-import { Address, Chain, erc20Abi, Hex } from "viem";
-import {
-  MIN_MAINNET_PROTOCOL_FEE,
-  PERMIT3_VERIFIER_ADDRESS,
-} from "@/lib/constants";
+import { Address, Chain, erc20Abi, Hex, maxUint256 } from "viem";
+import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
 import { env } from "@/lib/zod";
 
 export const GET = async (req: NextRequest) => {
@@ -99,36 +96,22 @@ export const GET = async (req: NextRequest) => {
           if (!ecoSupportedChains.includes(chainId)) return [];
 
           const balances = await Promise.all(
-            response.data[chain as RelayoorChain].map(async (balance) => {
+            response.data[chain as string].map(async (balance) => {
               // If the token is not in the valid tokens array, return undefined
               if (!validTokens.includes(balance.token.toLowerCase()))
                 return undefined;
 
               // Get the token decimals
-              const decimals = TokenDecimals[balance.token];
+              const decimals =
+                TokenDecimals[balance.token as keyof typeof TokenDecimals];
 
               // Get the token amount raw
               const amount = Number(balance.amount);
 
-              // If the token amount is less than the base protocol fee on L1 by 2x, return undefined
-              if (amount < MIN_MAINNET_PROTOCOL_FEE * 2) return undefined;
-
-              // If one the same chain, check if the token is the desired token
+              // If on the same chain, check if the token is the desired token
               // if not, return undefined (prevents swaps)
               if (chain === desiredNetwork && balance.token !== desiredToken) {
                 return undefined;
-              }
-
-              // If the chain is not the desired network, check if one of the two is mainnet
-              // and if so, check if the amount due is less than the base protocol fee
-              // This prevents the merchant from receiving 0 tokens and intent creation to fail
-              if (chainId !== desiredNetworkId) {
-                if (
-                  (chainId === 1 || desiredNetworkId === 1) &&
-                  amountDue < MIN_MAINNET_PROTOCOL_FEE
-                ) {
-                  return undefined;
-                }
               }
 
               // Get the token address
@@ -151,19 +134,17 @@ export const GET = async (req: NextRequest) => {
               );
 
               // Get the allowance of the token for the user
-              let allowance: number = 0;
+              let allowance: bigint = BigInt(0);
               try {
-                allowance = Number(
-                  await publicClient.readContract({
-                    address: tokenContractAddress,
-                    abi: erc20Abi,
-                    functionName: "allowance",
-                    args: [userAddress as Address, PERMIT3_VERIFIER_ADDRESS],
-                  })
-                );
+                allowance = await publicClient.readContract({
+                  address: tokenContractAddress,
+                  abi: erc20Abi,
+                  functionName: "allowance",
+                  args: [userAddress as Address, PERMIT3_VERIFIER_ADDRESS],
+                });
               } catch (error) {
                 console.log("Error: ", error);
-                allowance = 0;
+                allowance = BigInt(0);
               }
 
               // Return the balance filled with the allowance for permit3
@@ -174,11 +155,11 @@ export const GET = async (req: NextRequest) => {
                 isTokenAtRisk:
                   chainId !== desiredNetworkId &&
                   (chainId === 1 || desiredNetworkId === 1),
-                chain: chain as RelayoorChain,
+                chain: chain,
                 tokenContractAddress,
                 decimals,
-                hasPermit: allowance > 0,
-                permit3Allowance: allowance.toString(),
+                hasPermit: allowance === maxUint256,
+                permit3Allowance: Number(allowance).toString(),
               };
             })
           );

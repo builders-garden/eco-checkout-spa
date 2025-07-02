@@ -11,7 +11,11 @@ import {
 } from "viem/chains";
 import { CheckoutPageStateType, UserAsset, PaginationState } from "./types";
 import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
-import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
+import {
+  RoutesSupportedChainId,
+  RoutesSupportedStable,
+  stableAddresses,
+} from "@eco-foundation/routes-sdk";
 import { Chain, createPublicClient, http } from "viem";
 import {
   INCREASE_L2_PROTOCOL_FEE,

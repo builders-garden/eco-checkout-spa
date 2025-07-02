@@ -103,7 +103,7 @@ export const SelectableToken = ({
             className="object-cover rounded-full"
           />
           <img
-            src={ChainImages[token.chain]}
+            src={ChainImages[token.chain as keyof typeof ChainImages]}
             alt={`${token.chain} logo`}
             className="absolute bottom-0 right-0 object-cover rounded-full"
             width={12}

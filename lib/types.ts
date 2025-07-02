@@ -1,6 +1,5 @@
 import { Abi, Hex } from "viem";
 import { PaymentPageState } from "./enums";
-import { RelayoorChain, RelayoorToken } from "./relayoor/types";
 import {
   RoutesSupportedChainId,
   RoutesSupportedStable,
@@ -9,10 +8,10 @@ import {
 export type UserAssetsByAsset = Record<string, UserAsset[]>;
 
 export type UserAsset = {
-  asset: RelayoorToken;
+  asset: string;
   amount: number;
   humanReadableAmount: number;
-  chain: RelayoorChain;
+  chain: string;
   tokenContractAddress: Hex;
   decimals: number;
   isTokenAtRisk: boolean;

@@ -1,17 +1,7 @@
 import { Address } from "viem";
 
-// Common Types
-export type RelayoorChain =
-  | "ethereum"
-  | "optimism"
-  | "polygon"
-  | "base"
-  | "arbitrum";
-
-export type RelayoorToken = "usdt" | "usdc" | "usdce" | "usdbc";
-
 export interface TokenBalance {
-  token: RelayoorToken;
+  token: string;
   amount: string;
 }
 
@@ -23,7 +13,7 @@ export interface CallData {
 
 // Balance Response Types
 export interface BalanceResponse {
-  data: Record<RelayoorChain, TokenBalance[]>;
+  data: Record<string, TokenBalance[]>;
 }
 
 // Get Transfers Response Types
