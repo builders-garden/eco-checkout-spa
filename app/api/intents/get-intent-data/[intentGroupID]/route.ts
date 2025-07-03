@@ -34,8 +34,6 @@ export const GET = async (
       )
       .json();
 
-    console.log("response", JSON.stringify(response, null, 2));
-
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error(error);
