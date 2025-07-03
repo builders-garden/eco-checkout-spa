@@ -1,4 +1,5 @@
 import { GetIntentDataResponse } from "@/lib/relayoor/types";
+import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,8 +25,7 @@ export const GET = async (
   try {
     const response = await ky
       .post<GetIntentDataResponse>(
-        // TODO: Change with env variable
-        `https://quotes.ngrok.app/api/v2/quotes/getGaslessIntentTransactionData`,
+        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v2/quotes/getGaslessIntentTransactionData`,
         {
           json: {
             intentGroupID,

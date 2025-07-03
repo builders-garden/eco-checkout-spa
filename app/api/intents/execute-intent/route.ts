@@ -14,7 +14,7 @@ export const POST = async (req: NextRequest) => {
   try {
     const response = await ky
       .post<ExecuteIntentResponse>(
-        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/executeIntents`,
+        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/api/v1/buildersGarden/executeIntents`,
         {
           json: {
             requestID,

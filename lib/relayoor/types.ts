@@ -85,6 +85,8 @@ export interface Permit3SignatureData {
     timestamp: number;
     unhingedRoot: string;
   };
+  leafs: string[];
+  allowanceOrTransfers: AllowanceOrTransfer[];
 }
 
 // Get Intent Response Types

@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
   try {
     const response = await ky
       .post<SendResponse>(
-        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/buildersGarden/send`,
+        `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/api/v1/buildersGarden/send`,
         {
           json: requestBody,
           timeout: false,
