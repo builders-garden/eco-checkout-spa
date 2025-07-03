@@ -293,6 +293,7 @@ export const useConsecutiveWagmiActions = ({
                 userSignedMessage,
                 updateActionInfo,
                 currentActionIdx,
+                blockExplorerBaseUrl,
               });
             }
           } catch (error) {

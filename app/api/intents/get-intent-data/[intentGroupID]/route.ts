@@ -1,3 +1,4 @@
+import { GetIntentDataResponse } from "@/lib/relayoor/types";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,7 +7,7 @@ interface GetIntentsParams {
 }
 
 export const GET = async (
-  req: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<GetIntentsParams> }
 ) => {
   const { intentGroupID } = await params;
@@ -22,7 +23,7 @@ export const GET = async (
   // Get the specific intent from the API
   try {
     const response = await ky
-      .post(
+      .post<GetIntentDataResponse>(
         // TODO: Change with env variable
         `https://quotes.ngrok.app/api/v2/quotes/getGaslessIntentTransactionData`,
         {
@@ -35,7 +36,7 @@ export const GET = async (
 
     console.log("response", JSON.stringify(response, null, 2));
 
-    return NextResponse.json({ response: response }, { status: 200 });
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

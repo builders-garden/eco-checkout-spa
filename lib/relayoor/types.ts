@@ -162,7 +162,6 @@ export interface ExecuteIntentResponse {
 }
 
 // Execution Success Types
-// TODO: Define success type structure better
 export interface ExecutionSuccess {
   chainID: number;
   quoteIDs: string[];
@@ -173,4 +172,13 @@ export interface ExecutionFailure {
   chainID: number;
   quoteIDs: string[];
   error: string;
+}
+
+// Get Intent Data Response Types
+export interface GetIntentDataResponse {
+  data: {
+    intentGroupID: string;
+    destinationChainID: number;
+    destinationChainTxHash: string;
+  };
 }

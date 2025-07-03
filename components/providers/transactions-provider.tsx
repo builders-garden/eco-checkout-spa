@@ -12,7 +12,7 @@ import { usePaymentParams } from "./payment-params-provider";
 import { useSelectedTokens } from "./selected-tokens-provider";
 import {
   ExecuteIntentResponse,
-  GetIntentResponse,
+  GetIntentDataResponse,
   Permit3SignatureData,
 } from "@/lib/relayoor/types";
 import ky from "ky";
@@ -106,13 +106,19 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
             },
             chainId: 1,
             onSuccess: async (args) => {
-              if (!args.userSignedMessage) {
-                throw new Error("User signed message is required");
-              }
-
               // Get the response RequestID and userSignedMessage
               const { requestID } = response;
-              const { userSignedMessage } = args;
+              const {
+                userSignedMessage,
+                updateActionInfo,
+                blockExplorerBaseUrl,
+              } = args;
+
+              if (!userSignedMessage || !requestID) {
+                throw new Error(
+                  "User signed message and requestID are required"
+                );
+              }
 
               console.log(
                 "Executing intent with signature",
@@ -134,17 +140,19 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
 
               // Get the intent data
               const intentData = await ky
-                .get(`/api/intents/get-intent-data/${requestID}`)
+                .get<GetIntentDataResponse>(
+                  `/api/intents/get-intent-data/${requestID}`
+                )
                 .json();
 
               console.log("Intent data", intentData);
 
               // Update the action status to success
-              // args.updateActionInfo(args.currentActionIndex, {
-              //   status: ActionStatus.SUCCESS,
-              //   hash: executeIntentResponse.data.successes[0].transactionHash,
-              //   txLink: `${blockExplorerBaseUrl}/tx/${executeIntentResponse.data.successes[0].transactionHash}`,
-              // });
+              updateActionInfo(currentActionIndex, {
+                status: ActionStatus.PENDING,
+                hash: intentData.data.destinationChainTxHash,
+                txLink: `${blockExplorerBaseUrl}/tx/${intentData.data.destinationChainTxHash}`,
+              });
             },
             metadata: {
               description: "Sign and Execute Intent",
