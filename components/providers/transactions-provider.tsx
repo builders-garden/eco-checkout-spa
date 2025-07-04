@@ -20,6 +20,7 @@ import { PERMIT3_TYPES } from "@/lib/constants";
 import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
 import { erc20Abi } from "viem";
 import { TokenSymbols } from "@/lib/enums";
+import { getChains } from "@wagmi/core";
 
 export const TransactionsContext = createContext<
   TransactionsContextType | undefined
@@ -95,94 +96,110 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
           throw new Error("Failed to get intents");
         }
 
-        const initialWagmiActions: InitialWagmiAction[] = [
-          {
-            type: WagmiActionType.SIGN_TYPED_DATA,
-            data: {
-              domain: response.signatureData.domain,
-              types: PERMIT3_TYPES,
-              primaryType: "SignedUnhingedPermit3",
-              message: response.signatureData.message,
-            },
-            chainId: 1,
-            onSuccess: async (args) => {
-              // Get the response RequestID and userSignedMessage
-              const { requestID } = response;
-              const {
-                userSignedMessage,
-                updateActionInfo,
-                blockExplorerBaseUrl,
-              } = args;
+        // Get the signature initial wagmi action
+        const signatureInitialWagmiAction: InitialWagmiAction | undefined =
+          response.signatureData.allowanceOrTransfers.length > 1
+            ? {
+                type: WagmiActionType.SIGN_TYPED_DATA,
+                data: {
+                  domain: response.signatureData.domain,
+                  types: PERMIT3_TYPES,
+                  primaryType: "SignedUnhingedPermit3",
+                  message: response.signatureData.message,
+                },
+                chainId: 1,
+                onSuccess: async (args) => {
+                  // Get the response RequestID and userSignedMessage
+                  const { requestID } = response;
+                  const { userSignedMessage, updateActionInfo } = args;
 
-              if (!userSignedMessage || !requestID) {
-                throw new Error(
-                  "User signed message and requestID are required"
-                );
+                  if (!userSignedMessage || !requestID) {
+                    throw new Error(
+                      "User signed message and requestID are required"
+                    );
+                  }
+
+                  // Execute intent
+                  await ky
+                    .post<ExecuteIntentResponse>(
+                      `/api/intents/execute-intent`,
+                      {
+                        json: {
+                          requestID,
+                          userSignedMessage,
+                        },
+                        timeout: false,
+                      }
+                    )
+                    .json();
+
+                  // Get the intent data
+                  let intentData: GetIntentDataResponse | undefined = undefined;
+                  while (
+                    !intentData?.data.destinationChainTxHash &&
+                    !intentData?.data.destinationChainID
+                  ) {
+                    intentData = await ky
+                      .get<GetIntentDataResponse>(
+                        `/api/intents/get-intent-data/${requestID}`,
+                        { timeout: false }
+                      )
+                      .json();
+
+                    // Wait 1 second before next API call
+                    if (
+                      !intentData?.data.destinationChainTxHash &&
+                      !intentData?.data.destinationChainID
+                    ) {
+                      await new Promise((resolve) => setTimeout(resolve, 1000));
+                    }
+                  }
+
+                  // Get the block explorer url
+                  const blockExplorerBaseUrl = getChains(config).find(
+                    (chain) => chain.id === intentData.data.destinationChainID
+                  )?.blockExplorers?.default.url;
+
+                  // Update the action status to success
+                  updateActionInfo(currentActionIndex, {
+                    status: ActionStatus.PENDING,
+                    hash: intentData.data.destinationChainTxHash,
+                    txLink: `${blockExplorerBaseUrl}/tx/${intentData.data.destinationChainTxHash}`,
+                  });
+                },
+                metadata: {
+                  description: "Sign and Execute Intent",
+                  involvedTokens: selectedTokens
+                    .map((token) => {
+                      let chainId: number;
+                      try {
+                        chainId = chainStringToChainId(token.chain);
+                      } catch (error) {
+                        return undefined;
+                      }
+
+                      // Take all the tokens that are not on the desired network
+                      if (chainId === desiredNetworkId) {
+                        return undefined;
+                      }
+
+                      return {
+                        chain: token.chain,
+                        asset: token.asset,
+                        txLink: null,
+                        description: `Transfer ${
+                          TokenSymbols[token.asset as keyof typeof TokenSymbols]
+                        }`,
+                      };
+                    })
+                    .filter((token) => token !== undefined),
+                },
               }
+            : undefined;
 
-              console.log(
-                "Executing intent with signature",
-                requestID,
-                userSignedMessage
-              );
-
-              // Execute intent
-              const executeIntentResponse = await ky
-                .post<ExecuteIntentResponse>(`/api/intents/execute-intent`, {
-                  json: {
-                    requestID,
-                    userSignedMessage,
-                  },
-                  timeout: false,
-                })
-                .json();
-              console.log("Intent executed", executeIntentResponse);
-
-              // Get the intent data
-              const intentData = await ky
-                .get<GetIntentDataResponse>(
-                  `/api/intents/get-intent-data/${requestID}`
-                )
-                .json();
-
-              console.log("Intent data", intentData);
-
-              // Update the action status to success
-              updateActionInfo(currentActionIndex, {
-                status: ActionStatus.PENDING,
-                hash: intentData.data.destinationChainTxHash,
-                txLink: `${blockExplorerBaseUrl}/tx/${intentData.data.destinationChainTxHash}`,
-              });
-            },
-            metadata: {
-              description: "Sign and Execute Intent",
-              involvedTokens: selectedTokens
-                .map((token) => {
-                  let chainId: number;
-                  try {
-                    chainId = chainStringToChainId(token.chain);
-                  } catch (error) {
-                    return undefined;
-                  }
-
-                  // Take all the tokens that are not on the desired network
-                  if (chainId === desiredNetworkId) {
-                    return undefined;
-                  }
-
-                  return {
-                    chain: token.chain,
-                    asset: token.asset,
-                    txLink: null,
-                    description: `Transfer ${
-                      TokenSymbols[token.asset as keyof typeof TokenSymbols]
-                    }`,
-                  };
-                })
-                .filter((token) => token !== undefined),
-            },
-          },
-          ...selectedTokens
+        // Get the selected tokens initial wagmi actions
+        const selectedTokensInitialWagmiActions: InitialWagmiAction[] =
+          selectedTokens
             .map((token) => {
               let chainId: number;
               try {
@@ -222,8 +239,19 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 },
               };
             })
-            .filter((action) => action !== undefined),
-        ];
+            .filter((action) => action !== undefined);
+
+        // Get the initial wagmi actions
+        // If there is a signature initial wagmi action, add it to the actions
+        // and then add the selected tokens initial wagmi actions
+        // Otherwise, just add the selected tokens initial wagmi actions
+        const initialWagmiActions: InitialWagmiAction[] =
+          signatureInitialWagmiAction
+            ? [
+                signatureInitialWagmiAction,
+                ...selectedTokensInitialWagmiActions,
+              ]
+            : selectedTokensInitialWagmiActions;
 
         setInitialWagmiActions(initialWagmiActions);
       } catch (error) {
