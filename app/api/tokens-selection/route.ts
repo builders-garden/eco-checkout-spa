@@ -48,7 +48,6 @@ export const POST = async (req: NextRequest) => {
   const destinationChainId = chainStringToChainId(destinationNetwork);
 
   try {
-    console.log("Request Body", JSON.stringify(requestBody, null, 2));
     const response = await ky
       .post<SendResponse>(
         `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/api/v1/buildersGarden/send`,
