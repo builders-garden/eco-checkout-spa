@@ -1,4 +1,4 @@
-import { usePermitModal } from "./permit-modal-provider";
+import { usePermitModal } from "@/components/providers/permit-modal-provider";
 import { ChainToken } from "./chain-token";
 import { GroupedTokensAccordion } from "./grouped-tokens-accordion";
 import { useEffect, useRef, useState } from "react";

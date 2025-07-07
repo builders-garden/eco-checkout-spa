@@ -13,7 +13,6 @@ import { useSelectedTokens } from "./selected-tokens-provider";
 import {
   ExecuteIntentResponse,
   GetIntentDataResponse,
-  Permit3SignatureData,
 } from "@/lib/relayoor/types";
 import ky from "ky";
 import { PERMIT3_TYPES } from "@/lib/constants";
@@ -28,9 +27,8 @@ export const TransactionsContext = createContext<
 
 export type TransactionsContextType = {
   consecutiveWagmiActionsObject: ConsecutiveWagmiActionReturnType;
-  isLoading: boolean;
   isError: boolean;
-  getRequestIDAndSignatureData: () => Promise<void>;
+  getRequestIDAndSignatureData: () => void;
 };
 
 export const useTransactions = () => {
@@ -48,8 +46,12 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
   const { paymentParams, desiredNetworkString, amountDueRaw } =
     usePaymentParams();
   const { recipient, desiredToken, desiredNetworkId } = paymentParams;
-  const { selectedTokens } = useSelectedTokens();
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    selectedTokens,
+    allowanceOrTransfers,
+    permit3SignatureData,
+    requestID,
+  } = useSelectedTokens();
   const [isError, setIsError] = useState(false);
   const [initialWagmiActions, setInitialWagmiActions] = useState<
     InitialWagmiAction[]
@@ -70,47 +72,32 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
   });
 
   // Fills the initialWagmiActions array which will be used to send the transactions
-  const getRequestIDAndSignatureData = async () => {
+  const getRequestIDAndSignatureData = () => {
     if (
       address &&
       desiredNetworkString &&
       desiredToken &&
       amountDueRaw &&
-      recipient
+      recipient &&
+      permit3SignatureData &&
+      requestID &&
+      allowanceOrTransfers.length > 0
     ) {
       try {
-        setIsLoading(true);
-        const response = await ky
-          .post<{
-            signatureData: Permit3SignatureData;
-            requestID: string;
-          }>(
-            `/api/send?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
-            {
-              timeout: false,
-            }
-          )
-          .json();
-
-        if (!response.signatureData || !response.requestID) {
-          throw new Error("Failed to get intents");
-        }
-
         // Get the signature initial wagmi action
         const signatureInitialWagmiAction: InitialWagmiAction | undefined =
-          response.signatureData.allowanceOrTransfers.length > 1
+          allowanceOrTransfers.length > 1
             ? {
                 type: WagmiActionType.SIGN_TYPED_DATA,
                 data: {
-                  domain: response.signatureData.domain,
+                  domain: permit3SignatureData.domain,
                   types: PERMIT3_TYPES,
                   primaryType: "SignedUnhingedPermit3",
-                  message: response.signatureData.message,
+                  message: permit3SignatureData.message,
                 },
                 chainId: 1,
                 onSuccess: async (args) => {
                   // Get the response RequestID and userSignedMessage
-                  const { requestID } = response;
                   const { userSignedMessage, updateActionInfo } = args;
 
                   if (!userSignedMessage || !requestID) {
@@ -146,12 +133,12 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                       )
                       .json();
 
-                    // Wait 1 second before next API call
+                    // Wait 1.5 seconds before next API call
                     if (
                       !intentData?.data.destinationChainTxHash &&
                       !intentData?.data.destinationChainID
                     ) {
-                      await new Promise((resolve) => setTimeout(resolve, 1000));
+                      await new Promise((resolve) => setTimeout(resolve, 1500));
                     }
                   }
 
@@ -256,10 +243,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
         setInitialWagmiActions(initialWagmiActions);
       } catch (error) {
         setIsError(true);
-        setIsLoading(false);
         console.log("error", error);
-      } finally {
-        setIsLoading(false);
       }
     }
   };
@@ -277,7 +261,6 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
         retry,
         pause,
       },
-      isLoading,
       isError,
       getRequestIDAndSignatureData,
     }),
@@ -290,7 +273,6 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
       start,
       retry,
       pause,
-      isLoading,
       isError,
       getRequestIDAndSignatureData,
     ]

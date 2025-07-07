@@ -3,7 +3,7 @@ import { UserAsset } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/shadcn/utils";
-import { usePermitModal } from "./permit-modal-provider";
+import { usePermitModal } from "@/components/providers/permit-modal-provider";
 import { capitalizeFirstLetter, deepCompareUserAssets } from "@/lib/utils";
 import { TokenAssetChainIcon } from "@/components/custom-ui/token-asset-chain-icon";
 

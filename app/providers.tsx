@@ -4,7 +4,7 @@ import AppKitProvider from "@/components/providers/appkit-provider";
 import { IsMobileProvider } from "@/components/providers/is-mobile-provider";
 import { NamesProvider } from "@/components/providers/names-provider";
 import { PaymentParamsProvider } from "@/components/providers/payment-params-provider";
-import { PermitModalProvider } from "@/components/providers/permit-modal/permit-modal-provider";
+import { PermitModalProvider } from "@/components/providers/permit-modal-provider";
 import { SelectedTokensProvider } from "@/components/providers/selected-tokens-provider";
 import { TransactionsProvider } from "@/components/providers/transactions-provider";
 import { UserBalancesProvider } from "@/components/providers/user-balances-provider";

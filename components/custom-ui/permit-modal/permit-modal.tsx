@@ -18,7 +18,7 @@ import { ApproveContainer } from "./approve-container";
 import { ApproveCompleted } from "./approve-completed";
 import { useConsecutiveWagmiActions } from "@/hooks/use-consecutive-wagmi-actions";
 import { config } from "@/lib/appkit";
-import { usePermitModal } from "./permit-modal-provider";
+import { usePermitModal } from "@/components/providers/permit-modal-provider";
 
 interface PermitModalProps {
   open: boolean;

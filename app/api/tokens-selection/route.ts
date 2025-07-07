@@ -48,6 +48,7 @@ export const POST = async (req: NextRequest) => {
   const destinationChainId = chainStringToChainId(destinationNetwork);
 
   try {
+    console.log("Request Body", JSON.stringify(requestBody, null, 2));
     const response = await ky
       .post<SendResponse>(
         `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/api/v1/buildersGarden/send`,
@@ -97,7 +98,18 @@ export const POST = async (req: NextRequest) => {
       }
     }
 
-    return NextResponse.json(optimizedSelection, { status: 200 });
+    // Get the requestID and permit3SignatureData from the response
+    const { requestID, permit3SignatureData } = response.data;
+
+    return NextResponse.json(
+      {
+        optimizedSelection,
+        requestID,
+        permit3SignatureData,
+        allowanceOrTransfers,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.log("error", error);
     return NextResponse.json(

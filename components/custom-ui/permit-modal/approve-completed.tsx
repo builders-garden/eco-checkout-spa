@@ -3,7 +3,7 @@ import { TransactionsList } from "@/components/custom-ui/transactions-list";
 import { ActionItem } from "@/hooks/use-consecutive-wagmi-actions";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
-import { usePermitModal } from "./permit-modal-provider";
+import { usePermitModal } from "@/components/providers/permit-modal-provider";
 
 interface ApproveCompletedProps {
   onOpenChange: (open: boolean) => void;

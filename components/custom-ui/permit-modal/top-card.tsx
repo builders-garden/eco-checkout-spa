@@ -2,7 +2,7 @@ import AnimatedName from "@/components/custom-ui/animated-name";
 import { truncateAddress } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
-import { useNames } from "../names-provider";
+import { useNames } from "@/components/providers/names-provider";
 import { useDisconnect } from "@reown/appkit/react";
 
 interface TopCardProps {

@@ -2,13 +2,15 @@ import { usePaymentParams } from "@/components/providers/payment-params-provider
 import { PaymentPageState } from "@/lib/enums";
 import { motion } from "framer-motion";
 import { TxContainerHeader } from "./tx-container-header";
-import { HookStatus } from "@/hooks/use-consecutive-wagmi-actions";
+import {
+  HookStatus,
+  WagmiActionType,
+} from "@/hooks/use-consecutive-wagmi-actions";
 import { CustomButton } from "../../customButton";
 import { ResizablePanel } from "../../resizable-panel";
 import { TransactionsList } from "../../transactions-list";
-import { Loader2 } from "lucide-react";
 import { useTransactions } from "@/components/providers/transactions-provider";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 interface TransactionsContainerProps {
   setPaymentPageState: (paymentPageState: PaymentPageState) => void;
@@ -19,7 +21,6 @@ export default function TransactionsContainer({
 }: TransactionsContainerProps) {
   const {
     consecutiveWagmiActionsObject,
-    isLoading,
     isError,
     getRequestIDAndSignatureData,
   } = useTransactions();
@@ -44,6 +45,28 @@ export default function TransactionsContainer({
     }
   }, [hookStatus]);
 
+  // Setting the initial height of the transactions list
+  const initialHeight = useMemo(
+    () =>
+      isError
+        ? 24
+        : 32 +
+          Math.max(queuedActions.length - 1, 0) * 12 +
+          queuedActions.reduce((acc, action) => {
+            const involvedTokensLength =
+              action.metadata.involvedTokens?.length ?? 0;
+            return (
+              acc +
+              (action.type === WagmiActionType.SIGN_TYPED_DATA
+                ? 50 +
+                  involvedTokensLength * 31 +
+                  Math.max(involvedTokensLength - 1, 0) * 8
+                : 38)
+            );
+          }, 0),
+    [queuedActions, isError]
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 100 }}
@@ -56,15 +79,11 @@ export default function TransactionsContainer({
       <TxContainerHeader amountDue={amountDue!} />
 
       <ResizablePanel
-        initialHeight={76}
+        initialHeight={initialHeight}
         className="flex flex-col justify-center items-center w-full h-full"
-        id={isLoading ? "loading" : "transactions-list"}
+        id="transactions-list"
       >
-        {isLoading ? (
-          <div className="flex justify-center items-center w-full h-full pt-5 pb-4">
-            <Loader2 className="size-10 animate-spin opacity-70" />
-          </div>
-        ) : isError ? (
+        {isError ? (
           <div className="flex justify-center items-center w-full h-full">
             <p className="text-destructive text-center">
               Error fetching intents from endpoint
@@ -79,9 +98,7 @@ export default function TransactionsContainer({
 
       <CustomButton
         text={
-          isLoading
-            ? "Loading..."
-            : hookStatus === HookStatus.ERROR
+          hookStatus === HookStatus.ERROR
             ? "Retry"
             : isError
             ? "Endpoint Error"
@@ -93,7 +110,7 @@ export default function TransactionsContainer({
           }
         }}
         isLoading={hookStatus === HookStatus.RUNNING}
-        isDisabled={hookStatus === HookStatus.RUNNING || isLoading || isError}
+        isDisabled={hookStatus === HookStatus.RUNNING || isError}
       />
     </motion.div>
   );

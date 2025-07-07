@@ -11,6 +11,10 @@ import { usePaymentParams } from "./payment-params-provider";
 import { useUserBalances } from "./user-balances-provider";
 import { useAppKitAccount } from "@reown/appkit/react";
 import ky from "ky";
+import {
+  AllowanceOrTransfer,
+  Permit3SignatureData,
+} from "@/lib/relayoor/types";
 
 export const SelectedTokensContext = createContext<
   SelectedTokensContextType | undefined
@@ -24,6 +28,9 @@ export type SelectedTokensContextType = {
   hasFetchedSelectedTokens: boolean;
   isLoadingSelectedTokens: boolean;
   isErrorSelectedTokens: boolean;
+  requestID: string;
+  permit3SignatureData: Permit3SignatureData | undefined;
+  allowanceOrTransfers: AllowanceOrTransfer[];
 };
 
 export const useSelectedTokens = () => {
@@ -44,6 +51,12 @@ export const SelectedTokensProvider = ({
   const { address } = useAppKitAccount();
   const [selectedTokens, setSelectedTokens] = useState<UserAsset[]>([]);
   const [optimizedSelection, setOptimizedSelection] = useState<UserAsset[]>([]);
+  const [requestID, setRequestID] = useState<string>("");
+  const [permit3SignatureData, setPermit3SignatureData] =
+    useState<Permit3SignatureData>();
+  const [allowanceOrTransfers, setAllowanceOrTransfers] = useState<
+    AllowanceOrTransfer[]
+  >([]);
   const [isLoadingSelectedTokens, setIsLoadingSelectedTokens] = useState(false);
   const [isErrorSelectedTokens, setIsErrorSelectedTokens] = useState(false);
   const [hasFetchedSelectedTokens, setHasFetchedSelectedTokens] =
@@ -95,7 +108,12 @@ export const SelectedTokensProvider = ({
     const fetchSelectedTokens = async () => {
       try {
         const getTransfersResponse = await ky
-          .post<UserAsset[]>(
+          .post<{
+            optimizedSelection: UserAsset[];
+            requestID: string;
+            permit3SignatureData: Permit3SignatureData;
+            allowanceOrTransfers: AllowanceOrTransfer[];
+          }>(
             `/api/tokens-selection?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
             {
               json: {
@@ -105,8 +123,11 @@ export const SelectedTokensProvider = ({
           )
           .json();
 
-        setSelectedTokens(getTransfersResponse);
-        setOptimizedSelection(getTransfersResponse);
+        setSelectedTokens(getTransfersResponse.optimizedSelection);
+        setOptimizedSelection(getTransfersResponse.optimizedSelection);
+        setRequestID(getTransfersResponse.requestID);
+        setPermit3SignatureData(getTransfersResponse.permit3SignatureData);
+        setAllowanceOrTransfers(getTransfersResponse.allowanceOrTransfers);
       } catch (error) {
         setIsErrorSelectedTokens(true);
       } finally {
@@ -140,6 +161,9 @@ export const SelectedTokensProvider = ({
       isLoadingSelectedTokens,
       isErrorSelectedTokens,
       hasFetchedSelectedTokens,
+      requestID,
+      permit3SignatureData,
+      allowanceOrTransfers,
     }),
     [
       selectedTokens,
@@ -149,6 +173,9 @@ export const SelectedTokensProvider = ({
       isLoadingSelectedTokens,
       isErrorSelectedTokens,
       hasFetchedSelectedTokens,
+      requestID,
+      permit3SignatureData,
+      allowanceOrTransfers,
     ]
   );
 

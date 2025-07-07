@@ -7,7 +7,7 @@ import { usePaymentParams } from "@/components/providers/payment-params-provider
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { useUserBalances } from "@/components/providers/user-balances-provider";
 import { cn } from "@/lib/shadcn/utils";
-import { usePermitModal } from "@/components/providers/permit-modal/permit-modal-provider";
+import { usePermitModal } from "@/components/providers/permit-modal-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 
 interface ActionsButtonProps {

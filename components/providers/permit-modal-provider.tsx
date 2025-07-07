@@ -6,11 +6,11 @@ import {
   useMemo,
   useState,
 } from "react";
-import { PermitModal } from "./permit-modal";
-import { useUserBalances } from "../user-balances-provider";
+import { PermitModal } from "@/components/custom-ui/permit-modal/permit-modal";
+import { useUserBalances } from "@/components/providers/user-balances-provider";
 import { UserAsset, UserAssetsByAsset } from "@/lib/types";
-import { useSelectedTokens } from "../selected-tokens-provider";
-import { usePaymentParams } from "../payment-params-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
+import { usePaymentParams } from "@/components/providers/payment-params-provider";
 import {
   chainIdToChain,
   chainStringToChainId,
@@ -154,7 +154,6 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       );
 
       // Create the extended mandatory tokens list
-      // If the destination token has some missing data, we don't add it to the selected tokens to approve
       const extendedMandatoryTokens = extraTokenToApprove
         ? [...mandatoryTokens, extraTokenToApprove]
         : mandatoryTokens;
