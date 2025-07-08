@@ -6,15 +6,36 @@ import { PoweredByCapsule } from "@/components/custom-ui/powered-by-capsule";
 import { useNames } from "@/components/providers/names-provider";
 import AnimatedName from "@/components/custom-ui/animated-name";
 import { motion } from "framer-motion";
-
-// Restore the network fees calculation here
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
+import { useEffect, useMemo } from "react";
 
 export const PaymentSummary = () => {
   const { recipientNames } = useNames();
+  const { sendIntents } = useSelectedTokens();
   const { paymentParams, desiredNetworkString } = usePaymentParams();
   const { recipient, amountDue, showFees } = paymentParams;
 
   const networkName = capitalizeFirstLetter(desiredNetworkString ?? "");
+
+  // Calculate the total network fees from the sendIntents
+  const totalNetworkFee = useMemo(() => {
+    return sendIntents.reduce((acc, intent) => {
+      const routeData = intent.routeData;
+      const rewardData = intent.rewardData;
+      const chainFees =
+        rewardData.tokens.reduce((acc, token) => {
+          return acc + Number(token.amount);
+        }, 0) -
+        routeData.tokens.reduce((acc, token) => {
+          return acc + Number(token.amount);
+        }, 0);
+      return acc + chainFees;
+    }, 0);
+  }, [sendIntents]);
+
+  useEffect(() => {
+    console.log("totalNetworkFee", totalNetworkFee);
+  }, [totalNetworkFee]);
 
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
@@ -81,10 +102,9 @@ export const PaymentSummary = () => {
                 transition={{ delay: 0.1 }}
                 className="text-[16px] font-semibold"
               >
-                {/* {totalNetworkFee < 0.01
+                {totalNetworkFee < 0.01
                   ? "< $0.01"
-                  : `$${totalNetworkFee.toFixed(2)}`} */}
-                0
+                  : `$${totalNetworkFee.toFixed(2)}`}
               </motion.p>
             </div>
           </>

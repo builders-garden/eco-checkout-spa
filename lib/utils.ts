@@ -13,13 +13,8 @@ import { CheckoutPageStateType, UserAsset, PaginationState } from "./types";
 import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
 import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
 import { Chain, createPublicClient, http } from "viem";
-import {
-  INCREASE_L2_PROTOCOL_FEE,
-  MIN_L2_PROTOCOL_FEE,
-  INCREASE_MAINNET_PROTOCOL_FEE,
-  MIN_MAINNET_PROTOCOL_FEE,
-} from "./constants";
 import { env } from "./zod";
+import { Intent } from "./relayoor/types";
 
 /**
  * Truncates an address to the given size keeping the 0x prefix
@@ -121,77 +116,61 @@ export const compareArrays = (arr1: any[], arr2: any[]) => {
 };
 
 /**
- * Gets the amount deducted from a specific token
- * @param amountDue - The amount due
- * @param selectedTokens - The selected tokens
- * @param token - The token to get the amount deducted from
- * @returns The amount deducted
+ * Gets the amount deducted from a token starting from the intents
+ * @param token - The token to deduct the amount from
+ * @param intents - The intents list to do all the calculations from
+ * @param amountDueRaw - The amount the user has to pay
+ * @returns The amount deducted from the token
  */
-export const getAmountDeducted = (
-  amountDue: number,
-  selectedTokens: UserAsset[],
-  token: UserAsset
-) => {
-  // Safety check to avoid useless computations
-  if (selectedTokens.length === 1) {
-    if (token.amount > amountDue) {
-      return amountDue;
-    } else {
-      return token.amount;
+export const getAmountDeductedFromIntents = (
+  token: UserAsset,
+  intents: Intent[],
+  amountDueRaw: number
+): number => {
+  // Search among the intents for the token abd try to get the amount deducted
+  for (const intent of intents) {
+    const { tokens } = intent.rewardData;
+    const amountDeducted = tokens.find(
+      (t) => t.token.toLowerCase() === token.tokenContractAddress.toLowerCase()
+    )?.amount;
+    if (amountDeducted) {
+      return Number(amountDeducted);
     }
   }
 
-  let selectedArraySum = 0;
-  for (let i = 0; i < selectedTokens.length; i++) {
-    const currentToken = selectedTokens[i];
+  // If the for loop ended without returning, the token is the one
+  // on the destination chain, so we need to calculate the amount deducted
+  const totalAmountReceivedFromDifferentChains = intents.reduce(
+    (acc, intent) => {
+      const { tokens } = intent.routeData;
+      const amountReceived = tokens.reduce(
+        (acc, token) => acc + Number(token.amount),
+        0
+      );
+      return acc + amountReceived;
+    },
+    0
+  );
 
-    // Calculate the current iteration remaining amount
-    const currentRemainingAmount = amountDue - selectedArraySum;
-
-    // Calculate the next iteration remaining amount
-    const nextRemainingAmount =
-      amountDue - (selectedArraySum + currentToken.amount);
-
-    // If the next token is a risky one, we need to be sure that the remaining amount is enough to cover the fees
-    if (
-      nextRemainingAmount > 0 &&
-      nextRemainingAmount < MIN_MAINNET_PROTOCOL_FEE &&
-      i + 1 < selectedTokens.length &&
-      selectedTokens[i + 1].isTokenAtRisk
-    ) {
-      const reducedAmount =
-        currentToken.amount -
-        Math.ceil((MIN_MAINNET_PROTOCOL_FEE - nextRemainingAmount) * 100) / 100;
-      if (deepCompareUserAssets(currentToken, token)) {
-        return reducedAmount;
-      } else {
-        selectedArraySum += reducedAmount;
-      }
-    } else if (deepCompareUserAssets(currentToken, token)) {
-      return currentToken.amount > currentRemainingAmount
-        ? currentRemainingAmount
-        : currentToken.amount;
-    } else {
-      selectedArraySum += currentToken.amount;
-    }
-  }
-  return 0;
+  return amountDueRaw - totalAmountReceivedFromDifferentChains;
 };
 
 /**
  * Groups selected tokens by asset name and chain ordered by amount deducted, takes only one occurrence for each token+chain combination
  * @param selectedTokens - The selected tokens
- * @param amountDue - The amount due
+ * @param amountDueRaw - The amount due
+ * @param sendIntents - The intents list to do all the calculations from
  * @returns The grouped tokens
  */
 export const groupSelectedTokensByAssetName = (
   selectedTokens: UserAsset[],
-  amountDue: number
+  amountDueRaw: number,
+  sendIntents: Intent[]
 ) => {
   const orderedSelectedTokens = [...selectedTokens].sort(
     (a, b) =>
-      getAmountDeducted(amountDue, selectedTokens, b) -
-      getAmountDeducted(amountDue, selectedTokens, a)
+      getAmountDeductedFromIntents(b, sendIntents, amountDueRaw) -
+      getAmountDeductedFromIntents(a, sendIntents, amountDueRaw)
   );
   return orderedSelectedTokens.reduce((acc, token) => {
     const assetName =
@@ -288,40 +267,6 @@ export const bigIntWeiToGwei = (wei: bigint): number => {
 export const isDeviceMobile = () => {
   if (typeof window === "undefined") return false;
   return window.innerWidth < 768;
-};
-
-/**
- * Gets the fees, given the amount to send and the chain id
- * @param amountToSend - The amount to send
- * @param tokenChainId - The chain id where the amount will be sent
- * @param desiredNetworkId - The chain id of the desired network
- * @param tokenDecimals - The decimals of the token
- * @returns The fees
- */
-export const getFees = (
-  amountToSend: number,
-  tokenChainId: RoutesSupportedChainId,
-  desiredNetworkId: RoutesSupportedChainId,
-  tokenDecimals: number
-) => {
-  if (
-    tokenChainId !== desiredNetworkId &&
-    (tokenChainId === 1 || desiredNetworkId === 1)
-  ) {
-    return (
-      (Math.floor(amountToSend / 10 ** (tokenDecimals + 2)) *
-        INCREASE_MAINNET_PROTOCOL_FEE +
-        MIN_MAINNET_PROTOCOL_FEE) *
-      10 ** tokenDecimals
-    );
-  } else {
-    return (
-      (Math.floor(amountToSend / 10 ** (tokenDecimals + 2)) *
-        INCREASE_L2_PROTOCOL_FEE +
-        MIN_L2_PROTOCOL_FEE) *
-      10 ** tokenDecimals
-    );
-  }
 };
 
 /**

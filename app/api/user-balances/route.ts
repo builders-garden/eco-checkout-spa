@@ -16,8 +16,11 @@ import {
   chainIds as ecoSupportedChains,
   RoutesSupportedChainId,
 } from "@eco-foundation/routes-sdk";
-import { Address, Chain, erc20Abi, Hex, maxUint256, maxUint32 } from "viem";
-import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
+import { Address, Chain, erc20Abi, Hex } from "viem";
+import {
+  MAX_UINT256_MINUS_MAX_UINT32,
+  PERMIT3_VERIFIER_ADDRESS,
+} from "@/lib/constants";
 import { env } from "@/lib/zod";
 
 export const GET = async (req: NextRequest) => {
@@ -156,9 +159,10 @@ export const GET = async (req: NextRequest) => {
                   chainId !== desiredNetworkId &&
                   (chainId === 1 || desiredNetworkId === 1),
                 chain: chain,
+                chainId: chainId as number,
                 tokenContractAddress,
                 decimals,
-                hasPermit: !(allowance < maxUint256 - maxUint32),
+                hasPermit: !(allowance < MAX_UINT256_MINUS_MAX_UINT32),
                 permit3Allowance: Number(allowance).toString(),
               };
             })

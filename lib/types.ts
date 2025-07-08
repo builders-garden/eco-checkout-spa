@@ -12,6 +12,7 @@ export type UserAsset = {
   amount: number;
   humanReadableAmount: number;
   chain: string;
+  chainId: number;
   tokenContractAddress: Hex;
   decimals: number;
   isTokenAtRisk: boolean;

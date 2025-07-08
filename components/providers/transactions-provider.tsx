@@ -16,7 +16,10 @@ import {
 } from "@/lib/relayoor/types";
 import ky from "ky";
 import { PERMIT3_TYPES } from "@/lib/constants";
-import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
+import {
+  chainStringToChainId,
+  getAmountDeductedFromIntents,
+} from "@/lib/utils";
 import { erc20Abi } from "viem";
 import { TokenSymbols } from "@/lib/enums";
 import { getChains } from "@wagmi/core";
@@ -51,6 +54,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
     allowanceOrTransfers,
     permit3SignatureData,
     requestID,
+    sendIntents,
   } = useSelectedTokens();
   const [isError, setIsError] = useState(false);
   const [initialWagmiActions, setInitialWagmiActions] = useState<
@@ -201,10 +205,10 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 return undefined;
               }
 
-              const amountToSend = getAmountDeducted(
-                amountDueRaw,
-                selectedTokens,
-                token
+              const amountToSend = getAmountDeductedFromIntents(
+                token,
+                sendIntents,
+                amountDueRaw
               );
               return {
                 type: WagmiActionType.WRITE_CONTRACT,

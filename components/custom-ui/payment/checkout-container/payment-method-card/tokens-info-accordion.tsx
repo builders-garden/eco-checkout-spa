@@ -12,7 +12,7 @@ import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages, TokenImages, TokenSymbols } from "@/lib/enums";
 import {
   capitalizeFirstLetter,
-  getAmountDeducted,
+  getAmountDeductedFromIntents,
   getHumanReadableAmount,
   groupSelectedTokensByAssetName,
 } from "@/lib/utils";
@@ -23,22 +23,26 @@ import { useMemo } from "react";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 
 export const TokensInfoAccordion = () => {
-  const { selectedTokens } = useSelectedTokens();
+  const { selectedTokens, sendIntents } = useSelectedTokens();
   const { amountDueRaw } = usePaymentParams();
 
   // Group the selected tokens by asset name
   const groupedTokens = useMemo(() => {
-    return groupSelectedTokensByAssetName(selectedTokens, amountDueRaw);
-  }, [selectedTokens, amountDueRaw]);
+    return groupSelectedTokensByAssetName(
+      selectedTokens,
+      amountDueRaw,
+      sendIntents
+    );
+  }, [selectedTokens, amountDueRaw, sendIntents]);
 
   // Get the token with the highest amount deducted
   const highestDeductedToken = useMemo(() => {
     let highestToken = null;
     for (const token of selectedTokens) {
-      const amountDeducted = getAmountDeducted(
-        amountDueRaw,
-        selectedTokens,
-        token
+      const amountDeducted = getAmountDeductedFromIntents(
+        token,
+        sendIntents,
+        amountDueRaw
       );
       if (amountDeducted > (highestToken?.amount ?? 0)) {
         highestToken = token;
@@ -103,7 +107,9 @@ export const TokensInfoAccordion = () => {
                         className="object-cover rounded-full"
                       />
                       <img
-                        src={ChainImages[token.chain as keyof typeof ChainImages]}
+                        src={
+                          ChainImages[token.chain as keyof typeof ChainImages]
+                        }
                         alt={`${token.chain} logo`}
                         className="absolute bottom-0 right-0 object-cover rounded-full"
                         width={12}
@@ -126,7 +132,11 @@ export const TokensInfoAccordion = () => {
                     <p className="text-xs text-secondary font-semibold text-right">
                       -$
                       {getHumanReadableAmount(
-                        getAmountDeducted(amountDueRaw, selectedTokens, token),
+                        getAmountDeductedFromIntents(
+                          token,
+                          sendIntents,
+                          amountDueRaw
+                        ),
                         token.decimals
                       ).toFixed(2)}
                     </p>

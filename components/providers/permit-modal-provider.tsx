@@ -20,7 +20,10 @@ import {
 import { InitialWagmiAction } from "@/hooks/use-consecutive-wagmi-actions";
 import { WagmiActionType } from "@/hooks/use-consecutive-wagmi-actions";
 import { Address, Chain, erc20Abi, maxUint256 } from "viem";
-import { PERMIT3_VERIFIER_ADDRESS } from "@/lib/constants";
+import {
+  MAX_UINT256_MINUS_MAX_UINT32,
+  PERMIT3_VERIFIER_ADDRESS,
+} from "@/lib/constants";
 import { TokenSymbols } from "@/lib/enums";
 import {
   RoutesService,
@@ -103,9 +106,12 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       chainIdToChain(destinationChainId) as Chain
     );
 
+    // Get the chain id
+    const chainId = chainStringToChainId(desiredNetworkString);
+
     // Get the token contract address
     const tokenContractAddress = RoutesService.getStableAddress(
-      chainStringToChainId(desiredNetworkString),
+      chainId,
       destinationToken as RoutesSupportedStable
     );
 
@@ -126,11 +132,12 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
     return {
       asset: destinationToken?.toLocaleLowerCase() as string,
       chain: desiredNetworkString,
+      chainId,
       amount: -1,
       humanReadableAmount: -1,
       tokenContractAddress,
       decimals: 6,
-      hasPermit: allowance >= BigInt(amountDueRaw),
+      hasPermit: !(allowance < MAX_UINT256_MINUS_MAX_UINT32),
       permit3Allowance: Number(allowance).toString(),
       isTokenAtRisk: false,
     };
@@ -206,10 +213,7 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
             abi: erc20Abi,
             functionName: "approve",
             address: balance.tokenContractAddress,
-            args: [
-              PERMIT3_VERIFIER_ADDRESS,
-              balance.amount === -1 ? BigInt(amountDueRaw) : maxUint256,
-            ],
+            args: [PERMIT3_VERIFIER_ADDRESS, maxUint256],
             chainId,
           },
           chainId,

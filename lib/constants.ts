@@ -1,19 +1,10 @@
-import { Hex } from "viem";
+import { Hex, maxUint256, maxUint32 } from "viem";
 
 // EVM empty address
 export const EMPTY_ADDRESS: Hex = "0x0000000000000000000000000000000000000000";
 
-// Minimum Protocol Fee on Mainnet
-export const MIN_MAINNET_PROTOCOL_FEE: number = 365000;
-
-// Minimum Protocol Fee on L2s
-export const MIN_L2_PROTOCOL_FEE: number = 2750;
-
-// Increase in fees per 100 tokens on Mainnet
-export const INCREASE_MAINNET_PROTOCOL_FEE: number = 15000;
-
-// Increase in fees per 100 tokens on L2s
-export const INCREASE_L2_PROTOCOL_FEE: number = 750;
+// A bit less than the max uint256
+export const MAX_UINT256_MINUS_MAX_UINT32 = maxUint256 - maxUint32;
 
 // ENS Resolvers
 export const ENS_PUBLIC_RESOLVER_ADDRESS =

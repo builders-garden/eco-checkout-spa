@@ -86,19 +86,29 @@ export const POST = async (req: NextRequest) => {
       return a.amount - b.amount;
     });
 
-    // If the amount of the optimized selection is less than the transfer amount
-    // add the same chain token at the end
-    if (
-      optimizedSelection.reduce((acc, curr) => acc + curr.amount, 0) <
-      Number(transferAmount)
-    ) {
+    // Calculate the amount received by the recipient from the different chains
+    const totalAmountReceivedFromDifferentChains = response.data.intents.reduce(
+      (acc, intent) => {
+        const { tokens } = intent.routeData;
+        const amountReceived = tokens.reduce(
+          (acc, token) => acc + Number(token.amount),
+          0
+        );
+        return acc + amountReceived;
+      },
+      0
+    );
+
+    // If the amount received by the recipient from the different chains is less than the transfer amount
+    // add the same chain token at the end of the optimized selection
+    if (totalAmountReceivedFromDifferentChains < Number(transferAmount)) {
       if (sameChainToken) {
         optimizedSelection.push(sameChainToken);
       }
     }
 
     // Get the requestID and permit3SignatureData from the response
-    const { requestID, permit3SignatureData } = response.data;
+    const { requestID, permit3SignatureData, intents } = response.data;
 
     return NextResponse.json(
       {
@@ -106,6 +116,7 @@ export const POST = async (req: NextRequest) => {
         requestID,
         permit3SignatureData,
         allowanceOrTransfers,
+        intents,
       },
       { status: 200 }
     );

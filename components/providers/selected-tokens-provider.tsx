@@ -13,6 +13,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import ky from "ky";
 import {
   AllowanceOrTransfer,
+  Intent,
   Permit3SignatureData,
 } from "@/lib/relayoor/types";
 
@@ -31,6 +32,7 @@ export type SelectedTokensContextType = {
   requestID: string;
   permit3SignatureData: Permit3SignatureData | undefined;
   allowanceOrTransfers: AllowanceOrTransfer[];
+  sendIntents: Intent[];
 };
 
 export const useSelectedTokens = () => {
@@ -57,6 +59,7 @@ export const SelectedTokensProvider = ({
   const [allowanceOrTransfers, setAllowanceOrTransfers] = useState<
     AllowanceOrTransfer[]
   >([]);
+  const [sendIntents, setSendIntents] = useState<Intent[]>([]);
   const [isLoadingSelectedTokens, setIsLoadingSelectedTokens] = useState(false);
   const [isErrorSelectedTokens, setIsErrorSelectedTokens] = useState(false);
   const [hasFetchedSelectedTokens, setHasFetchedSelectedTokens] =
@@ -113,6 +116,7 @@ export const SelectedTokensProvider = ({
             requestID: string;
             permit3SignatureData: Permit3SignatureData;
             allowanceOrTransfers: AllowanceOrTransfer[];
+            intents: Intent[];
           }>(
             `/api/tokens-selection?sender=${address}&recipient=${recipient}&destinationNetwork=${desiredNetworkString}&destinationToken=${desiredToken}&transferAmount=${amountDueRaw}`,
             {
@@ -128,6 +132,7 @@ export const SelectedTokensProvider = ({
         setRequestID(getTransfersResponse.requestID);
         setPermit3SignatureData(getTransfersResponse.permit3SignatureData);
         setAllowanceOrTransfers(getTransfersResponse.allowanceOrTransfers);
+        setSendIntents(getTransfersResponse.intents);
       } catch (error) {
         setIsErrorSelectedTokens(true);
       } finally {
@@ -164,6 +169,7 @@ export const SelectedTokensProvider = ({
       requestID,
       permit3SignatureData,
       allowanceOrTransfers,
+      sendIntents,
     }),
     [
       selectedTokens,
@@ -176,6 +182,7 @@ export const SelectedTokensProvider = ({
       requestID,
       permit3SignatureData,
       allowanceOrTransfers,
+      sendIntents,
     ]
   );
 

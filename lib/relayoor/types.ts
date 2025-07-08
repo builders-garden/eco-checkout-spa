@@ -50,8 +50,11 @@ export interface RequestedTransferType {
 }
 
 export interface Intent {
+  quoteID: string;
+  solverID: string;
   routeData: RouteData;
   rewardData: RewardData;
+  vaultAddress: string;
 }
 
 export interface RouteData {

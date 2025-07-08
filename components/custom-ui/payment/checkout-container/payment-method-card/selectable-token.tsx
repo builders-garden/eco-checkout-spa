@@ -1,11 +1,12 @@
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
+import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
 import { TokenImages, ChainImages, TokenSymbols } from "@/lib/enums";
 import { cn } from "@/lib/shadcn/utils";
 import { UserAsset } from "@/lib/types";
 import {
   capitalizeFirstLetter,
   deepCompareUserAssets,
-  getAmountDeducted,
+  getAmountDeductedFromIntents,
   getHumanReadableAmount,
 } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -28,6 +29,7 @@ export const SelectableToken = ({
   setSelectedTokens,
 }: SelectableTokenProps) => {
   const { amountDueRaw } = usePaymentParams();
+  const { sendIntents } = useSelectedTokens();
   const [isMounted, setIsMounted] = useState(false);
 
   // This is to prevent delayed animations when the tokens
@@ -57,7 +59,7 @@ export const SelectableToken = ({
 
   // Calculate the amount deducted from this specific token
   const amountDeducted = useMemo(() => {
-    return getAmountDeducted(amountDueRaw, selectedTokens, token);
+    return getAmountDeductedFromIntents(token, sendIntents, amountDueRaw);
   }, [amountDueRaw, token, selectedTokens]);
 
   return (
