@@ -2,14 +2,11 @@ import { usePaymentParams } from "@/components/providers/payment-params-provider
 import { PaymentPageState } from "@/lib/enums";
 import { motion } from "framer-motion";
 import { TxContainerHeader } from "./tx-container-header";
-import {
-  HookStatus,
-  WagmiActionType,
-} from "@/hooks/use-consecutive-wagmi-actions";
+import { HookStatus } from "@/hooks/use-consecutive-wagmi-actions";
 import { CustomButton } from "../../customButton";
 import { TransactionsList } from "../../transactions-list";
 import { useTransactions } from "@/components/providers/transactions-provider";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 
 interface TransactionsContainerProps {
   setPaymentPageState: (paymentPageState: PaymentPageState) => void;
