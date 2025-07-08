@@ -6,7 +6,7 @@ import { UserAsset } from "@/lib/types";
 import {
   capitalizeFirstLetter,
   deepCompareUserAssets,
-  getAmountDeductedFromIntents,
+  getAmountDeducted,
   getHumanReadableAmount,
 } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -59,7 +59,7 @@ export const SelectableToken = ({
 
   // Calculate the amount deducted from this specific token
   const amountDeducted = useMemo(() => {
-    return getAmountDeductedFromIntents(token, sendIntents, amountDueRaw);
+    return getAmountDeducted(token, sendIntents, amountDueRaw);
   }, [amountDueRaw, token, selectedTokens]);
 
   return (

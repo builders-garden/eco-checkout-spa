@@ -12,7 +12,7 @@ import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages, TokenImages, TokenSymbols } from "@/lib/enums";
 import {
   capitalizeFirstLetter,
-  getAmountDeductedFromIntents,
+  getAmountDeducted,
   getHumanReadableAmount,
   groupSelectedTokensByAssetName,
 } from "@/lib/utils";
@@ -39,7 +39,7 @@ export const TokensInfoAccordion = () => {
   const highestDeductedToken = useMemo(() => {
     let highestToken = null;
     for (const token of selectedTokens) {
-      const amountDeducted = getAmountDeductedFromIntents(
+      const amountDeducted = getAmountDeducted(
         token,
         sendIntents,
         amountDueRaw
@@ -132,11 +132,7 @@ export const TokensInfoAccordion = () => {
                     <p className="text-xs text-secondary font-semibold text-right">
                       -$
                       {getHumanReadableAmount(
-                        getAmountDeductedFromIntents(
-                          token,
-                          sendIntents,
-                          amountDueRaw
-                        ),
+                        getAmountDeducted(token, sendIntents, amountDueRaw),
                         token.decimals
                       ).toFixed(2)}
                     </p>

@@ -57,6 +57,8 @@ export const POST = async (req: NextRequest) => {
       )
       .json();
 
+    console.log("response", JSON.stringify(response, null, 2));
+
     // Get all the allowances and transfers from the response
     const { allowanceOrTransfers } = response.data.permit3SignatureData;
 

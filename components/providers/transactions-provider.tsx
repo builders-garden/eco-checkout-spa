@@ -16,10 +16,7 @@ import {
 } from "@/lib/relayoor/types";
 import ky from "ky";
 import { PERMIT3_TYPES } from "@/lib/constants";
-import {
-  chainStringToChainId,
-  getAmountDeductedFromIntents,
-} from "@/lib/utils";
+import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
 import { erc20Abi } from "viem";
 import { TokenSymbols } from "@/lib/enums";
 import { getChains } from "@wagmi/core";
@@ -205,7 +202,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 return undefined;
               }
 
-              const amountToSend = getAmountDeductedFromIntents(
+              const amountToSend = getAmountDeducted(
                 token,
                 sendIntents,
                 amountDueRaw

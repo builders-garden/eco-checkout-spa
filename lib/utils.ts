@@ -122,7 +122,7 @@ export const compareArrays = (arr1: any[], arr2: any[]) => {
  * @param amountDueRaw - The amount the user has to pay
  * @returns The amount deducted from the token
  */
-export const getAmountDeductedFromIntents = (
+export const getAmountDeducted = (
   token: UserAsset,
   intents: Intent[],
   amountDueRaw: number
@@ -169,8 +169,8 @@ export const groupSelectedTokensByAssetName = (
 ) => {
   const orderedSelectedTokens = [...selectedTokens].sort(
     (a, b) =>
-      getAmountDeductedFromIntents(b, sendIntents, amountDueRaw) -
-      getAmountDeductedFromIntents(a, sendIntents, amountDueRaw)
+      getAmountDeducted(b, sendIntents, amountDueRaw) -
+      getAmountDeducted(a, sendIntents, amountDueRaw)
   );
   return orderedSelectedTokens.reduce((acc, token) => {
     const assetName =
