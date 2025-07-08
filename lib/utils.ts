@@ -291,10 +291,18 @@ export const getViemPublicClient = (chain: Chain) => {
  * Converts a number to a human readable amount
  * @param amount - The amount
  * @param decimals - The decimals
- * @returns The human readable amount
+ * @returns The human readable amount in the form of a string made like X.xx
  */
-export const getHumanReadableAmount = (amount: number, decimals: number) => {
-  return amount / 10 ** decimals;
+export const getHumanReadableAmount = (
+  amount: number,
+  decimals: number
+): string => {
+  if (amount === 0) return "0.00";
+  const humanReadableAmount = amount / 10 ** decimals;
+  if (humanReadableAmount < 0.01) {
+    return "<0.01";
+  }
+  return humanReadableAmount.toFixed(2);
 };
 
 /**

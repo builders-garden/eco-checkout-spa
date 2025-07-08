@@ -123,12 +123,12 @@ export const SelectableToken = ({
       </div>
       <div className="flex flex-col justify-center items-end">
         <p className="text-sm text-primary font-semibold">
-          ${token.humanReadableAmount.toFixed(2)}
+          ${token.humanReadableAmount}
         </p>
         {isSelected && (
           <p className="text-xs text-secondary font-semibold">
             -$
-            {getHumanReadableAmount(amountDeducted, token.decimals).toFixed(2)}
+            {getHumanReadableAmount(amountDeducted, token.decimals)}
           </p>
         )}
       </div>

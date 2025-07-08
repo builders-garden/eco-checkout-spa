@@ -48,7 +48,7 @@ export const AdvancedPaymentModal = ({
             acc.humanReadableTotal + token.humanReadableAmount,
         };
       },
-      { modalSelectedTotal: 0, humanReadableTotal: 0 }
+      { modalSelectedTotal: 0, humanReadableTotal: "0" }
     );
 
   // Check if the selected amount is enough to cover the required amount
@@ -95,7 +95,7 @@ export const AdvancedPaymentModal = ({
               isAmountReached ? "text-success" : "text-warning"
             )}
           >
-            Selected: {isMobile && <br />}${humanReadableTotal!.toFixed(2)}
+            Selected: {isMobile && <br />}${humanReadableTotal}
           </p>
         </div>
 

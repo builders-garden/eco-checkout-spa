@@ -134,7 +134,7 @@ export const PermitModalProvider = ({ children }: { children: ReactNode }) => {
       chain: desiredNetworkString,
       chainId,
       amount: -1,
-      humanReadableAmount: -1,
+      humanReadableAmount: "-1",
       tokenContractAddress,
       decimals: 6,
       hasPermit: !(allowance < MAX_UINT256_MINUS_MAX_UINT32),

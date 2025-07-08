@@ -68,7 +68,7 @@ export const ChainToken = ({ token, unselectable }: ChainTokenProps) => {
         !unselectable && (
           <div className="flex justify-center items-center sm:mr-[3px] gap-2">
             <p className="text-sm text-secondary">
-              ${token.humanReadableAmount.toFixed(2)}
+              ${token.humanReadableAmount}
             </p>
             <div
               className={cn(

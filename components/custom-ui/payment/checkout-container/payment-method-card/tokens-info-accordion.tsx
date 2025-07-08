@@ -127,14 +127,14 @@ export const TokensInfoAccordion = () => {
                   </div>
                   <div className="flex flex-col justify-center items-end">
                     <p className="text-sm text-primary font-semibold">
-                      {token.humanReadableAmount.toFixed(2)}
+                      {token.humanReadableAmount}
                     </p>
                     <p className="text-xs text-secondary font-semibold text-right">
                       -$
                       {getHumanReadableAmount(
                         getAmountDeducted(token, sendIntents, amountDueRaw),
                         token.decimals
-                      ).toFixed(2)}
+                      )}
                     </p>
                   </div>
                 </motion.div>

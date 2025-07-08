@@ -1,4 +1,8 @@
-import { capitalizeFirstLetter, truncateAddress } from "@/lib/utils";
+import {
+  capitalizeFirstLetter,
+  getHumanReadableAmount,
+  truncateAddress,
+} from "@/lib/utils";
 import { Separator } from "@/components/shadcn-ui/separator";
 import { ChainImages } from "@/lib/enums";
 import { usePaymentParams } from "@/components/providers/payment-params-provider";
@@ -32,10 +36,6 @@ export const PaymentSummary = () => {
       return acc + chainFees;
     }, 0);
   }, [sendIntents]);
-
-  useEffect(() => {
-    console.log("totalNetworkFee", totalNetworkFee);
-  }, [totalNetworkFee]);
 
   return (
     <div className="flex flex-col justify-start items-start sm:p-4 gap-6">
@@ -102,9 +102,7 @@ export const PaymentSummary = () => {
                 transition={{ delay: 0.1 }}
                 className="text-[16px] font-semibold"
               >
-                {totalNetworkFee < 0.01
-                  ? "< $0.01"
-                  : `$${totalNetworkFee.toFixed(2)}`}
+                ${getHumanReadableAmount(totalNetworkFee, 6)}
               </motion.p>
             </div>
           </>

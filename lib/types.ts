@@ -10,7 +10,7 @@ export type UserAssetsByAsset = Record<string, UserAsset[]>;
 export type UserAsset = {
   asset: string;
   amount: number;
-  humanReadableAmount: number;
+  humanReadableAmount: string;
   chain: string;
   chainId: number;
   tokenContractAddress: Hex;
