@@ -11,7 +11,7 @@ import { useNames } from "@/components/providers/names-provider";
 import AnimatedName from "@/components/custom-ui/animated-name";
 import { motion } from "framer-motion";
 import { useSelectedTokens } from "@/components/providers/selected-tokens-provider";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export const PaymentSummary = () => {
   const { recipientNames } = useNames();

@@ -118,7 +118,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                   }
 
                   // Execute intent
-                  const executeIntentResponse = await ky
+                  await ky
                     .post<ExecuteIntentResponse>(
                       `/api/intents/execute-intent`,
                       {
