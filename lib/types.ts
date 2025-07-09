@@ -25,6 +25,17 @@ export type GroupedTokens = Record<
   { assetName: string; chain: string }[]
 >;
 
+export type TransferInfo = {
+  description: string;
+  txLink: string | null;
+  chain: string;
+  tokens: { asset: string }[];
+};
+
+export type GroupedInvolvedTokensByChainId = {
+  [key: string]: TransferInfo;
+};
+
 export type CheckoutPageStateType = {
   current: PaymentPageState | null;
   previous: PaymentPageState | null;

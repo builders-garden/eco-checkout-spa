@@ -16,10 +16,15 @@ import {
 } from "@/lib/relayoor/types";
 import ky from "ky";
 import { PERMIT3_TYPES } from "@/lib/constants";
-import { chainStringToChainId, getAmountDeducted } from "@/lib/utils";
+import {
+  capitalizeFirstLetter,
+  chainStringToChainId,
+  getAmountDeducted,
+} from "@/lib/utils";
 import { erc20Abi } from "viem";
 import { TokenSymbols } from "@/lib/enums";
 import { getChains } from "@wagmi/core";
+import { GroupedInvolvedTokensByChainId } from "@/lib/types";
 
 export const TransactionsContext = createContext<
   TransactionsContextType | undefined
@@ -99,7 +104,12 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 chainId: 1,
                 onSuccess: async (args) => {
                   // Get the response RequestID and userSignedMessage
-                  const { userSignedMessage, updateActionInfo } = args;
+                  const {
+                    userSignedMessage,
+                    updateActionInfo,
+                    currentActionIdx,
+                    metadata,
+                  } = args;
 
                   if (!userSignedMessage || !requestID) {
                     throw new Error(
@@ -108,7 +118,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                   }
 
                   // Execute intent
-                  await ky
+                  const executeIntentResponse = await ky
                     .post<ExecuteIntentResponse>(
                       `/api/intents/execute-intent`,
                       {
@@ -121,18 +131,84 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                     )
                     .json();
 
-                  // Get the intent data
+                  // Get the hash array from the API
+                  let hashArray: {
+                    chainId: number;
+                    transactionHash: string;
+                  }[] = [];
+                  while (hashArray.length === 0) {
+                    try {
+                      const response = await ky
+                        .post<{
+                          hashArray: {
+                            chainId: number;
+                            transactionHash: string;
+                          }[];
+                        }>(`/api/intents/get-intents`, {
+                          json: { requestID, creator: address },
+                        })
+                        .json();
+
+                      hashArray = response.hashArray;
+                    } catch (error) {
+                      console.log("Error while getting hash array", error);
+                      hashArray = [];
+                    }
+
+                    // Wait 1.5 seconds before next API call
+                    if (
+                      hashArray.length === 0 ||
+                      !hashArray.every((h) => h.transactionHash)
+                    ) {
+                      await new Promise((resolve) => setTimeout(resolve, 1500));
+                    }
+                  }
+
+                  // Set the hash array to the action metadata to fill each transaction link
+                  updateActionInfo(currentActionIdx, {
+                    metadata: {
+                      ...metadata,
+                      involvedTokens: Object.entries(
+                        (metadata?.involvedTokens ||
+                          {}) as GroupedInvolvedTokensByChainId
+                      ).reduce((acc, [chainId, group]) => {
+                        // Find the hash for this chainId
+                        const hashEntry = hashArray.find(
+                          (h) => h.chainId.toString() === chainId
+                        );
+                        // Get the block explorer base URL
+                        const blockExplorerBaseUrl = getChains(config).find(
+                          (chain) => chain.id.toString() === chainId
+                        )?.blockExplorers?.default.url;
+                        acc[chainId] = {
+                          ...group,
+                          txLink:
+                            hashEntry && blockExplorerBaseUrl
+                              ? `${blockExplorerBaseUrl}/tx/${hashEntry.transactionHash}`
+                              : null,
+                        };
+                        return acc;
+                      }, {} as GroupedInvolvedTokensByChainId),
+                    },
+                  });
+
+                  // Get the intent data on the destination chain
                   let intentData: GetIntentDataResponse | undefined = undefined;
                   while (
                     !intentData?.data.destinationChainTxHash &&
                     !intentData?.data.destinationChainID
                   ) {
-                    intentData = await ky
-                      .get<GetIntentDataResponse>(
-                        `/api/intents/get-intent-data/${requestID}`,
-                        { timeout: false }
-                      )
-                      .json();
+                    try {
+                      intentData = await ky
+                        .get<GetIntentDataResponse>(
+                          `/api/intents/get-intent-data/${requestID}`,
+                          { timeout: false }
+                        )
+                        .json();
+                    } catch (error) {
+                      console.log("Error while getting intent data", error);
+                      intentData = undefined;
+                    }
 
                     // Wait 1.5 seconds before next API call
                     if (
@@ -149,7 +225,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                   )?.blockExplorers?.default.url;
 
                   // Update the action status to success
-                  updateActionInfo(currentActionIndex, {
+                  updateActionInfo(currentActionIdx, {
                     status: ActionStatus.PENDING,
                     hash: intentData.data.destinationChainTxHash,
                     txLink: `${blockExplorerBaseUrl}/tx/${intentData.data.destinationChainTxHash}`,
@@ -157,30 +233,41 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                 },
                 metadata: {
                   description: "Sign and Execute Intent",
+                  // Filter out the tokens that are on the desired network
+                  // Then create an object grouping tokens by chain id
                   involvedTokens: selectedTokens
-                    .map((token) => {
-                      let chainId: number;
+                    .filter((token) => token.chain !== desiredNetworkString)
+                    .reduce((acc, token) => {
+                      // Get the chain id
+                      let chainId: string;
                       try {
-                        chainId = chainStringToChainId(token.chain);
+                        chainId = chainStringToChainId(token.chain).toString();
                       } catch (error) {
-                        return undefined;
+                        // If the chain id is not valid, don't add it to the actions
+                        return acc;
                       }
 
-                      // Take all the tokens that are not on the desired network
-                      if (chainId === desiredNetworkId) {
-                        return undefined;
+                      if (acc[chainId]) {
+                        // If the chain id already exists, add the token to the token info array
+                        acc[chainId].tokens = [
+                          ...acc[chainId].tokens,
+                          {
+                            asset: token.asset,
+                          },
+                        ];
+                      } else {
+                        // If the chain id does not exist, create a new object with the token info
+                        acc[chainId] = {
+                          chain: token.chain,
+                          txLink: null,
+                          description: `Transfer from ${capitalizeFirstLetter(
+                            token.chain
+                          )}`,
+                          tokens: [{ asset: token.asset }],
+                        };
                       }
-
-                      return {
-                        chain: token.chain,
-                        asset: token.asset,
-                        txLink: null,
-                        description: `Transfer ${
-                          TokenSymbols[token.asset as keyof typeof TokenSymbols]
-                        }`,
-                      };
-                    })
-                    .filter((token) => token !== undefined),
+                      return acc;
+                    }, {} as GroupedInvolvedTokensByChainId),
                 },
               }
             : undefined;
@@ -244,7 +331,7 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
         setInitialWagmiActions(initialWagmiActions);
       } catch (error) {
         setIsError(true);
-        console.log("error", error);
+        console.log("Error: ", error);
       }
     }
   };

@@ -54,7 +54,7 @@ export default function TransactionsContainer({
           Math.max(queuedActions.length - 1, 0) * 12 +
           queuedActions.reduce((acc, action) => {
             const involvedTokensLength =
-              action.metadata.involvedTokens?.length ?? 0;
+              Object.keys(action.metadata.involvedTokens ?? {}).length ?? 0;
             return (
               acc +
               (action.type === WagmiActionType.SIGN_TYPED_DATA

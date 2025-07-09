@@ -146,7 +146,7 @@ export const GET = async (req: NextRequest) => {
                   args: [userAddress as Address, PERMIT3_VERIFIER_ADDRESS],
                 });
               } catch (error) {
-                console.log("Error: ", error);
+                console.log("Error: ",, error);
                 allowance = BigInt(0);
               }
 

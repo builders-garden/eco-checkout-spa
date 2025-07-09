@@ -109,7 +109,7 @@ export const UserBalancesProvider = ({ children }: { children: ReactNode }) => {
           ]);
         }
       } catch (error) {
-        console.log("error", error);
+        console.log("Error: ", error);
         setIsErrorUserBalances(true);
       } finally {
         setIsLoadingUserBalances(false);

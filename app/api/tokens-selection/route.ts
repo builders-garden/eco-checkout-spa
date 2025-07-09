@@ -121,7 +121,7 @@ export const POST = async (req: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.log("error", error);
+    console.log("Error: ", error);
     return NextResponse.json(
       { error: "Failed to get optimized selection" },
       { status: 500 }

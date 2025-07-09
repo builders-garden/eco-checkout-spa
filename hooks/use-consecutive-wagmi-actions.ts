@@ -27,7 +27,7 @@ export enum WagmiActionType {
 export enum HookStatus {
   PAUSED = "paused",
   RUNNING = "running",
-  ERROR = "error",
+  ERROR = "Error: ",
   FINISHED = "finished",
 }
 
@@ -35,7 +35,7 @@ export enum ActionStatus {
   TO_SEND = "toSend",
   PENDING = "pending",
   SUCCESS = "success",
-  ERROR = "error",
+  ERROR = "Error: ",
 }
 
 export type InitialWagmiAction = {
@@ -222,7 +222,7 @@ export const useConsecutiveWagmiActions = ({
             }
           } catch (error) {
             // User rejected or another error occurred
-            console.log(error);
+            console.log("Error: ", error);
             setHookStatus(HookStatus.ERROR);
             updateActionInfo(currentActionIdx, {
               status: ActionStatus.ERROR,
@@ -244,7 +244,7 @@ export const useConsecutiveWagmiActions = ({
             }
           } catch (error) {
             // The simulation failed, the user rejected or another error occurred
-            console.log(error);
+            console.log("Error: ", error);
             setHookStatus(HookStatus.ERROR);
             updateActionInfo(currentActionIdx, {
               status: ActionStatus.ERROR,
@@ -270,7 +270,7 @@ export const useConsecutiveWagmiActions = ({
             }
           } catch (error) {
             // The simulation failed, the user rejected or another error occurred
-            console.log(error);
+            console.log("Error: ", error);
             setHookStatus(HookStatus.ERROR);
             updateActionInfo(currentActionIdx, {
               status: ActionStatus.ERROR,
@@ -293,10 +293,11 @@ export const useConsecutiveWagmiActions = ({
                 userSignedMessage,
                 updateActionInfo,
                 currentActionIdx,
+                metadata: currentAction.metadata,
               });
             }
           } catch (error) {
-            console.log(error);
+            console.log("Error: ", error);
             setHookStatus(HookStatus.ERROR);
             updateActionInfo(currentActionIdx, {
               status: ActionStatus.ERROR,
@@ -332,7 +333,7 @@ export const useConsecutiveWagmiActions = ({
             }
           } catch (error) {
             // The transaction reverted or another error occurred
-            console.log("Transaction reverted", error);
+            console.log("Error: Transaction reverted", error);
             setHookStatus(HookStatus.ERROR);
             updateActionInfo(currentActionIdx, {
               status: ActionStatus.ERROR,

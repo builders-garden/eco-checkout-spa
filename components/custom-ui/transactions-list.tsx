@@ -9,6 +9,8 @@ import { TokenAssetChainIcon } from "./token-asset-chain-icon";
 import { PopTransactionLink } from "./pop-transaction-link";
 import { TransactionStatusIcon } from "./transaction-status-icon";
 import { useMemo } from "react";
+import { TransferInfo } from "@/lib/types";
+import { ChainTokenAssetIcon } from "./chain-token-asset-icon";
 
 interface TransactionsListProps {
   queuedActions: ActionItem[];
@@ -77,32 +79,35 @@ export const TransactionsList = ({
 
             {/* Involved tokens */}
             <div className="relative flex flex-col justify-center items-center w-full gap-2">
-              {action.metadata.involvedTokens?.length > 0 &&
-                action.metadata.involvedTokens.map(
-                  (token: any, index: number) => (
-                    <div
-                      key={`${token.asset}-${token.chain}-${index}`}
-                      className="flex justify-between items-center w-full min-h-[44px] sm:min-h-0 pl-[62px]"
-                    >
-                      <div className="flex justify-start items-center w-full gap-3">
-                        <CornerDownRight color="#999999" />
-                        <div className="flex justify-center items-center gap-3 sm:gap-5">
-                          <TokenAssetChainIcon
-                            asset={token.asset}
-                            chain={token.chain}
-                          />
+              {action.metadata.involvedTokens &&
+                Object.entries(action.metadata.involvedTokens).map(
+                  ([chainId, transferInfo], index) => {
+                    const info = transferInfo as TransferInfo;
+                    return (
+                      <div
+                        key={`${chainId}-${index}`}
+                        className="flex justify-between items-center w-full min-h-[44px] sm:min-h-0 pl-[62px]"
+                      >
+                        <div className="flex justify-start items-center w-full gap-3">
+                          <CornerDownRight color="#999999" />
+                          <div className="flex justify-center items-center gap-3 sm:gap-5">
+                            <ChainTokenAssetIcon
+                              chain={info.chain}
+                              assets={info.tokens.map((token) => token.asset)}
+                            />
 
-                          {/* Action description */}
-                          <p className="text-[15px] sm:text-[16px] font-semibold shrink-0">
-                            {token.description}
-                          </p>
+                            {/* Action description */}
+                            <p className="text-[15px] sm:text-[16px] font-semibold shrink-0">
+                              {info.description}
+                            </p>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Tx hashes */}
-                      <PopTransactionLink txLink={token.txLink} />
-                    </div>
-                  )
+                        {/* Tx hashes */}
+                        <PopTransactionLink txLink={info.txLink} />
+                      </div>
+                    );
+                  }
                 )}
             </div>
           </div>

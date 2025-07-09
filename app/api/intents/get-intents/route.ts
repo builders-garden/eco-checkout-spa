@@ -4,10 +4,10 @@ import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-  const { quoteIDs, creator } = await req.json();
+  const { requestID, creator } = await req.json();
 
   // Validate the parameters
-  if (!quoteIDs || !creator) {
+  if (!requestID || !creator) {
     return NextResponse.json(
       { error: "Missing required parameters" },
       { status: 400 }
@@ -17,34 +17,27 @@ export const POST = async (req: NextRequest) => {
   // Get the dAppID from the environment variables
   const dAppID = env.NEXT_PUBLIC_ECO_DAPP_ID;
 
-  let quoteIDsArray: {
-    response: GetIntentResponse;
-    destinationTokenAddress: string | undefined;
+  let hashArray: {
+    chainId: number;
+    transactionHash: string;
   }[] = [];
 
   // Get the specific intent from the API
   try {
-    for (const quoteID of quoteIDs) {
-      const response = await ky
-        .get<GetIntentResponse>(
-          `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&quoteID=${quoteID}&creator=${creator}`
-        )
-        .json();
+    const { data } = await ky
+      .get<GetIntentResponse>(
+        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&intentGroupID=${requestID}&creator=${creator}`
+      )
+      .json();
 
-      // Get the destination token address
-      const destinationTokenAddress =
-        response.data[0].v2GaslessIntentData.permitData.permit3.allowanceOrTransfers.find(
-          (transfer) =>
-            transfer.chainID.toString() === response.data[0].params.destination
-        )?.token;
-
-      quoteIDsArray.push({
-        response,
-        destinationTokenAddress,
+    for (const intent of data) {
+      hashArray.push({
+        chainId: intent.chainId,
+        transactionHash: intent.transactionHash,
       });
     }
 
-    return NextResponse.json({ quoteIDsArray }, { status: 200 });
+    return NextResponse.json({ hashArray }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
