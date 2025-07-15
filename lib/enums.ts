@@ -78,11 +78,6 @@ export enum PaymentPageState {
   PAYMENT_COMPLETED = "payment-completed",
 }
 
-export enum HistoryPageState {
-  HISTORY = "history",
-  PAYMENT = "payment",
-}
-
 export enum PermitModalState {
   SELECT = "select",
   APPROVE = "approve",

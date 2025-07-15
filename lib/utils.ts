@@ -11,7 +11,10 @@ import {
 } from "viem/chains";
 import { CheckoutPageStateType, UserAsset, PaginationState } from "./types";
 import { AlchemyRpcBaseUrls, PaymentPageState } from "./enums";
-import { RoutesSupportedChainId } from "@eco-foundation/routes-sdk";
+import {
+  RoutesSupportedChainId,
+  stableAddresses,
+} from "@eco-foundation/routes-sdk";
 import { Chain, createPublicClient, http } from "viem";
 import { env } from "./zod";
 import { Intent } from "./relayoor/types";
@@ -318,4 +321,42 @@ export const deepCompareUserAssets = (asset1: UserAsset, asset2: UserAsset) => {
     asset1.decimals === asset2.decimals &&
     asset1.tokenContractAddress === asset2.tokenContractAddress
   );
+};
+
+/**
+ * Gets the token symbol from a token address
+ * @param chainId - The chain ID
+ * @param tokenAddress - The token address
+ * @returns The token symbol
+ */
+export const getTokenSymbolFromAddress = (
+  chainId: number,
+  tokenAddress: string
+) => {
+  const allowedTokens = stableAddresses[chainId as RoutesSupportedChainId];
+
+  const symbol = Object.entries(allowedTokens).find(
+    ([_, address]) => address.toLowerCase() === tokenAddress.toLowerCase()
+  )?.[0];
+
+  return symbol;
+};
+
+/**
+ * Gets the date from a Relayoor timestamp
+ * @param timestamp - The timestamp
+ * @returns The date in the format of DD/MM/YYYY
+ */
+export const getDateFromRelayoorTimestamp = (timestamp: string) => {
+  const [year, month, day] = timestamp.split("T")[0].split("-");
+  return `${day}/${month}/${year}`;
+};
+
+/**
+ * Gets the time from a Relayoor timestamp
+ * @param timestamp - The timestamp
+ * @returns The time in the format of HH:MM:SS
+ */
+export const getTimeFromRelayoorTimestamp = (timestamp: string) => {
+  return timestamp.split("T")[1].split(".")[0].slice(0, 5);
 };

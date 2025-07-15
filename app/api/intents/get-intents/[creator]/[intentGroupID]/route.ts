@@ -3,11 +3,20 @@ import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
-  const { requestID, creator } = await req.json();
+interface GetIntentsParams {
+  intentGroupID: string;
+  creator: string;
+}
+
+export const GET = async (
+  _: NextRequest,
+  { params }: { params: Promise<GetIntentsParams> }
+) => {
+  // Get the creator from the params
+  const { creator, intentGroupID } = await params;
 
   // Validate the parameters
-  if (!requestID || !creator) {
+  if (!intentGroupID || !creator) {
     return NextResponse.json(
       { error: "Missing required parameters" },
       { status: 400 }
@@ -26,7 +35,7 @@ export const POST = async (req: NextRequest) => {
   try {
     const { data } = await ky
       .get<GetIntentResponse>(
-        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&intentGroupID=${requestID}&creator=${creator}`
+        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&intentGroupID=${intentGroupID}&creator=${creator}`
       )
       .json();
 

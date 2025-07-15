@@ -1,5 +1,3 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { PaginationState } from "@/lib/types";
 import {
   Pagination,
   PaginationContent,
@@ -9,36 +7,40 @@ import {
   PaginationPrevious,
 } from "@/components/shadcn-ui/pagination";
 import { IntentData } from "@/lib/relayoor/types";
-import { TransactionHistoryCard } from "./transaction-history-card";
-import { useMemo } from "react";
+import { PaginationState } from "@/lib/types";
+import { AnimatePresence, motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { SingleIntentCard } from "./single-intent-card";
+import { ArrowLeft } from "lucide-react";
 
-interface AllTransactionsListProps {
-  history: Record<string, IntentData[]>;
-  historyLength: number;
-  paginationState: PaginationState;
-  setPaginationState: (
-    state: (prev: PaginationState) => PaginationState
-  ) => void;
+interface AllIntentsListProps {
+  setIntentGroupID: (intentGroupID: string | null) => void;
+  selectedPayment: IntentData[];
 }
 
-export const AllTransactionsList = ({
-  history,
-  historyLength,
-  paginationState,
-  setPaginationState,
-}: AllTransactionsListProps) => {
-  // Pagination calculations
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(historyLength / itemsPerPage);
+export const AllIntentsList = ({
+  setIntentGroupID,
+  selectedPayment,
+}: AllIntentsListProps) => {
+  // Calculate the intents length
+  const intentsLength = selectedPayment.length;
 
-  // Get a subobject of the history based on the pagination state
-  const paginatedHistory = useMemo(() => {
-    if (!history) return {};
-    const entries = Object.entries(history);
-    const start = (paginationState.currentPage - 1) * itemsPerPage;
-    const end = paginationState.currentPage * itemsPerPage;
-    return Object.fromEntries(entries.slice(start, end));
-  }, [history, paginationState, itemsPerPage]);
+  // Pagination State and constants
+  const [paginationState, setPaginationState] = useState<PaginationState>({
+    currentPage: 1,
+    previousPage: 1,
+  });
+
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(intentsLength / itemsPerPage);
+
+  // Get a paginated array of intents
+  const paginatedIntents = useMemo(() => {
+    return selectedPayment.slice(
+      (paginationState.currentPage - 1) * itemsPerPage,
+      paginationState.currentPage * itemsPerPage
+    );
+  }, [selectedPayment, paginationState, itemsPerPage]);
 
   return (
     <motion.div
@@ -49,11 +51,24 @@ export const AllTransactionsList = ({
       className="w-full max-w-3xl mx-auto p-6 bg-background"
     >
       {/* Header */}
-      <div className="text-center mb-8">
+      <div className="relative text-center mb-8 w-full">
+        <motion.button
+          whileHover={{ translateX: [0, -10, 0] }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          className="absolute left-2 h-full flex justify-center items-center cursor-pointer"
+          onClick={() => {
+            setIntentGroupID(null);
+          }}
+        >
+          <ArrowLeft className="size-8 text-muted-foreground" />
+        </motion.button>
         <h1 className="text-[27px] font-bold text-foreground mb-2">
-          Payment history
+          Payment Details
         </h1>
-        <p className="text-secondary text-lg">Your recent payment activity</p>
+        <p className="text-secondary text-lg">
+          All the intents included in this payment
+        </p>
       </div>
 
       {/* Transaction List */}
@@ -63,17 +78,14 @@ export const AllTransactionsList = ({
             key={paginationState.currentPage}
             className="flex flex-col justify-start items-center w-full gap-3"
           >
-            {Object.entries(paginatedHistory).map(
-              ([intentGroupID, paymentTransactions], index) => (
-                <TransactionHistoryCard
-                  key={intentGroupID}
-                  index={index}
-                  intentGroupID={intentGroupID}
-                  paymentTransactions={paymentTransactions}
-                  paginationState={paginationState}
-                />
-              )
-            )}
+            {paginatedIntents.map((intent, index) => (
+              <SingleIntentCard
+                key={intent.intentGroupID}
+                intent={intent}
+                index={index}
+                paginationState={paginationState}
+              />
+            ))}
           </div>
         </AnimatePresence>
       </div>

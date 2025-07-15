@@ -139,13 +139,13 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                   while (hashArray.length === 0) {
                     try {
                       const response = await ky
-                        .post<{
+                        .get<{
                           hashArray: {
                             chainId: number;
                             transactionHash: string;
                           }[];
-                        }>(`/api/intents/get-intents`, {
-                          json: { requestID, creator: address },
+                        }>(`/api/intents/get-intents/${address}/${requestID}`, {
+                          timeout: false,
                         })
                         .json();
 
