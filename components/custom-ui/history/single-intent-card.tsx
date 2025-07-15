@@ -189,26 +189,26 @@ export const SingleIntentCard = ({
           exit="exit"
           custom={paginationState}
           transition={{ duration: 0.2, delay: index * 0.075 }}
-          className="flex items-center justify-between w-full p-4 border border-border sm:rounded-[8px] bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+          className="flex items-center justify-between w-full p-4 border border-border rounded-[8px] bg-card hover:bg-accent/50 transition-colors cursor-pointer"
         >
           {/* Left side - Amount and destination */}
-          <div className="flex items-center gap-5">
-            <div className="flex justify-center items-center gap-2">
+          <div className="flex sm:flex-row flex-col justify-between items-center sm:gap-5 gap-1">
+            <div className="flex justify-start w-full items-center gap-2">
               <img
                 src={sourceChain.chainImage}
                 alt={sourceChain.chainName}
-                className="size-9 rounded-full"
+                className="sm:size-9 size-7 rounded-full"
               />
               <ArrowRight className="size-4.5 opacity-70 text-muted-foreground" />
               <img
                 src={destinationChain.chainImage}
                 alt={destinationChain.chainName}
-                className="size-9 rounded-full"
+                className="sm:size-9 size-7 rounded-full"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-xl font-bold text-foreground">
+              <p className="sm:text-xl text-lg leading-tight font-bold text-foreground">
                 {getHumanReadableAmount(
                   intent.params.rewardTokens.reduce((acc, token) => {
                     return acc + Number(token.amount);
@@ -217,7 +217,7 @@ export const SingleIntentCard = ({
                 )}{" "}
                 {sourceTokenSymbol}
               </p>
-              <div className="flex justify-center items-center gap-1.5">
+              <div className="sm:flex hidden justify-center items-center gap-1.5">
                 <p className="text-sm text-muted-foreground">
                   {capitalizeFirstLetter(sourceChain.chainName)}
                 </p>
@@ -230,14 +230,14 @@ export const SingleIntentCard = ({
           </div>
 
           {/* Right side - Date, hash, and status */}
-          <div className="flex justify-center items-center gap-6">
+          <div className="flex sm:flex-row flex-col justify-between sm:items-center items-end sm:gap-6 gap-1">
             <div className="flex flex-col justify-center items-start gap-1">
               {date && time && (
                 <div className="text-foreground font-medium">
                   {date} • {time}
                 </div>
               )}
-              <div className="flex items-center justify-end">
+              <div className="sm:flex hidden items-center justify-end">
                 {intent.transactionHash !== "undefined" ? (
                   <div className="flex items-center gap-1">
                     <p className="text-sm text-muted-foreground">
@@ -269,103 +269,109 @@ export const SingleIntentCard = ({
           </div>
         </motion.div>
       </DialogTrigger>
-      <DialogContent className="flex flex-col rounded-none sm:rounded-lg sm:gap-5 gap-6 sm:max-w-[650px] sm:h-fit max-w-full h-full">
+      <DialogContent className="flex flex-col rounded-none sm:rounded-lg pb-20 sm:pb-6 sm:gap-5 gap-6 sm:max-w-[650px] sm:h-fit max-w-full h-full">
         <DialogHeader>
           <DialogTitle className="text-start text-xl font-bold mb-1">
             Transaction Details
           </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 overflow-y-auto">
           {/* Chains and amount */}
-          <div className="flex justify-center items-center gap-5 bg-accent p-4 rounded-lg">
-            <div className="flex flex-col justify-center items-center gap-1">
-              <img
-                src={sourceChain.chainImage}
-                alt={sourceChain.chainName}
-                className="size-9 rounded-full"
-              />
-              <p className="text-sm font-medium">
-                {capitalizeFirstLetter(sourceChain.chainName)}
-              </p>
-            </div>
-            <div className="flex flex-col justify-center items-center gap-1">
-              <ArrowRight className="size-6 opacity-70 text-muted-foreground" />
-              <p className="text-xl font-bold text-foreground">
-                {getHumanReadableAmount(
-                  intent.params.rewardTokens.reduce((acc, token) => {
-                    return acc + Number(token.amount);
-                  }, 0),
-                  6
-                )}{" "}
-                {sourceTokenSymbol}
-              </p>
-            </div>
-            <div className="flex flex-col justify-center items-center gap-1">
-              <img
-                src={destinationChain.chainImage}
-                alt={destinationChain.chainName}
-                className="size-9 rounded-full"
-              />
-              <p className="text-sm font-medium">
-                {capitalizeFirstLetter(destinationChain.chainName)}
-              </p>
+          <div className="flex justify-center items-center bg-accent p-4 rounded-lg">
+            <div className="flex justify-center items-center sm:gap-6 gap-5">
+              <div className="flex flex-col justify-center items-center gap-1">
+                <img
+                  src={sourceChain.chainImage}
+                  alt={sourceChain.chainName}
+                  className="sm:size-9 size-8 rounded-full"
+                />
+                <p className="text-sm font-medium">
+                  {capitalizeFirstLetter(sourceChain.chainName)}
+                </p>
+              </div>
+              <div className="flex flex-col justify-center items-center gap-1">
+                <ArrowRight className="sm:size-6 size-5 opacity-70 text-muted-foreground" />
+                <p className="sm:text-xl text-lg font-bold text-foreground">
+                  {getHumanReadableAmount(
+                    intent.params.rewardTokens.reduce((acc, token) => {
+                      return acc + Number(token.amount);
+                    }, 0),
+                    6
+                  )}{" "}
+                  {sourceTokenSymbol}
+                </p>
+              </div>
+              <div className="flex flex-col justify-center items-center gap-1">
+                <img
+                  src={destinationChain.chainImage}
+                  alt={destinationChain.chainName}
+                  className="sm:size-9 size-8 rounded-full"
+                />
+                <p className="text-sm font-medium">
+                  {capitalizeFirstLetter(destinationChain.chainName)}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Info section */}
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row justify-between gap-10 sm:gap-0 items-start">
             {/* Transaction info */}
             <div className="flex flex-col gap-3 w-full">
               <h1 className="text-xl font-bold mb-1">Transaction Info</h1>
 
-              {/* Type */}
-              <div className="flex flex-col gap-0.5">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Type
-                </label>
-                <p className="text-[17px] font-bold">
-                  {intent.intentExecutionType}
-                </p>
-              </div>
-
-              {/* Status */}
-              <div className="flex flex-col gap-0.5 w-fit">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Status
-                </label>
-                <div
-                  className={`flex w-auto justify-center items-center gap-2 rounded-full border px-2.5 py-0.5 ${
-                    intent.transactionHash !== "undefined"
-                      ? "bg-success/80 border-success/10"
-                      : "bg-destructive/80 border-destructive/10"
-                  }`}
-                >
-                  <p className="text-sm text-white font-semibold">
-                    {intent.transactionHash === "undefined"
-                      ? "Failed"
-                      : "Completed"}
+              <div className="flex sm:flex-col sm:justify-start justify-between flex-row gap-3 w-full">
+                {/* Type */}
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Type
+                  </label>
+                  <p className="text-[17px] font-bold">
+                    {intent.intentExecutionType}
                   </p>
+                </div>
+
+                {/* Status */}
+                <div className="flex flex-col gap-0.5 sm:w-fit w-[30%]">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Status
+                  </label>
+                  <div
+                    className={`flex w-auto justify-center items-center gap-2 rounded-full border px-2.5 py-0.5 ${
+                      intent.transactionHash !== "undefined"
+                        ? "bg-success/80 border-success/10"
+                        : "bg-destructive/80 border-destructive/10"
+                    }`}
+                  >
+                    <p className="text-sm text-white font-semibold">
+                      {intent.transactionHash === "undefined"
+                        ? "Failed"
+                        : "Completed"}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Date and time */}
-              <div className="flex flex-col gap-0.5">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Date & time
-                </label>
-                <p className="text-[17px] font-bold">
-                  {date} at {time}
-                </p>
-              </div>
+              <div className="flex sm:flex-col sm:justify-start justify-between flex-row gap-3 w-full">
+                {/* Date and time */}
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Date & time
+                  </label>
+                  <p className="text-[17px] font-bold">
+                    {date} at {time}
+                  </p>
+                </div>
 
-              {/* Network fee */}
-              <div className="flex flex-col gap-0.5">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Network fee
-                </label>
-                <p className="text-[17px] font-bold">
-                  {getHumanReadableAmount(networkFee, 6)} {sourceTokenSymbol}
-                </p>
+                {/* Network fee */}
+                <div className="flex flex-col gap-0.5 sm:w-fit w-[30%]">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Network fee
+                  </label>
+                  <p className="text-[17px] font-bold">
+                    {getHumanReadableAmount(networkFee, 6)} {sourceTokenSymbol}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -459,12 +465,12 @@ export const SingleIntentCard = ({
             </div>
           </div>
         </div>
-        <DialogFooter className="flex flex-row items-center justify-between sm:justify-between py-3 sm:py-4">
+        <DialogFooter className="sm:relative bg-white flex flex-row absolute bottom-0 left-0 right-0 mx-3 sm:mx-0 items-center justify-between sm:justify-between py-3 sm:pt-4 sm:pb-0 border-t border-border">
           <CustomButton
             onClick={() => {
               window.open(explorerUrl, "_blank");
             }}
-            className="w-auto"
+            className="w-auto relative bottom-0"
             buttonClassName="h-[44px] px-3.5 w-auto border-secondary"
             outline
             whileHover={false}
@@ -481,7 +487,7 @@ export const SingleIntentCard = ({
               setIsOpen(false);
             }}
             text="Close"
-            className="w-auto"
+            className="w-auto relative bottom-0"
             buttonClassName="h-[44px] w-auto text-base"
           />
         </DialogFooter>

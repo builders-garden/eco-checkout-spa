@@ -4,18 +4,18 @@ import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
 
 interface GetIntentsParams {
-  creator: string;
+  intentGroupID: string;
 }
 
 export const GET = async (
   _: NextRequest,
   { params }: { params: Promise<GetIntentsParams> }
 ) => {
-  // Get the creator from the params
-  const { creator } = await params;
+  // Get the intentGroupID from the params
+  const { intentGroupID } = await params;
 
   // Validate the parameters
-  if (!creator) {
+  if (!intentGroupID) {
     return NextResponse.json(
       { error: "Missing required parameters" },
       { status: 400 }
@@ -29,7 +29,7 @@ export const GET = async (
   try {
     const response = await ky
       .get<GetIntentResponse>(
-        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&creator=${creator}&sortOrder=desc`
+        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&intentGroupID=${intentGroupID}`
       )
       .json();
 
@@ -39,8 +39,6 @@ export const GET = async (
       acc[intent.intentGroupID].push(intent);
       return acc;
     }, {} as Record<string, IntentData[]>);
-
-    console.log("groupedIntents", JSON.stringify(groupedIntents, null, 2));
 
     return NextResponse.json(groupedIntents, { status: 200 });
   } catch (error) {

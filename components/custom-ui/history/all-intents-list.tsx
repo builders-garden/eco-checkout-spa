@@ -51,19 +51,19 @@ export const AllIntentsList = ({
       className="w-full max-w-3xl mx-auto p-6 bg-background"
     >
       {/* Header */}
-      <div className="relative text-center mb-8 w-full">
+      <div className="relative text-center sm:mb-8 mb-6 w-full">
         <motion.button
           whileHover={{ translateX: [0, -10, 0] }}
           whileTap={{ scale: 0.96 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="absolute left-2 h-full flex justify-center items-center cursor-pointer"
+          className="absolute left-0 top-1 sm:h-full h-fit flex justify-center items-center cursor-pointer"
           onClick={() => {
             setIntentGroupID(null);
           }}
         >
           <ArrowLeft className="size-8 text-muted-foreground" />
         </motion.button>
-        <h1 className="text-[27px] font-bold text-foreground mb-2">
+        <h1 className="text-[27px] font-bold text-foreground sm:mb-2">
           Payment Details
         </h1>
         <p className="text-secondary text-lg">
@@ -80,7 +80,7 @@ export const AllIntentsList = ({
           >
             {paginatedIntents.map((intent, index) => (
               <SingleIntentCard
-                key={intent.intentGroupID}
+                key={intent.hash}
                 intent={intent}
                 index={index}
                 paginationState={paginationState}

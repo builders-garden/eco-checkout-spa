@@ -1,10 +1,15 @@
 "use client";
 
 import { useIsMobile } from "@/components/providers/is-mobile-provider";
+import { cn } from "@/lib/shadcn/utils";
 import { motion } from "framer-motion";
 import { Wallet } from "lucide-react";
 
-export const ConnectWalletInfo = () => {
+interface ConnectWalletInfoProps {
+  className?: string;
+}
+
+export const ConnectWalletInfo = ({ className }: ConnectWalletInfoProps) => {
   const { isMobile } = useIsMobile();
 
   return (
@@ -13,7 +18,10 @@ export const ConnectWalletInfo = () => {
       animate={{ opacity: 1, height: isMobile ? "auto" : "fit-content" }}
       exit={{ opacity: 0, height: isMobile ? "auto" : 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col justify-center w-full items-center text-center gap-3.5 mt-7 sm:-mt-1"
+      className={cn(
+        "flex flex-col justify-center w-full items-center text-center gap-3.5 mt-7 sm:-mt-1",
+        className
+      )}
     >
       <div className="flex p-3.5 justify-center items-center bg-secondary-foreground rounded-full">
         <Wallet className="size-[27px]" />

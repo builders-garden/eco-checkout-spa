@@ -1,0 +1,51 @@
+import { GetIntentResponse, IntentData } from "@/lib/relayoor/types";
+import { env } from "@/lib/zod";
+import ky from "ky";
+import { NextRequest, NextResponse } from "next/server";
+
+interface GetIntentsParams {
+  creator: string;
+}
+
+export const GET = async (
+  _: NextRequest,
+  { params }: { params: Promise<GetIntentsParams> }
+) => {
+  // Get the creator from the params
+  const { creator } = await params;
+
+  // Validate the parameters
+  if (!creator) {
+    return NextResponse.json(
+      { error: "Missing required parameters" },
+      { status: 400 }
+    );
+  }
+
+  // Get the dAppID from the environment variables
+  const dAppID = env.NEXT_PUBLIC_ECO_DAPP_ID;
+
+  // Get the specific intent from the API
+  try {
+    const response = await ky
+      .get<GetIntentResponse>(
+        `${env.NEXT_PUBLIC_QUOTES_BASE_URL}/api/v1/intents?dAppID=${dAppID}&creator=${creator}&sortOrder=desc&pageSize=100`
+      )
+      .json();
+
+    // Group the intents by intentGroupID
+    const groupedIntents = response.data.reduce((acc, intent) => {
+      acc[intent.intentGroupID] = acc[intent.intentGroupID] || [];
+      acc[intent.intentGroupID].push(intent);
+      return acc;
+    }, {} as Record<string, IntentData[]>);
+
+    return NextResponse.json(groupedIntents, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to get intent" },
+      { status: 500 }
+    );
+  }
+};

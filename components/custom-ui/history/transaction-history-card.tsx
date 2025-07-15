@@ -80,22 +80,10 @@ export const TransactionHistoryCard = ({
   }, [paymentTransactions]);
 
   // Calculate if the transaction is completed or partially completed
-  const [isCompleted, isPartiallyCompleted] = useMemo(() => {
-    let completed = false;
-    let partiallyCompleted = false;
-
-    for (let i = 0; i < paymentTransactions.length; i++) {
-      const transaction = paymentTransactions[i];
-      if (transaction.transactionHash !== "undefined") {
-        if (i === paymentTransactions.length - 1) {
-          completed = true;
-        } else {
-          partiallyCompleted = true;
-        }
-      }
-    }
-
-    return [completed, partiallyCompleted];
+  const isCompleted = useMemo(() => {
+    return paymentTransactions.every(
+      (transaction) => transaction.transactionHash !== "undefined"
+    );
   }, [paymentTransactions]);
 
   // Calculate the recipient address
@@ -119,48 +107,46 @@ export const TransactionHistoryCard = ({
       onClick={() => {
         setIntentGroupID(intentGroupID);
       }}
-      className="flex items-center justify-between w-full p-4 border border-border sm:rounded-[8px] bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+      className="flex items-center justify-between w-full p-4 border border-border rounded-[8px] bg-card hover:bg-accent/50 transition-colors cursor-pointer"
     >
       {/* Left side - Amount and destination */}
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            {payedAmountRaw && (
-              <span className="text-xl font-bold text-foreground">
-                {getHumanReadableAmount(payedAmountRaw, 6)}{" "}
-                {destinationTokenSymbol}
-              </span>
-            )}
-            {recipientAddress && (
-              <span className="">
-                to {truncateAddress(recipientAddress, 4)}
-              </span>
-            )}
-          </div>
-          {destinationChainName && (
-            <div className="flex items-center gap-1 mt-1">
-              <img
-                src={ChainImages[destinationChainName]}
-                alt={destinationChainName}
-                className="w-4 h-4"
-              />
-              <span className="text-sm text-muted-foreground">
-                {capitalizeFirstLetter(destinationChainName)}
-              </span>
-            </div>
+      <div className="flex flex-col gap-1">
+        <div className="flex sm:flex-row flex-col items-center gap-2">
+          {payedAmountRaw && (
+            <span className="sm:text-xl text-lg leading-tight font-bold text-foreground text-left">
+              {getHumanReadableAmount(payedAmountRaw, 6)}{" "}
+              {destinationTokenSymbol}
+            </span>
+          )}
+          {recipientAddress && (
+            <span className="hidden sm:block">
+              to {truncateAddress(recipientAddress, 4)}
+            </span>
           )}
         </div>
+        {destinationChainName && (
+          <div className="flex items-center gap-1 sm:h-auto h-[26px]">
+            <img
+              src={ChainImages[destinationChainName]}
+              alt={destinationChainName}
+              className="size-5"
+            />
+            <span className="text-sm text-muted-foreground">
+              {capitalizeFirstLetter(destinationChainName)}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Right side - Date, hash, and status */}
-      <div className="flex justify-center items-center gap-6">
+      <div className="flex sm:flex-row flex-col justify-center sm:items-center items-end sm:gap-6 gap-1">
         <div className="flex flex-col justify-center items-start gap-1">
           {date && time && (
             <div className="text-foreground font-medium">
               {date} • {time}
             </div>
           )}
-          <div className="flex items-center justify-end">
+          <div className="sm:flex hidden items-center justify-end">
             <p className="text-sm text-muted-foreground">
               TODO: Add destination hash
             </p>
@@ -171,17 +157,11 @@ export const TransactionHistoryCard = ({
           className={`flex justify-center items-center gap-2 rounded-full border px-2.5 py-0.5 ${
             isCompleted
               ? "bg-success/80 border-success/10"
-              : isPartiallyCompleted
-              ? "bg-warning/80 border-warning/10"
               : "bg-destructive/80 border-destructive/10"
           }`}
         >
           <p className="text-sm text-white font-semibold">
-            {isPartiallyCompleted
-              ? "Partially Completed"
-              : isCompleted
-              ? "Completed"
-              : "Failed"}
+            {isCompleted ? "Completed" : "Failed"}
           </p>
         </div>
       </div>

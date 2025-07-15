@@ -9,14 +9,17 @@ import ky from "ky";
 import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 import { IntentData } from "@/lib/relayoor/types";
 import { useEffect, useMemo, useState } from "react";
-import { ConnectWalletInfo } from "@/components/custom-ui/payment/checkout-container/connect-wallet-info";
-import { CustomButton } from "@/components/custom-ui/customButton";
 import { Loader } from "@/components/custom-ui/loader";
 import { AllIntentsList } from "@/components/custom-ui/history/all-intents-list";
 import { PaginationState } from "@/lib/types";
+import { Wallet } from "lucide-react";
 
 export default function Home() {
   const [isConnecting, setIsConnecting] = useState(true);
+  const [isFetchingIntent, setIsFetchingIntent] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<
+    IntentData[] | undefined
+  >();
 
   // Pagination State (must be declared in the parent to avoid
   // resetting the page when the user goes back)
@@ -38,21 +41,56 @@ export default function Home() {
     isLoading: isLoadingHistory,
     error: errorHistory,
   } = useQuery({
-    queryKey: ["history", intentGroupID],
+    queryKey: ["history"],
     queryFn: () => {
       return ky
         .get<Record<string, IntentData[]>>(
-          `/api/intents/get-intents/${address}`
+          `/api/intents/get-user-intents/${address}`
         )
         .json();
     },
     enabled: !!address,
   });
 
-  // Get the payment if the intentGroupID is set
-  const selectedPayment = useMemo(() => {
-    return intentGroupID ? history?.[intentGroupID] : undefined;
-  }, [history, intentGroupID]);
+  // Get the payment if the intentGroupID is set from the history or from
+  // an API call toward the backend
+  useEffect(() => {
+    const fetchSpecificIntent = async () => {
+      if (!intentGroupID || isLoadingHistory || isConnecting) {
+        setSelectedPayment(undefined);
+        return;
+      }
+
+      if (history && Object.keys(history).length > 0) {
+        const selectedFromHistory = intentGroupID
+          ? history?.[intentGroupID]
+          : undefined;
+
+        if (selectedFromHistory) {
+          setSelectedPayment(selectedFromHistory);
+          return;
+        }
+      }
+
+      // If the intentGroupID is not in the history, fetch it from the backend
+      setIsFetchingIntent(true);
+      try {
+        const response = await ky
+          .get<Record<string, IntentData[]>>(
+            `/api/intents/get-external-intent/${intentGroupID}`
+          )
+          .json();
+
+        setSelectedPayment(response?.[intentGroupID]);
+      } catch (error) {
+        setSelectedPayment(undefined);
+      } finally {
+        setIsFetchingIntent(false);
+      }
+    };
+
+    fetchSpecificIntent();
+  }, [isConnecting, isLoadingHistory, intentGroupID]);
 
   // Get the length of the history
   const historyLength = useMemo(() => {
@@ -70,22 +108,50 @@ export default function Home() {
   return (
     <main className="flex relative flex-col items-center justify-start sm:justify-center min-h-screen h-auto sm:pt-6 sm:pb-14 overflow-y-auto [background-image:radial-gradient(#00000009_1px,transparent_1px)] [background-size:16px_16px]">
       <AnimatePresence mode="wait">
-        {!address && !isConnecting ? (
+        {isLoadingHistory || isConnecting || isFetchingIntent ? (
+          <Loader key="loader" />
+        ) : selectedPayment ? (
+          <AllIntentsList
+            key="all-intents-list"
+            setIntentGroupID={setIntentGroupID}
+            selectedPayment={selectedPayment}
+          />
+        ) : !address && !isConnecting ? (
           <motion.div
             key="connect-wallet"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="flex flex-col items-center justify-center gap-4"
+            className="flex flex-col items-center justify-center gap-4 sm:min-h-auto min-h-screen"
           >
-            <ConnectWalletInfo />
-            <CustomButton
+            <div className="flex flex-col justify-center w-full items-center text-center gap-3.5 mt-7 sm:-mt-1">
+              <div className="flex p-3.5 justify-center items-center bg-secondary-foreground rounded-full">
+                <Wallet className="size-[27px]" />
+              </div>
+              <div className="flex flex-col justify-center items-center gap-1">
+                <h1 className="text-[18px] font-semibold">
+                  Connect your wallet
+                </h1>
+                <p className="text-secondary text-[14px]">
+                  Connect your wallet to see your payment history
+                </p>
+              </div>
+            </div>
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 open();
               }}
-              text="Connect Wallet"
-            />
+              className="flex justify-center items-center w-full bg-primary rounded-[8px] p-4 h-[60px] text-xl font-bold cursor-pointer text-white"
+            >
+              Connect Wallet
+            </motion.button>
           </motion.div>
         ) : errorHistory ? (
           <motion.div
@@ -101,14 +167,6 @@ export default function Home() {
               <b>{errorHistory?.message}</b>
             </p>
           </motion.div>
-        ) : isLoadingHistory || isConnecting ? (
-          <Loader key="loader" />
-        ) : history && intentGroupID && selectedPayment ? (
-          <AllIntentsList
-            key="all-intents-list"
-            setIntentGroupID={setIntentGroupID}
-            selectedPayment={selectedPayment}
-          />
         ) : !history || historyLength === 0 ? (
           <motion.div
             key="no-transactions"

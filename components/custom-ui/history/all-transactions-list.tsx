@@ -40,6 +40,20 @@ export const AllTransactionsList = ({
     return Object.fromEntries(entries.slice(start, end));
   }, [history, paginationState, itemsPerPage]);
 
+  // Helper to generate pagination items with ellipsis
+  const getPaginationItems = (current: number, total: number) => {
+    if (total <= 6) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 3) {
+      return [1, 2, 3, "...", total];
+    }
+    if (current >= total - 2) {
+      return [1, "...", total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -49,8 +63,8 @@ export const AllTransactionsList = ({
       className="w-full max-w-3xl mx-auto p-6 bg-background"
     >
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-[27px] font-bold text-foreground mb-2">
+      <div className="text-center sm:mb-8 mb-6">
+        <h1 className="text-[27px] font-bold text-foreground sm:mb-2">
           Payment history
         </h1>
         <p className="text-secondary text-lg">Your recent payment activity</p>
@@ -80,7 +94,7 @@ export const AllTransactionsList = ({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mt-6 sm:mt-8 sm:mb-0 mb-8">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -98,22 +112,28 @@ export const AllTransactionsList = ({
                   }
                 />
               </PaginationItem>
-              {[...Array(totalPages)].map((_, i) => (
-                <PaginationItem key={i + 1}>
-                  <PaginationLink
-                    isActive={paginationState.currentPage === i + 1}
-                    onClick={() =>
-                      setPaginationState((prev) => ({
-                        previousPage: prev.currentPage,
-                        currentPage: i + 1,
-                      }))
-                    }
-                    className="cursor-pointer"
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
+              {getPaginationItems(paginationState.currentPage, totalPages).map(
+                (item, i) => (
+                  <PaginationItem key={i}>
+                    {item === "..." ? (
+                      <span className="px-2">...</span>
+                    ) : (
+                      <PaginationLink
+                        isActive={paginationState.currentPage === item}
+                        onClick={() =>
+                          setPaginationState((prev) => ({
+                            previousPage: prev.currentPage,
+                            currentPage: item as number,
+                          }))
+                        }
+                        className="cursor-pointer"
+                      >
+                        {item}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                )
+              )}
               <PaginationItem>
                 <PaginationNext
                   onClick={() =>

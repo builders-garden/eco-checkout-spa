@@ -144,9 +144,12 @@ export const TransactionsProvider = ({ children }: { children: ReactNode }) => {
                             chainId: number;
                             transactionHash: string;
                           }[];
-                        }>(`/api/intents/get-intents/${address}/${requestID}`, {
-                          timeout: false,
-                        })
+                        }>(
+                          `/api/intents/get-user-intents/${address}/${requestID}`,
+                          {
+                            timeout: false,
+                          }
+                        )
                         .json();
 
                       hashArray = response.hashArray;
