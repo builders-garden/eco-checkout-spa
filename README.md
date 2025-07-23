@@ -51,16 +51,24 @@ The application is fully open-source and can be customized to suit your needs. W
 
 Create a `.env.local` file with the following variables:
 
-| Variable                        | Description                                 | Example                            |
-| ------------------------------- | ------------------------------------------- | ---------------------------------- |
-| `NEXT_PUBLIC_REOWN_APP_ID`      | Your Reown App ID                           | `your_reown_app_id`                |
-| `NEXT_PUBLIC_RELAYOOR_BASE_URL` | Relayoor API base URL                       | `https://relayoor.beam.eco/api/v1` |
-| `NEXT_PUBLIC_APP_BASE_URL`      | Your app's base URL                         | `http://localhost:3000`            |
-| `NEXT_PUBLIC_ALCHEMY_API_KEY`   | Optional: Alchemy API key for RPC endpoints | `your_alchemy_api_key`             |
+| Variable                        | Description                                             | Example                                     |
+| ------------------------------ | ------------------------------------------------------- | -------------------------------------------- |
+| `NEXT_PUBLIC_REOWN_APP_ID`     | Your Reown App ID                                       | `your_reown_app_id`                          |
+| `NEXT_PUBLIC_APP_BASE_URL`     | Your app's base URL                                     | `http://localhost:3000`                      |
+| `NEXT_PUBLIC_ALCHEMY_API_KEY`  | Optional: Alchemy API key for RPC endpoints             | `your_alchemy_api_key`                       |
+| `NEXT_PUBLIC_ECO_DAPP_ID`      | Your Eco DApp ID used for platform integration          | `your_eco_dapp_id`                           |
+| `NEXT_PUBLIC_RELAYOOR_BASE_URL`| Relayoor API base URL                                   | `your_eco_realyoor_url`                      |
+| `NEXT_PUBLIC_QUOTES_BASE_URL`  | Base URL for the Quotes API                             | `your_eco_quotes_url`                        |
+| `UPSTASH_REDIS_REST_URL`       | Upstash Redis REST API endpoint                         | `https://your-upstash-url.upstash.io`        |
+| `UPSTASH_REDIS_REST_TOKEN`     | Authentication token for accessing Upstash Redis        | `your_upstash_redis_token`                   |
+
 
 You can get a Reown App ID from [https://cloud.reown.com/sign-in](https://cloud.reown.com/sign-in).
 
-> Note: The `NEXT_PUBLIC_ALCHEMY_API_KEY` is optional. If not set, the application will use public RPC endpoints by default. Setting this variable will enable the use of Alchemy's RPC endpoints for better performance and reliability.
+> **Note:**  
+> The `NEXT_PUBLIC_ALCHEMY_API_KEY` is optional. If not set, the application will use public RPC endpoints by default. Setting this variable will enable the use of Alchemy's RPC endpoints for better performance and reliability.  
+>  
+> The `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are used to generate a short, shareable version of the full URL of the app. You can get these at [upstash.com](https://upstash.com/).
 
 ### Installation Steps
 
