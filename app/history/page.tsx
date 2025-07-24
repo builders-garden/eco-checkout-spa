@@ -162,8 +162,8 @@ export default function Home() {
             transition={{ duration: 0.3 }}
             className="flex flex-col items-center text-xl text-destructive justify-center gap-4"
           >
-            <p>
-              Error while fetching history: <br />
+            <p className="text-center">
+              Error while fetching history <br />
               <b>{errorHistory?.message}</b>
             </p>
           </motion.div>

@@ -14,7 +14,6 @@ import { motion } from "framer-motion";
 import { useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { ChainImages } from "@/lib/enums";
-import { ExternalLink } from "lucide-react";
 
 interface TransactionHistoryCardProps {
   intentGroupID: string;
