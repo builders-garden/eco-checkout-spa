@@ -117,7 +117,7 @@ export const PaymentSummary = () => {
             transition={{ delay: 0.2 }}
             className="text-lg font-semibold"
           >
-            ${amountDue!.toFixed(2)}
+            ${amountDue?.toFixed(2)}
           </motion.p>
         </div>
       </div>

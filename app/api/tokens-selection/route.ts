@@ -4,6 +4,7 @@ import { chainStringToChainId } from "@/lib/utils";
 import { env } from "@/lib/zod";
 import ky from "ky";
 import { NextRequest, NextResponse } from "next/server";
+import { trim } from "viem";
 
 export const POST = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
@@ -48,6 +49,7 @@ export const POST = async (req: NextRequest) => {
   const destinationChainId = chainStringToChainId(destinationNetwork);
 
   try {
+    console.log("requestBody", requestBody);
     const response = await ky
       .post<SendResponse>(
         `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/api/v1/buildersGarden/send`,
@@ -70,7 +72,7 @@ export const POST = async (req: NextRequest) => {
       for (const balance of userBalances) {
         if (
           balance.tokenContractAddress.toLowerCase() ===
-          token.token.toLowerCase()
+          trim(token.tokenKey as `0x${string}`).toLowerCase()
         ) {
           if (token.chainID === destinationChainId) {
             sameChainToken = balance;

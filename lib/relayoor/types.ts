@@ -153,7 +153,7 @@ export interface Permit3Data {
 export interface AllowanceOrTransfer {
   chainID: number;
   modeOrExpiration: number;
-  token: string;
+  tokenKey: string;
   account: string;
   amountDelta: string;
 }

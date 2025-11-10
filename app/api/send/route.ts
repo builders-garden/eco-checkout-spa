@@ -41,6 +41,7 @@ export const POST = async (req: NextRequest) => {
   };
 
   try {
+    console.log("requestBody", requestBody);
     const response = await ky
       .post<SendResponse>(
         `${env.NEXT_PUBLIC_RELAYOOR_BASE_URL}/api/v1/buildersGarden/send`,
